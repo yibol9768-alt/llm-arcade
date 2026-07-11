@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Mario Bros - GLM 5.2</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="title-screen">
+            <div class="title-logo">
+                <span class="title-super">SUPER</span>
+                <span class="title-mario">MARIO</span>
+                <span class="title-bros">BROS.</span>
+            </div>
+            <div class="title-subtitle">GLM 5.2 Edition</div>
+            <div class="title-instructions">
+                <p class="blink">PRESS ENTER TO START</p>
+            </div>
+            <div class="title-controls">
+                <p>← → : Move &nbsp;&nbsp; Z/Shift : Run &nbsp;&nbsp; X/Space : Jump</p>
+                <p>M : Mute / Unmute &nbsp;&nbsp; P : Pause</p>
+            </div>
+        </div>
+        <div id="game-screen" style="display:none;">
+            <canvas id="game-canvas" width="256" height="240"></canvas>
+            <div id="mute-indicator"></div>
+        </div>
+        <div id="game-over-screen" style="display:none;">
+            <div class="game-over-text">GAME OVER</div>
+            <p class="blink">PRESS ENTER TO RETRY</p>
+        </div>
+        <div id="win-screen" style="display:none;">
+            <div class="win-text">THANK YOU MARIO!</div>
+            <div class="win-score">Score: <span id="final-score">0</span></div>
+            <p class="blink">PRESS ENTER TO PLAY AGAIN</p>
+        </div>
+    </div>
+
+    <script src="js/constants.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

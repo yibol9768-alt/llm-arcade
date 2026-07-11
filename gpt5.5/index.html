@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pipebound Dash</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="stage" aria-label="Pipebound Dash game">
+        <canvas id="game" width="960" height="540"></canvas>
+
+        <div class="hud" aria-live="polite">
+          <div>
+            <span class="hud-label">SCORE</span>
+            <strong id="score">000000</strong>
+          </div>
+          <div>
+            <span class="hud-label">COINS</span>
+            <strong id="coins">00</strong>
+          </div>
+          <div>
+            <span class="hud-label">LIVES</span>
+            <strong id="lives">03</strong>
+          </div>
+          <div>
+            <span class="hud-label">TIME</span>
+            <strong id="time">300</strong>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="sound" type="button" aria-pressed="true">Sound On</button>
+          <button id="restart" type="button">Restart</button>
+        </div>
+
+        <div id="curtain" class="curtain">
+          <div class="title-card">
+            <p class="kicker">WORLD 1-1</p>
+            <h1>PIPEBOUND DASH</h1>
+            <button id="start" type="button">Start</button>
+          </div>
+        </div>
+
+        <div class="touch" aria-hidden="true">
+          <div class="touch-left">
+            <button data-touch="left" type="button">L</button>
+            <button data-touch="right" type="button">R</button>
+          </div>
+          <div class="touch-right">
+            <button data-touch="run" type="button">B</button>
+            <button data-touch="jump" type="button">A</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>

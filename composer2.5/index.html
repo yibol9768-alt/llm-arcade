@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Mario Bros. — Composer 2.5</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="cabinet">
+    <div class="cabinet-top">NINTENDO ENTERTAINMENT SYSTEM</div>
+
+    <div class="screen-bezel">
+      <div class="hud-bar">
+        <div class="stat"><span class="stat-label">MARIO</span><span id="hud-score">000000</span></div>
+        <div class="stat"><span class="stat-label">COINS</span><span id="hud-coins">×00</span></div>
+        <div class="stat"><span class="stat-label">WORLD</span><span>1-1</span></div>
+        <div class="stat"><span class="stat-label">TIME</span><span id="hud-time">400</span></div>
+        <div class="stat"><span class="stat-label">LIVES</span><span id="hud-lives">×03</span></div>
+      </div>
+
+      <div class="viewport">
+        <canvas id="screen" width="800" height="480"></canvas>
+        <div id="menu" class="menu-layer">
+          <p class="logo">SUPER<br />MARIO BROS.</p>
+          <p class="world-tag">WORLD 1-1</p>
+          <p class="press-start blink">PRESS ENTER TO START</p>
+          <p class="help-text">
+            ← → 移动 &nbsp;·&nbsp; Z / SPACE 跳跃 &nbsp;·&nbsp; X 奔跑<br />
+            M 静音切换 &nbsp;·&nbsp; P 暂停 &nbsp;·&nbsp; R 重开
+          </p>
+        </div>
+        <button id="sound-toggle" type="button" class="sound-btn" aria-label="Toggle sound">
+          <svg class="icon-on" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.74 2.5-2.26 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+          <svg class="icon-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+          </svg>
+          <span id="sound-label">ON</span>
+        </button>
+      </div>
+      <div class="scanlines" aria-hidden="true"></div>
+    </div>
+
+    <div class="cabinet-bottom">
+      <span class="power-led"></span>
+      <span class="brand">© 1985 NINTENDO — FAN TRIBUTE</span>
+    </div>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
