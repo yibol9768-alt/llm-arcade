@@ -187,15 +187,15 @@ await test("sampling: slot assignment is randomized", () => {
   assert.equal(seen.size, 2, "both orders should appear over 200 draws");
 });
 
-await test("sampling: all 36 pairs reachable for 9 entrants", () => {
-  const dirs = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"];
+await test("sampling: all 105 pairs reachable for 15 entrants", () => {
+  const dirs = Array.from({ length: 15 }, (_, i) => `p${i + 1}`);
   const counts = new Map();
   const seen = new Set();
   for (let i = 0; i < 5000; i++) {
     const { aDir, bDir } = pickPair(dirs, counts, Math.random);
     seen.add(pairKey(aDir, bDir));
   }
-  assert.equal(seen.size, 36);
+  assert.equal(seen.size, 105);
 });
 
 await test("elo: winner gains, loser drops, tie between equals is neutral", () => {

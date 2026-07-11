@@ -1,21 +1,23 @@
 /* 由 scripts/build_data.mjs 生成,勿手改;重跑顺序见文件头注释与 frontend/README.md */
 window.ARCADE_DATA = {
-  "built_at": "2026-07-11T08:40:59.387Z",
+  "built_at": "2026-07-11T10:32:12.070Z",
   "track": {
     "id": "mario",
     "title_zh": "一句话马里奥",
     "title_en": "One-Prompt Mario",
     "prompt": "帮我生成一个马里奥小游戏",
     "prompt_note": "逐字原文,简单粗暴,由用户 2026-07-10 确认",
-    "date_run": "2026-07-10",
+    "date_run": null,
     "protocol": {
       "mode": "single-prompt",
       "agent_execution": "autonomous",
       "artifact_policy": "original-submissions-frozen; touch controls and evaluation shell are external",
-      "archived": "prompt, entrant identities, runtime families, original artifacts",
-      "not_archived": "exact harness build numbers and full execution logs"
+      "archived": "prompt, verified entrant identity fields, original artifacts",
+      "not_archived": "unverified harness fields, exact harness build numbers and full execution logs",
+      "strict_single_generation": false,
+      "strict_single_generation_note": "DeepSeek V4 Pro 共运行两次;第一次在产物生成前中断,第二次完成"
     },
-    "entrants_note": "厂商、模型与运行环境对照表已确认"
+    "entrants_note": "共 15 份真实成品;未核实的运行环境与运行记录明确标记待确认"
   },
   "score_weights": {
     "loads_ok": 40,
@@ -25,7 +27,7 @@ window.ARCADE_DATA = {
     "has_readme": 10
   },
   "score_formula_zh": "静态检查分 = 可加载 40 + 音效 20 + 触屏支持 15 + 本地存档 15 + README 10(满分 100);仅反映代码静态特征,不代表好玩程度,正式排名以全网盲投 Elo 为准。",
-  "checklist_generated_at": "2026-07-11T08:40:59.356Z",
+  "checklist_generated_at": "2026-07-11T10:31:29.721Z",
   "entrants": [
     {
       "dir": "5.6luna",
@@ -188,6 +190,126 @@ window.ARCADE_DATA = {
       "broken_refs": [],
       "score": 60,
       "shot": "assets/shots/k2.7code.png"
+    },
+    {
+      "dir": "claude-sonnet",
+      "display_name": "Claude Sonnet",
+      "vendor": "Anthropic",
+      "harness": "待确认",
+      "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认",
+      "files": 1,
+      "bytes": 40109,
+      "code_lines": 1230,
+      "single_file": true,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75,
+      "shot": "assets/shots/claude-sonnet.png"
+    },
+    {
+      "dir": "claude-haiku",
+      "display_name": "Claude Haiku",
+      "vendor": "Anthropic",
+      "harness": "待确认",
+      "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认",
+      "files": 1,
+      "bytes": 15648,
+      "code_lines": 481,
+      "single_file": true,
+      "has_audio": false,
+      "has_readme": false,
+      "has_touch": false,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 40,
+      "shot": "assets/shots/claude-haiku.png"
+    },
+    {
+      "dir": "claude-opus",
+      "display_name": "Claude Opus",
+      "vendor": "Anthropic",
+      "harness": "待确认",
+      "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认",
+      "files": 1,
+      "bytes": 42906,
+      "code_lines": 1232,
+      "single_file": true,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75,
+      "shot": "assets/shots/claude-opus.png"
+    },
+    {
+      "dir": "gemini-3.1-pro",
+      "display_name": "Gemini 3.1 Pro",
+      "vendor": "Google",
+      "harness": "待确认",
+      "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认",
+      "files": 2,
+      "bytes": 14825,
+      "code_lines": 479,
+      "single_file": false,
+      "has_audio": false,
+      "has_readme": false,
+      "has_touch": false,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 40,
+      "shot": "assets/shots/gemini-3.1-pro.png"
+    },
+    {
+      "dir": "gpt-5.4-mini",
+      "display_name": "GPT-5.4 Mini",
+      "vendor": "OpenAI",
+      "harness": "待确认",
+      "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认",
+      "files": 1,
+      "bytes": 31627,
+      "code_lines": 1038,
+      "single_file": true,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75,
+      "shot": "assets/shots/gpt-5.4-mini.png"
+    },
+    {
+      "dir": "deepseek-v4-pro",
+      "display_name": "DeepSeek V4 Pro",
+      "vendor": "DeepSeek",
+      "harness": "Claude Code + Claude Code Router",
+      "run_record": {
+        "human_code_edits": 0,
+        "attempts": 2,
+        "strict_single_generation": false,
+        "attempt_1": "在尚未生成产物时被中断",
+        "attempt_2": "使用更明确的文件写入指令后正常完成"
+      },
+      "files": 1,
+      "bytes": 29336,
+      "code_lines": 1010,
+      "single_file": true,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75,
+      "shot": "assets/shots/deepseek-v4-pro.png"
     }
   ]
 };

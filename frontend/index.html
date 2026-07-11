@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LLM Arcade · Agent 可玩作品评测</title>
-<meta name="description" content="同一句提示词，9 个 Agent 各自一次生成可运行作品。在线试玩，匿名盲投，结果进入实时排行榜。">
+<meta name="description" content="同一句提示词，15 个模型与 Agent 运行环境组合交付可运行作品。在线试玩，匿名盲投，结果进入实时排行榜。">
 <meta property="og:title" content="LLM Arcade 大模型街机厅">
-<meta property="og:description" content="同一句提示词，9 个 Agent，一次生成。作品在线试玩，匿名盲投。">
+<meta property="og:description" content="同一句提示词，15 个可玩作品。在线试玩，匿名盲投，运行记录如实披露。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -17,7 +17,7 @@
 
 <div class="home-marquee" aria-label="本站特色">
   <div class="home-marquee-track">
-    <span>ONE PROMPT</span><b>✦</b><span>NINE AGENTS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>NINE AGENTS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span>
+    <span>ONE PROMPT</span><b>✦</b><span>FIFTEEN BUILDS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>FIFTEEN BUILDS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span>
   </div>
 </div>
 
@@ -41,7 +41,7 @@
       <div class="home-hero-copy">
         <div class="home-eyebrow"><span class="live-pulse"></span> SEASON 01 · NOW PLAYING</div>
         <h1 aria-label="LLM Arcade"><span>LLM</span><span class="outline">ARCADE</span></h1>
-        <p class="home-hero-lead">同一句提示词，9 个 Agent，一次生成。</p>
+        <p class="home-hero-lead">同一句提示词，15 个真实可玩作品。</p>
         <p class="home-hero-sub">每个「模型 × 运行环境」都交付一个能直接玩的网页游戏。作品原样展示，不补丁、不返工。</p>
         <div class="home-actions">
           <a class="home-btn home-btn-primary" href="mario/">进入游戏厅 <span>↗</span></a>
@@ -56,12 +56,12 @@
       </div>
 
       <div class="hero-cabinet" aria-label="本期游戏画面预览">
-        <div class="cabinet-topline"><span>PLAYER SELECT</span><span id="cabinet-count">01 / 09</span></div>
+        <div class="cabinet-topline"><span>PLAYER SELECT</span><span id="cabinet-count">01 / 15</span></div>
         <a class="cabinet-screen" href="mario/" aria-label="查看一句话马里奥全部作品">
           <img id="cabinet-main-shot" src="assets/shots/5.6luna.png" alt="5.6luna 生成的游戏首屏">
           <span class="screen-scanlines" aria-hidden="true"></span>
           <span class="cabinet-identity" id="cabinet-identity"><span class="vendor-mark vendor-openai" title="OpenAI"><img data-vendor-logo src="https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg" alt="" referrerpolicy="no-referrer"><span class="vendor-fallback" aria-hidden="true">OA</span></span><span class="identity-copy"><b>OpenAI</b><strong>GPT-5.6 Luna × Codex</strong><small>内部代号 5.6luna</small></span></span>
-          <span class="screen-play">PLAY ALL 09 <b>▶</b></span>
+          <span class="screen-play">PLAY ALL 15 <b>▶</b></span>
         </a>
         <div class="cabinet-strip" id="cabinet-thumbs" aria-label="选择参赛作品">
         </div>
@@ -70,7 +70,7 @@
     </div>
 
     <div class="container home-metrics" aria-label="当前赛季数据">
-      <div><strong class="num" id="stat-entrants">9</strong><span>AGENT 组合</span></div>
+      <div><strong class="num" id="stat-entrants">15</strong><span>模型 × 运行环境组合</span></div>
       <div><strong>1 句话</strong><span>完全相同的 PROMPT</span></div>
       <div><strong>0 人工</strong><span>成品修改</span></div>
       <div><strong>100%</strong><span>作品可在线试玩</span></div>
@@ -134,7 +134,7 @@
     <div class="container">
       <div class="home-section-head">
         <div><span class="home-kicker">NOW PLAYING / TRACK 01</span><h2>一句话马里奥</h2></div>
-        <p>9 个 Agent 收到完全相同的提示词，各自一次生成。全部作品保留原样，可以直接运行。</p>
+        <p>15 份真实成品围绕同一任务交付。作品原样归档，可以直接运行；例外运行记录单独披露。</p>
       </div>
 
       <div class="live-track-feature">
@@ -147,7 +147,7 @@
           <blockquote>“帮我生成一个<br>马里奥小游戏”</blockquote>
           <p>原始 prompt，逐字相同。无人工修图，无后期补丁，bug 也照常展出。</p>
           <ul>
-            <li><span>09</span> 个可玩成品</li>
+            <li><span>15</span> 个可玩成品</li>
             <li><span>01</span> 个公开协议</li>
             <li><span>∞</span> 次社区盲投</li>
           </ul>
@@ -163,9 +163,24 @@
         <div><span class="home-kicker">NEXT TRACKS / ROADMAP</span><h2>后续赛道</h2></div>
         <p>新赛道按下列顺序上线。每项任务都必须容易理解，并且产出可以直接运行或体验。</p>
       </div>
+      <article class="next-track-feature" aria-labelledby="solar-next-title">
+        <div class="next-track-copy">
+          <span class="home-kicker">NEXT / COLLECTING BUILDS</span>
+          <h3 id="solar-next-title">一句话太阳系</h3>
+          <strong>ONE-PROMPT SOLAR SYSTEM</strong>
+          <p>“帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。”</p>
+        </div>
+        <div class="next-track-spec">
+          <span>可交互的 3D 网页</span>
+          <div class="planet-list" aria-label="必须包含的天体">
+            <b>水星</b><b>金星</b><b>地球</b><b>火星</b><b>木星</b><b>土星</b><b>天王星</b><b>海王星</b><b>冥王星</b>
+          </div>
+          <small>正在收集并核验作品。当前不展示试玩、截图、数量、榜单或评分。</small>
+        </div>
+      </article>
       <div class="roadmap-list">
         <article class="roadmap-item is-live"><span class="road-no">01</span><span class="road-icon">🎮</span><div><b>一句话马里奥</b><small>平台游戏 · 直接试玩</small></div><em>LIVE</em></article>
-        <article class="roadmap-item"><span class="road-no">02</span><span class="road-icon">⚽</span><div><b>弹球万花筒</b><small>物理模拟 · 挂机观赏</small></div><em>NEXT</em></article>
+        <article class="roadmap-item"><span class="road-no">02</span><span class="road-icon">🪐</span><div><b>一句话太阳系</b><small>交互 3D · 正在收集作品</small></div><em>NEXT</em></article>
         <article class="roadmap-item"><span class="road-no">03</span><span class="road-icon">🦢</span><div><b>鹈鹕进化论</b><small>视觉迭代 · 逐帧进化</small></div><em>QUEUE</em></article>
         <article class="roadmap-item"><span class="road-no">04</span><span class="road-icon">🐍</span><div><b>贪吃蛇自对弈</b><small>造游戏，也造玩家</small></div><em>QUEUE</em></article>
         <article class="roadmap-item"><span class="road-no">05</span><span class="road-icon">🎹</span><div><b>一句话合成器</b><small>原创声音 · 盲听 A/B</small></div><em>QUEUE</em></article>
@@ -179,7 +194,7 @@
       <details class="audit-drawer">
         <summary>
           <span><b>TRANSPARENCY SIDEBAR</b> 静态检查副榜</span>
-          <small>查看 9 个成品的代码特征与完整评分公式</small>
+          <small>查看 15 个成品的代码特征与完整评分公式</small>
           <i>＋</i>
         </summary>
         <div class="audit-content">
@@ -209,7 +224,7 @@
         <article><span>03</span><div><h3>不修成品</h3><p>目录只读，发现 bug 也不人工补救。</p></div></article>
         <article><span>04</span><div><h3>投完揭晓</h3><p>匿名 A/B，先体验后判断，降低品牌偏见。</p></div></article>
       </div>
-      <div class="method-disclosure"><b>记录范围</b><p>马里奥赛道的原始 prompt、参赛身份、运行环境和原始成品均已公开存档。本轮未单独留存 harness 构建号与完整运行日志，因此不展示无法核验的版本、耗时或迭代次数；后续赛道将在开跑前固化全部运行卡片。</p></div>
+      <div class="method-disclosure"><b>记录范围</b><p>马里奥赛道的原始 prompt、15 份原始成品和已核实身份字段均已公开存档。尚未核实的运行环境、生成时间与运行次数明确标记“待确认”；DeepSeek V4 Pro 的两次运行经过单独披露。后续赛道将在开跑前固化完整运行卡片。</p></div>
     </div>
   </section>
 
@@ -232,7 +247,7 @@
 <footer class="site home-footer">
   <div class="container">
     <div class="footer-wordmark"><span>LLM</span><span>ARCADE</span></div>
-    <div class="footer-meta"><p>一次生成 · 原样展示 · 社区盲评</p><p>本站与任天堂无关，所有游戏均为 AI 生成的同人练习。</p></div>
+    <div class="footer-meta"><p>真实运行 · 原样展示 · 社区盲评</p><p>本站与任天堂无关，所有游戏均为 AI 生成的同人练习。</p></div>
   </div>
 </footer>
 

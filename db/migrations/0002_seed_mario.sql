@@ -1,5 +1,5 @@
 -- 0002_seed_mario.sql
--- Seed the 9 mario-track entrants (dirs match tracks/mario/<dir>/).
+-- Seed the original 9 mario-track entrants (dirs match tracks/mario/<dir>/).
 
 INSERT OR IGNORE INTO participants (track, dir, active) VALUES
   ('mario', '5.6luna', 1),

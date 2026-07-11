@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * take_shots.mjs — 用本机 headless chromium(若存在)给 9 个游戏截首帧图,
+ * take_shots.mjs — 用本机 headless chromium(若存在)给全部游戏截首帧图,
  * 存到 frontend/assets/shots/<dir>.png,作参赛卡片预览区的底图
  * (预览区首选活 iframe,截图用于加载前占位与 iframe 失败退化)。
  *
@@ -23,6 +23,8 @@ const PORT = 8917;
 function findChrome() {
   const candidates = [
     process.env.CHROME_BIN,
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser",
     "/usr/bin/google-chrome",

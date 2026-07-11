@@ -35,5 +35,30 @@ window.ARCADE_ENTRANT_META = {
   "k2.7code": {
     vendor: "Moonshot AI", vendor_mark: "K", vendor_class: "moonshot", vendor_logo: "https://www.kimi.com/favicon.ico",
     model: "Kimi K2.7-Code", harness: "Cursor", verified: true
+  },
+  "claude-sonnet": {
+    vendor: "Anthropic", vendor_mark: "AI", vendor_class: "anthropic", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/anthropic.svg",
+    model: "Claude Sonnet", harness: "待确认", verified: false
+  },
+  "claude-haiku": {
+    vendor: "Anthropic", vendor_mark: "AI", vendor_class: "anthropic", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/anthropic.svg",
+    model: "Claude Haiku", harness: "待确认", verified: false
+  },
+  "claude-opus": {
+    vendor: "Anthropic", vendor_mark: "AI", vendor_class: "anthropic", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/anthropic.svg",
+    model: "Claude Opus", harness: "待确认", verified: false
+  },
+  "gemini-3.1-pro": {
+    vendor: "Google", vendor_mark: "G", vendor_class: "google", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/googlegemini.svg",
+    model: "Gemini 3.1 Pro", harness: "待确认", verified: false
+  },
+  "gpt-5.4-mini": {
+    vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
+    model: "GPT-5.4 Mini", harness: "待确认", verified: false
+  },
+  "deepseek-v4-pro": {
+    vendor: "DeepSeek", vendor_mark: "DS", vendor_class: "deepseek", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/deepseek.svg",
+    model: "DeepSeek V4 Pro", harness: "Claude Code + Claude Code Router", verified: true,
+    run_note: "运行 2 次:首次在产物生成前中断;第二次用更明确的文件写入指令完成。human_code_edits=0,非严格一次生成。"
   }
 };

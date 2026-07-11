@@ -13,14 +13,14 @@
 ```bash
 cd /root/Desktop/llm-arcade
 npm install                 # 装 wrangler(devDependency)
-npm run db:migrate:local    # 对本地 D1(.wrangler/state/)跑两个 migration
+npm run db:migrate:local    # 对本地 D1(.wrangler/state/)依次跑全部 migration
 npm run dev                 # = wrangler pages dev,默认 http://127.0.0.1:8788
 ```
 
 - 本地密钥在根目录 `.dev.vars`(已提供 dev-only 值,**严禁用于生产**;若项目日后 git 化,把 `.dev.vars` 加进 .gitignore)。
 - 本地 D1 数据在 `.wrangler/state/` 下,想重置就删掉该目录再跑 migration,或:
   `npx wrangler d1 execute llm-arcade-votes --local --command "DELETE FROM votes;"`
-- 纯逻辑单测(不需要 wrangler):`npm run smoke`(backend-docs/smoke-test.mjs,15 项断言)。
+- 纯逻辑单测(不需要 wrangler):`npm run smoke`(backend-docs/smoke-test.mjs,17 项断言)。
 - 投票不再设置最短试玩时长。拿到有效 `pair_id` 后,前端只需确认 A、B 都打开过即可提交。
 
 ## 二、生产部署(逐条命令)
@@ -47,6 +47,7 @@ npm run dev                 # = wrangler pages dev,默认 http://127.0.0.1:8788
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0001_init.sql
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0002_seed_mario.sql
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0003_voter_pair_claims.sql
+   npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0004_seed_mario_additions.sql
    # 或一条:npm run db:migrate:remote
    ```
 

@@ -35,7 +35,7 @@ frontend/
     style.css           全站样式(AA 风白底图表风,浅色主题,响应式)
     app.js              全站逻辑(图表 SVG 渲染、活预览、modal、对战、排序表格)
     data.js             生成物:window.ARCADE_DATA(勿手改)
-    shots/*.png         生成物:9 个游戏的首屏截图(卡片预览底图)
+    shots/*.png         生成物:全部游戏的首屏截图(卡片预览底图)
   games/mario/<代号>/   生成物:tracks/mario/ 的逐字节副本(勿手改)
 ```
 
@@ -45,9 +45,9 @@ frontend/
 
 | 顺序 | 脚本 | 作用 | 产物 |
 |---|---|---|---|
-| 1 | `node scripts/inspect_games.mjs` | 静态检查 9 个游戏(文件数/体积/行数/音效/触屏/存档/README/可加载),算静态检查分 | `data/mario_checklist.json` |
+| 1 | `node scripts/inspect_games.mjs` | 静态检查全部游戏(文件数/体积/行数/音效/触屏/存档/README/可加载),算静态检查分 | `data/mario_checklist.json` |
 | 2 | `bash scripts/sync_games.sh` | 先清目标再整目录拷贝游戏 | `frontend/games/mario/` |
-| 3 | `node scripts/take_shots.mjs`(可选) | 用本机 headless chromium 给 9 个游戏截首屏图;找不到浏览器则自动跳过 | `frontend/assets/shots/*.png` |
+| 3 | `node scripts/take_shots.mjs`(可选) | 用本机 headless chromium 给全部游戏截首屏图;找不到浏览器则自动跳过 | `frontend/assets/shots/*.png` |
 | 4 | `node scripts/build_data.mjs` | 合成 `_track.json` + 检查结果 + 截图有无 | `frontend/assets/data.js` |
 
 tracks/ 内容变化后按 1→2→3→4 重跑即可。
@@ -57,8 +57,8 @@ tracks/ 内容变化后按 1→2→3→4 重跑即可。
 可加载 40 + 音效 20 + 触屏支持 15 + 本地存档 15 + README 10,满分 100。
 
 - 可加载 = index.html 存在且其引用的本地 js/css 全部存在;
-- 触屏 = 源码监听 touchstart / ontouch / pointerdown(本批 9 个成品无一用 touchstart
-  字面量,6 个用 Pointer Events 的 pointerdown,同样覆盖触屏,故一并计入);
+- 触屏 = 源码监听 touchstart / ontouch / pointerdown;Pointer Events 的
+  pointerdown 同样覆盖触屏,故一并计入;
 - 该分只反映代码静态特征,不代表好玩程度,页面脚注同文公示。
 
 ## 卡片「活预览」方案(实际采用:截图垫底 + 活 iframe)

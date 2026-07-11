@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * inspect_games.mjs — 静态检查 tracks/mario/ 下 9 个参赛游戏,输出 data/mario_checklist.json
+ * inspect_games.mjs — 静态检查 tracks/mario/ 下全部参赛游戏,输出 data/mario_checklist.json
  *
  * 只读 tracks/,只写 data/。零依赖,node 18+。
  *
@@ -12,8 +12,7 @@
  *   has_audio        源码含 AudioContext / createOscillator
  *   has_readme       目录含 README*
  *   has_touch        源码含 touchstart / ontouch / pointerdown(手机可玩线索;
- *                    本批 9 个成品无一用 touchstart 字面量,6 个用 Pointer Events 的
- *                    pointerdown 监听,后者同样覆盖触屏,故一并计入)
+ *                    Pointer Events 的 pointerdown 监听同样覆盖触屏,故一并计入)
  *   uses_localstorage 源码含 localStorage
  *   loads_ok         index.html 存在且其引用的本地 js/css 相对路径全部存在(可加载静态判据)
  *   broken_refs      缺失的本地引用列表(理想为空)

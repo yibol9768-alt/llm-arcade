@@ -336,6 +336,7 @@
         <span class="index-model">${vendorMarkHTML(m)}<b>${esc(m.model)}</b><small>${esc(m.vendor)} · ${esc(m.harness)}</small></span>
       </button>`;
     }).join("");
+    box.style.setProperty("--entrant-count", String(rows.length));
     $$('[data-index-dir]', box).forEach((button) => button.addEventListener("click", () => {
       const row = rows.find((item) => item.dir === button.dataset.indexDir);
       if (row) openIndexModal(row);
@@ -710,6 +711,7 @@
   function renderEntrants(grid) {
     grid.innerHTML = ranked
       .map((e, i) => {
+        const m = metaFor(e.dir);
         const visual = e.shot
           ? `<img class="shot" src="../${esc(e.shot)}" alt="${esc(e.dir)} 游戏首屏截图" loading="lazy">`
           : `<div class="mono-fallback">${monogramSVG(e.dir)}</div>`;
@@ -721,6 +723,7 @@
           <div class="entrant-body">
             <div class="entrant-identity">${identityHTML(e.dir)}</div>
             <div class="entrant-name"><span class="code">${esc(e.dir)}</span><span class="tag-internal">内部代号</span></div>
+            ${m.run_note ? `<p class="entrant-run-note"><strong>运行记录</strong>${esc(m.run_note)}</p>` : ""}
             <div class="feat-badges">${featBadges(e)}</div>
             <div class="entrant-meta num">
               <span>${e.files} 个文件</span><span>${fmtKB(e.bytes)}</span><span>${e.code_lines} 行</span>

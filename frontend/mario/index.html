@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🎮 一句话马里奥 · 9 个 AI agent 的可玩成品 | LLM Arcade</title>
-<meta name="description" content="同一句 prompt「帮我生成一个马里奥小游戏」,9 个 模型 × harness 组合各自全自动交付一个可玩的马里奥式游戏。在线试玩、对战盲投、静态检查表全公开。">
-<meta property="og:title" content="一句话马里奥 · 9 个 AI agent 的可玩成品 | LLM Arcade">
-<meta property="og:description" content="同一句 prompt,9 个 agent 组合交付 9 个可玩的马里奥式游戏。上手玩,然后盲投。">
+<title>🎮 一句话马里奥 · 15 个 AI 作品在线试玩 | LLM Arcade</title>
+<meta name="description" content="同一句 prompt「帮我生成一个马里奥小游戏」,15 个真实可玩成品在线展示。支持试玩、匿名盲投和公开检查表，未知运行字段明确标记待确认。">
+<meta property="og:title" content="一句话马里奥 · 15 个 AI 作品在线试玩 | LLM Arcade">
+<meta property="og:description" content="同一句 prompt,15 个真实可玩作品。上手玩，然后匿名盲投；例外运行记录如实披露。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -17,7 +17,7 @@
 
 <div class="home-marquee" aria-label="本站特色">
   <div class="home-marquee-track">
-    <span>ONE PROMPT</span><b>✦</b><span>NINE AGENTS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>NINE AGENTS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span>
+    <span>ONE PROMPT</span><b>✦</b><span>FIFTEEN BUILDS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>FIFTEEN BUILDS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span>
   </div>
 </div>
 
@@ -48,9 +48,9 @@
         <span class="q-note">原始 prompt 逐字原文 · 所有参赛者收到完全相同的这一句 · 已确认存档(2026-07-10)</span>
       </blockquote>
       <div class="meta-line num">
-        <span>9 个「模型 × harness」组合参赛</span>
-        <span>成品零人工修改</span>
-        <span>目录只读,bug 也不修</span>
+        <span>15 份真实参赛成品</span>
+        <span>原始作品只读归档</span>
+        <span>未知运行字段标记待确认</span>
       </div>
     </header>
   </div>
@@ -61,7 +61,7 @@
       <div class="section-head">
         <span class="kicker">Entrants</span>
         <h2>参赛作品 · 直接开玩</h2>
-        <p>卡片预览是实时运行的游戏画面(滚动到哪里加载到哪里,同屏最多 3 个)。点「▶ 试玩」全屏上手,键盘直接操作。</p>
+        <p>15 份作品均来自已核验的真实文件。卡片预览按需加载,同屏最多 3 个;点「▶ 试玩」进入完整操作界面。</p>
       </div>
       <div class="entrants-grid" id="entrants"></div>
     </div>
@@ -137,7 +137,7 @@
       </div>
       <div class="footnote">
         <strong>脚注:</strong>静态检查分仅反映代码静态特征,<strong>不代表好玩程度</strong>;正式排名以全网盲投 Elo 为准。评分公式:<span data-formula></span>
-        「可加载」= index.html 存在且其引用的本地 js/css 文件全部存在;「触屏」= 监听 touchstart / pointerdown(后者同样覆盖触屏,本批 6 家用它)。
+        「可加载」= index.html 存在且其引用的本地 js/css 文件全部存在;「触屏」= 监听 touchstart / ontouch / pointerdown(pointerdown 同样覆盖触屏)。
       </div>
     </div>
   </section>
@@ -153,8 +153,8 @@
         <div class="card method-card">
           <h3>本轮执行方式</h3>
           <ul>
-            <li>9 个「模型 × 运行环境」组合使用同一条已存档任务:「帮我生成一个马里奥小游戏」;</li>
-            <li>Agent 在各自的 Codex、Claude Code 或 Cursor 环境中自主规划、编码、运行与迭代;</li>
+            <li>本赛道使用已存档任务:「帮我生成一个马里奥小游戏」,当前收录 15 份真实成品;</li>
+            <li>已核实的模型、厂商和运行环境照实展示;未核实的 harness、生成时间与运行次数标记“待确认”;</li>
             <li>提交后的原始作品被冻结保存,不因评分、试玩反馈或发现 bug 而修改源码;</li>
             <li>网站只在作品外层提供触屏操作、展示框架与盲投系统,不改写游戏本体。</li>
           </ul>
@@ -162,9 +162,10 @@
         <div class="card method-card disclosure">
           <h3>记录与公开范围</h3>
           <ul>
-            <li>原始 prompt、厂商、模型、运行环境和 9 份原始成品现已确认并公开存档;</li>
+            <li>原始 prompt、已核实身份字段和 15 份原始成品均公开存档;</li>
             <li>源码特征、试玩入口、匿名对战和社区投票结果均在站内公开,排名随有效投票更新;</li>
-            <li>本轮未单独留存 harness 的具体构建号与完整运行日志,因此不展示无法核验的版本、耗时或迭代次数;</li>
+            <li>Claude Sonnet、Claude Haiku、Claude Opus、Gemini 3.1 Pro 与 GPT-5.4 Mini 的 harness、生成时间和运行次数尚待确认;</li>
+            <li>DeepSeek V4 Pro 使用 Claude Code + Claude Code Router,human_code_edits=0;共运行两次,首次在产物生成前中断,第二次完成,因此不标记为严格一次生成;</li>
             <li>后续赛道将在开跑前固化 prompt、版本、日期、配置与迭代预算,并随结果一并公开。</li>
           </ul>
         </div>
@@ -185,7 +186,7 @@
   <div class="modal-box">
     <div class="modal-top">
       <div class="modal-title-group">
-        <span class="modal-eyebrow">NOW PLAYING <b id="modal-position">01 / 09</b></span>
+        <span class="modal-eyebrow">NOW PLAYING <b id="modal-position">01 / 15</b></span>
         <div class="modal-title-row">
           <span class="code" id="modal-code"></span>
           <span class="tag-internal">内部代号</span>

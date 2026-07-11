@@ -1,0 +1,23 @@
+{
+  "track": "solar-system",
+  "title_zh": "一句话太阳系",
+  "title_en": "ONE-PROMPT SOLAR SYSTEM",
+  "slug": "solar-system",
+  "prompt": "帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。",
+  "artifact_type": "可交互的 3D 网页",
+  "status": "collecting",
+  "status_label": "NEXT / 正在收集作品",
+  "required_bodies": [
+    "水星",
+    "金星",
+    "地球",
+    "火星",
+    "木星",
+    "土星",
+    "天王星",
+    "海王星",
+    "冥王星"
+  ],
+  "entrants": [],
+  "disclosure": "当前尚无完成并核验的参赛作品;不展示试玩入口、截图、数量、榜单或评分"
+}

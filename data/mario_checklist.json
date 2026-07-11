@@ -1,6 +1,6 @@
 {
   "track": "mario",
-  "generated_at": "2026-07-11T08:40:59.356Z",
+  "generated_at": "2026-07-11T10:31:29.721Z",
   "score_weights": {
     "loads_ok": 40,
     "has_audio": 20,
@@ -53,11 +53,67 @@
       "score": 90
     },
     {
+      "dir": "claude-haiku",
+      "files": 1,
+      "bytes": 15648,
+      "code_lines": 481,
+      "single_file": true,
+      "has_audio": false,
+      "has_readme": false,
+      "has_touch": false,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 40
+    },
+    {
+      "dir": "claude-opus",
+      "files": 1,
+      "bytes": 42906,
+      "code_lines": 1232,
+      "single_file": true,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75
+    },
+    {
+      "dir": "claude-sonnet",
+      "files": 1,
+      "bytes": 40109,
+      "code_lines": 1230,
+      "single_file": true,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75
+    },
+    {
       "dir": "composer2.5",
       "files": 4,
       "bytes": 40546,
       "code_lines": 1433,
       "single_file": false,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75
+    },
+    {
+      "dir": "deepseek-v4-pro",
+      "files": 1,
+      "bytes": 29336,
+      "code_lines": 1010,
+      "single_file": true,
       "has_audio": true,
       "has_readme": false,
       "has_touch": true,
@@ -81,6 +137,20 @@
       "score": 85
     },
     {
+      "dir": "gemini-3.1-pro",
+      "files": 2,
+      "bytes": 14825,
+      "code_lines": 479,
+      "single_file": false,
+      "has_audio": false,
+      "has_readme": false,
+      "has_touch": false,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 40
+    },
+    {
       "dir": "glm5.2",
       "files": 10,
       "bytes": 123696,
@@ -93,6 +163,20 @@
       "loads_ok": true,
       "broken_refs": [],
       "score": 60
+    },
+    {
+      "dir": "gpt-5.4-mini",
+      "files": 1,
+      "bytes": 31627,
+      "code_lines": 1038,
+      "single_file": true,
+      "has_audio": true,
+      "has_readme": false,
+      "has_touch": true,
+      "uses_localstorage": false,
+      "loads_ok": true,
+      "broken_refs": [],
+      "score": 75
     },
     {
       "dir": "gpt5.5",
