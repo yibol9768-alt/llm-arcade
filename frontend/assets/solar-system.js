@@ -27,6 +27,44 @@
   };
   const identityHTML = (entrant) => `${logoHTML(entrant)}<span class="identity-copy"><b>${esc(entrant.vendor)}</b><strong>${esc(entrant.display_name)}</strong><small>${esc(entrant.harness)} · ${esc(entrant.machine)}</small></span>`;
 
+  /* 作品源码保持不变。网站外层用统一虚拟画布缩放，避免小 iframe 触发各作品差异巨大的窄屏布局。 */
+  const fittedFrames = new Set();
+  let modalFrameRecord = null;
+  let modalZoom = 1;
+  const virtualSize = (kind) => {
+    if (kind === "modal") return window.innerWidth <= 820 ? { width: 720, height: 1280 } : { width: 1280, height: 800 };
+    if (kind === "preview") return { width: 800, height: 500 };
+    return { width: 960, height: 600 };
+  };
+  const fitSolarFrame = (record) => {
+    if (!record?.iframe?.isConnected || !record?.box?.isConnected) return;
+    const size = virtualSize(record.kind);
+    const zoom = record.kind === "modal" ? modalZoom : 1;
+    const scale = Math.min(record.box.clientWidth / size.width, record.box.clientHeight / size.height) * zoom;
+    const renderedWidth = size.width * scale;
+    const renderedHeight = size.height * scale;
+    record.iframe.style.width = `${size.width}px`;
+    record.iframe.style.height = `${size.height}px`;
+    record.iframe.style.left = `${(record.box.clientWidth - renderedWidth) / 2}px`;
+    record.iframe.style.top = `${(record.box.clientHeight - renderedHeight) / 2}px`;
+    record.iframe.style.transform = `scale(${scale})`;
+    record.iframe.style.transformOrigin = "top left";
+    if (record.kind === "modal") {
+      const label = $("#solar-modal-zoom-value");
+      if (label) label.textContent = `${Math.round(modalZoom * 100)}%`;
+    }
+  };
+  const registerFittedFrame = (iframe, box, kind) => {
+    const record = { iframe, box, kind };
+    fittedFrames.add(record);
+    const fit = () => requestAnimationFrame(() => fitSolarFrame(record));
+    iframe.addEventListener("load", fit, { once: true });
+    fit();
+    return record;
+  };
+  const removeFittedFrame = (record) => { if (record) fittedFrames.delete(record); };
+  window.addEventListener("resize", () => fittedFrames.forEach(fitSolarFrame));
+
   $("#solar-prompt").textContent = plan.prompt_template;
   $("#solar-complete-count").textContent = String(data.entrants.length);
 
@@ -47,13 +85,20 @@
     $("#solar-modal-position").textContent = `${String(modalIndex + 1).padStart(2, "0")} / ${String(data.entrants.length).padStart(2, "0")}`;
     $("#solar-modal-code").textContent = entrant.dir;
     $("#solar-modal-identity").textContent = identity(entrant.dir);
-    $("#solar-modal-frame-wrap").innerHTML = `<iframe sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen; autoplay" title="${esc(entrant.display_name)} 的太阳系作品" src="${esc(gameURL(entrant.dir))}"></iframe>`;
+    const wrap = $("#solar-modal-frame-wrap");
+    removeFittedFrame(modalFrameRecord);
+    wrap.innerHTML = `<iframe sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen; autoplay" title="${esc(entrant.display_name)} 的太阳系作品" src="${esc(gameURL(entrant.dir))}"></iframe>`;
+    modalZoom = 1;
+    modalFrameRecord = registerFittedFrame($("iframe", wrap), wrap, "modal");
     $("#solar-play-modal").classList.add("open");
     document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => fitSolarFrame(modalFrameRecord));
     $("#solar-modal-close").focus();
   };
   const closeModal = () => {
     $("#solar-play-modal").classList.remove("open");
+    removeFittedFrame(modalFrameRecord);
+    modalFrameRecord = null;
     $("#solar-modal-frame-wrap").innerHTML = "";
     document.body.style.overflow = "";
   };
@@ -67,6 +112,7 @@
       <div class="entrant-body"><div class="entrant-identity">${logoHTML(entrant)}<span class="identity-copy"><b>${esc(entrant.vendor)}</b><strong>${esc(entrant.display_name)} × ${esc(entrant.harness)}</strong><small>${esc(entrant.machine)} · 原始作品已核验</small></span></div><div class="entrant-name"><span class="code">${esc(entrant.dir)}</span><span class="tag-internal">内部代号</span></div><div class="feat-badges"><span class="feat on">✓ 可加载</span><span class="feat on">🪐 九大行星</span><span class="feat on">🖱 可交互</span></div><div class="entrant-meta num"><span>${entrant.files} 个文件</span><span>${(entrant.bytes / 1024).toFixed(1)} KB</span><span>${entrant.code_lines} 行</span></div><button class="btn btn-primary play-btn" data-solar-open="${index}">▶ 试玩</button></div>
     </article>`).join("");
     $$('[data-solar-open]').forEach((button) => button.addEventListener("click", () => openModal(Number(button.dataset.solarOpen))));
+    $$('[data-solar-preview]').forEach((preview) => registerFittedFrame($("iframe", preview), preview, "preview"));
     $$('[data-solar-preview]').forEach((preview) => {
       const open = () => openModal(Number(preview.closest("[data-solar-index]").dataset.solarIndex));
       preview.addEventListener("click", open);
@@ -75,6 +121,9 @@
   }
   $("#solar-modal-close").addEventListener("click", closeModal);
   $("#solar-modal-next").addEventListener("click", () => openModal(modalIndex + 1));
+  $("#solar-modal-zoom-out").addEventListener("click", () => { modalZoom = Math.max(.7, modalZoom - .1); fitSolarFrame(modalFrameRecord); });
+  $("#solar-modal-zoom-reset").addEventListener("click", () => { modalZoom = 1; fitSolarFrame(modalFrameRecord); });
+  $("#solar-modal-zoom-in").addEventListener("click", () => { modalZoom = Math.min(1.5, modalZoom + .1); fitSolarFrame(modalFrameRecord); });
   $("#solar-play-modal").addEventListener("click", (event) => { if (event.target === event.currentTarget) closeModal(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && $("#solar-play-modal").classList.contains("open")) closeModal(); });
   $("#copy-link").addEventListener("click", async (event) => {
@@ -82,7 +131,7 @@
     catch { event.currentTarget.textContent = "复制失败"; }
   });
 
-  const battle = { mode: "local", pair: null, pairId: null, played: { a: false, b: false }, voted: false, judged: 0 };
+  const battle = { mode: "local", pair: null, pairId: null, played: { a: false, b: false }, voted: false, judged: 0, frames: { a: null, b: null } };
   const votesKey = "arcade_solar_system_votes_v1";
   const loadVotes = () => { try { return JSON.parse(localStorage.getItem(votesKey) || "[]"); } catch { return []; } };
   const saveVotes = (votes) => localStorage.setItem(votesKey, JSON.stringify(votes));
@@ -242,12 +291,16 @@
   };
   const mountSide = (side) => {
     const other = side === "a" ? "b" : "a";
+    removeFittedFrame(battle.frames[other]);
+    battle.frames[other] = null;
     $(`#solar-battle-${other} iframe`)?.remove();
     $(`#solar-battle-${other}`).classList.remove("is-playing");
     const box = $(`#solar-battle-${side}`);
     const frameBox = $(".battle-frame", box);
+    removeFittedFrame(battle.frames[side]);
     frameBox.querySelector("iframe")?.remove();
     frameBox.insertAdjacentHTML("beforeend", `<iframe sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen" title="匿名作品 ${side.toUpperCase()}" src="${esc(gameURL(battle.pair[side]))}"></iframe>`);
+    battle.frames[side] = registerFittedFrame($("iframe", frameBox), frameBox, "battle");
     box.classList.add("is-playing");
     $(".battle-cover", box).style.display = "none";
     battle.played[side] = true;
@@ -275,7 +328,12 @@
       buildSide("a"); buildSide("b"); updateGate();
     } catch (error) { setGate(error.code === "track_complete" ? "你已判断当前全部不同组合" : `领取配对失败：${error.message}`); }
   };
-  const closeBattle = () => { $("#solar-battle-stage").classList.remove("on"); $$("#solar-battle-stage iframe").forEach((frame) => frame.remove()); document.body.style.overflow = ""; };
+  const closeBattle = () => {
+    ["a", "b"].forEach((side) => { removeFittedFrame(battle.frames[side]); battle.frames[side] = null; });
+    $("#solar-battle-stage").classList.remove("on");
+    $$("#solar-battle-stage iframe").forEach((frame) => frame.remove());
+    document.body.style.overflow = "";
+  };
   const renderLeaderboard = async () => {
     if (battle.mode !== "online") return;
     try {

@@ -320,7 +320,7 @@ td.rank-1 .medal { color: var(--accent); }
   transition: opacity 400ms ease;
 }
 .preview iframe.live.on { opacity: 1; }
-.solar-live-preview iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.solar-live-preview iframe { position: absolute; top: 0; right: auto; bottom: auto; left: 0; border: 0; pointer-events: none; transform-origin: top left; }
 .solar-live-preview .live-dot { display: inline-flex; }
 .preview .mono-fallback {
   position: absolute;
@@ -456,7 +456,7 @@ td.rank-1 .medal { color: var(--accent); }
   border: 0;
   transform-origin: top left;
 }
-body[data-page="solar-system"] .battle-frame iframe { width: 100%; height: 100%; }
+body[data-page="solar-system"] .battle-frame iframe { right: auto; bottom: auto; transform-origin: top left; }
 body[data-page="solar-system"] #solar-battle-badge { border: 2px solid var(--home-ink); border-radius: 0; color: var(--home-ink); background: var(--home-paper); }
 .battle-cover {
   position: absolute;
@@ -1527,6 +1527,9 @@ body[data-page="data"] .data-footer a { color: var(--home-yellow); }
 .modal-title-row strong { display: none; }
 .modal-key-hints { display: none; }
 .modal-actions { display: flex; gap: 10px; margin-left: auto; }
+.solar-modal-zoom { display: flex; gap: 4px; }
+.solar-modal-zoom .btn:first-child, .solar-modal-zoom .btn:last-child { min-width: 38px; padding-inline: 8px !important; font-size: 16px !important; }
+body[data-page="solar-system"] #solar-modal-frame-wrap > iframe { right: auto; bottom: auto; transform-origin: top left; }
 .modal-stage-label, .modal-stage-foot { display: none; }
 
 .handheld-controls { display: none; }
@@ -1654,6 +1657,8 @@ body[data-page="data"] .data-footer a { color: var(--home-yellow); }
   :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-top { position: relative; z-index: 3; padding: 8px 10px; }
   :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-stage { display: flex; }
   :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-row strong, :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-key-hints { display: none; }
+  body[data-page="solar-system"] .modal-stage { padding: 8px; background: var(--home-ink); }
+  body[data-page="solar-system"] #solar-modal-frame-wrap { border: 0; box-shadow: none; }
   :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-frame-wrap.has-handheld {
     display: flex;
     flex-direction: column;
@@ -1847,6 +1852,15 @@ body[data-page="data"] .data-footer a { color: var(--home-yellow); }
 
 @media (max-width: 430px) {
   :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-row .tag-internal { display: none; }
+  body[data-page="solar-system"] .modal-title-group { max-width: 78px; }
+  body[data-page="solar-system"] .modal-actions { gap: 3px; }
+  body[data-page="solar-system"] .modal-actions .btn { min-height: 34px; padding-inline: 7px; }
+  body[data-page="solar-system"] .solar-modal-zoom { gap: 2px; }
+  body[data-page="solar-system"] .solar-modal-zoom .btn:first-child,
+  body[data-page="solar-system"] .solar-modal-zoom .btn:last-child { min-width: 30px; padding-inline: 5px !important; }
+  body[data-page="solar-system"] #solar-modal-zoom-reset { min-width: 53px; }
+  body[data-page="solar-system"] #solar-modal-next { font-size: 0; }
+  body[data-page="solar-system"] #solar-modal-next span { font-size: 15px; }
   :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on { padding-inline: 9px; }
   :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on .battle-fullscreen-bar { margin-inline: -9px; padding: 9px; }
   .battle-fullscreen-bar > div { min-width: 0; }
