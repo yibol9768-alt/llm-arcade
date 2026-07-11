@@ -181,13 +181,28 @@
 <div class="modal" id="play-modal" role="dialog" aria-modal="true" aria-label="全屏试玩">
   <div class="modal-box">
     <div class="modal-top">
-      <span class="code" id="modal-code"></span>
-      <span class="tag-internal">内部代号</span>
-      <span class="hint">键盘直接操作,点击游戏区获得焦点 · Esc 关闭</span>
-      <button class="btn btn-secondary btn-sm" id="modal-next">🔀 换一个游戏</button>
-      <button class="btn btn-secondary btn-sm" id="modal-close" aria-label="关闭试玩窗口">✕ 关闭</button>
+      <div class="modal-title-group">
+        <span class="modal-eyebrow">NOW PLAYING <b id="modal-position">01 / 09</b></span>
+        <div class="modal-title-row">
+          <span class="code" id="modal-code"></span>
+          <span class="tag-internal">内部代号</span>
+          <strong id="modal-identity"></strong>
+        </div>
+      </div>
+      <div class="modal-key-hints" aria-label="操作提示">
+        <span><kbd>CLICK</kbd> 聚焦游戏</span>
+        <span><kbd>ESC</kbd> 退出试玩</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary btn-sm" id="modal-next"><span aria-hidden="true">↻</span> 下一款</button>
+        <button class="btn btn-secondary btn-sm modal-close-btn" id="modal-close" aria-label="关闭试玩窗口">✕ <span>关闭</span></button>
+      </div>
     </div>
-    <div class="modal-frame-wrap" id="modal-frame-wrap"></div>
+    <div class="modal-stage">
+      <div class="modal-stage-label" aria-hidden="true"><span>LLM ARCADE</span><span>PLAYABLE OUTPUT / ORIGINAL BUILD</span></div>
+      <div class="modal-frame-wrap" id="modal-frame-wrap"></div>
+      <div class="modal-stage-foot" aria-hidden="true"><span class="modal-status-dot"></span> LIVE SESSION <b>NO HUMAN PATCHES</b></div>
+    </div>
   </div>
 </div>
 

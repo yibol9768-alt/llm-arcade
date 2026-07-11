@@ -676,7 +676,10 @@
     modalIdx = idx;
     modalOpener = opener || null;
     const e = ranked[idx];
+    const identity = metaFor(e.dir);
     $("#modal-code").textContent = e.dir;
+    $("#modal-position").textContent = `${String(idx + 1).padStart(2, "0")} / ${String(ranked.length).padStart(2, "0")}`;
+    $("#modal-identity").textContent = `${identity.vendor} · ${identity.model} × ${identity.harness}`;
     const wrap = $("#modal-frame-wrap");
     wrap.innerHTML = "";
     const f = document.createElement("iframe");
