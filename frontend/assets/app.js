@@ -510,6 +510,25 @@
       /* iframe 未完成加载时忽略本次按键 */
     }
   }
+  function suppressBuiltInTouchControls(frame) {
+    try {
+      const doc = frame.contentDocument;
+      if (!doc || doc.getElementById("arcade-hide-built-in-touch")) return;
+      const style = doc.createElement("style");
+      style.id = "arcade-hide-built-in-touch";
+      style.textContent = `@media (max-width: 820px), (hover: none), (pointer: coarse) {
+        .touch-controls, #touchControls, .mobile-controls, .touch,
+        [aria-label="Touch controls"], [aria-label="触屏操作"] {
+          display: none !important;
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
+      }`;
+      (doc.head || doc.documentElement).appendChild(style);
+    } catch {
+      /* 游戏 iframe 尚未就绪时由下一次 load 再处理 */
+    }
+  }
   function mountHandheldControls(host, frame, compact = false) {
     $$(".handheld-controls", host).forEach((n) => n.remove());
     host.classList.add("has-handheld");
@@ -576,7 +595,10 @@
       f.setAttribute("aria-hidden", "true");
       f.setAttribute("title", "");
       f.src = gameURL(st.dir);
-      f.addEventListener("load", () => f.classList.add("on"));
+      f.addEventListener("load", () => {
+        suppressBuiltInTouchControls(f);
+        f.classList.add("on");
+      });
       pv.appendChild(f);
       fitFrame(f, pv);
       const rec = { frame: f, box: pv };
@@ -686,7 +708,10 @@
     f.setAttribute("sandbox", SANDBOX);
     f.setAttribute("title", `${e.dir} 的马里奥式游戏`);
     f.src = gameURL(e.dir);
-    f.addEventListener("load", () => f.focus());
+    f.addEventListener("load", () => {
+      suppressBuiltInTouchControls(f);
+      f.focus();
+    });
     wrap.appendChild(f);
     mountHandheldControls(wrap, f);
     modal.classList.add("open");
@@ -832,7 +857,10 @@
       f.setAttribute("sandbox", SANDBOX);
       f.setAttribute("title", `匿名作品 ${side.toUpperCase()}`);
       f.src = gameURL(battle.pair[side].dir);
-      f.addEventListener("load", () => f.focus());
+      f.addEventListener("load", () => {
+        suppressBuiltInTouchControls(f);
+        f.focus();
+      });
       frameBox.appendChild(f);
       fitFrame(f, frameBox);
       const fitRecord = { frame: f, box: frameBox };
