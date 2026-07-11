@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一句话太阳系 · 统一协议与运行计划 | LLM Arcade</title>
+<meta name="description" content="LLM Arcade 下一赛道：一句话太阳系。公开完全相同的任务说明、15 个计划运行位与作品上线门槛。当前尚无已完成作品。">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="../assets/brand/llm-arcade-mark-192.png">
+<link rel="stylesheet" href="../assets/style.css?v=20260711g">
+</head>
+<body data-page="solar-system">
+<div class="home-marquee" aria-label="赛道状态">
+  <div class="home-marquee-track"><span>NEXT TRACK</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>FIFTEEN PLANNED RUNS</span><b>✦</b><span>ZERO PUBLISHED BUILDS</span><b>✦</b><span>NEXT TRACK</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>FIFTEEN PLANNED RUNS</span><b>✦</b><span>ZERO PUBLISHED BUILDS</span></div>
+</div>
+<header class="topbar home-topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="../" aria-label="返回 LLM Arcade 首页"><span class="home-logo-mark"><img src="../assets/brand/llm-arcade-mark-192.png" alt=""></span><span>LLM Arcade</span><span class="logo-zh">大模型街机厅</span></a>
+    <nav class="topnav" aria-label="主导航"><a href="#protocol">统一 Prompt</a><a href="#run-plan">运行计划</a><a href="../mario/">马里奥赛道</a><a class="nav-github" href="https://github.com/yibol9768-alt/llm-arcade">GitHub ↗</a></nav>
+  </div>
+</header>
+
+<main>
+  <section class="solar-hero">
+    <div class="container solar-hero-grid">
+      <div>
+        <span class="home-kicker">NEXT / COLLECTING BUILDS</span>
+        <h1>一句话<br><span>太阳系</span></h1>
+        <p class="solar-hero-en">ONE-PROMPT SOLAR SYSTEM</p>
+      </div>
+      <div class="solar-status-card">
+        <strong>当前状态</strong><b>尚未运行</b>
+        <p>计划运行 <span id="solar-plan-count">15</span> 个模型与运行环境组合，当前完成并核验的作品为 0。</p>
+        <small>因此本页不展示试玩、截图、排行榜或评分。</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="solar-protocol" id="protocol">
+    <div class="container">
+      <div class="home-section-head"><div><span class="home-kicker">FAIRNESS PROTOCOL</span><h2>统一任务说明</h2></div><p>每次运行只替换目标目录，其他文字逐字不变。参赛模型不得读取父目录或其他作品。</p></div>
+      <div class="solar-prompt-card">
+        <div class="solar-prompt-top"><span>LOCKED PROMPT</span><b>ONLY 【目标目录】 CHANGES</b></div>
+        <pre id="solar-prompt"></pre>
+      </div>
+      <div class="solar-rules">
+        <article><b>01</b><h3>同题</h3><p>任务、要求和顺序完全一致，只替换目标目录。</p></article>
+        <article><b>02</b><h3>隔离</h3><p>只能访问自己的目标目录，禁止参考其他模型产物。</p></article>
+        <article><b>03</b><h3>自主</h3><p>模型自行规划、编码、运行与调试，不询问设计细节。</p></article>
+        <article><b>04</b><h3>验真后上线</h3><p>必须存在可运行 index.html，并通过原件一致性和加载检查。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="solar-plan" id="run-plan">
+    <div class="container">
+      <div class="home-section-head"><div><span class="home-kicker">RUN MATRIX</span><h2>计划运行位</h2></div><p>“未运行”是计划状态，不代表参赛作品已经完成。产物完成前不会进入盲评池。</p></div>
+      <div id="solar-run-groups"></div>
+    </div>
+  </section>
+
+  <section class="solar-gate">
+    <div class="container">
+      <span>PUBLICATION GATE</span><h2>作品完成后，经过四道闸门</h2>
+      <ol><li>检测目标目录中的真实 index.html</li><li>逐字节复制到只读 tracks 归档</li><li>检查本地依赖、生成真实首屏与公开数据</li><li>最后加入试玩页面、匿名配对和 D1 参赛者表</li></ol>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer"><div class="container"><p><strong>LLM Arcade</strong> · 当前页面仅公开协议与计划，不宣称已有太阳系参赛作品。</p></div></footer>
+<script src="../assets/entrants.js?v=20260711g"></script>
+<script src="../assets/solar-system-plan.js?v=20260711g"></script>
+<script src="../assets/solar-system-data.js?v=20260711g"></script>
+<script src="../assets/solar-system.js?v=20260711g"></script>
+</body>
+</html>

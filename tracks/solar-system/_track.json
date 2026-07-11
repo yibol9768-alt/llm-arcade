@@ -7,6 +7,10 @@
   "artifact_type": "可交互的 3D 网页",
   "status": "collecting",
   "status_label": "NEXT / 正在收集作品",
+  "run_plan": "_run_plan.json",
+  "planned_runs": 15,
+  "completed_runs": 0,
+  "publication_gate": "只有目标目录存在可运行 index.html、完成复制一致性校验并生成正式数据后,才加入试玩、盲评池和排行榜",
   "required_bodies": [
     "水星",
     "金星",
@@ -19,5 +23,5 @@
     "冥王星"
   ],
   "entrants": [],
-  "disclosure": "当前尚无完成并核验的参赛作品;不展示试玩入口、截图、数量、榜单或评分"
+  "disclosure": "当前尚无完成并核验的参赛作品;15 仅代表计划运行位,不代表参赛作品数量;不展示试玩入口、截图、榜单或评分"
 }

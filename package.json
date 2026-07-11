@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "wrangler pages dev",
     "smoke": "node backend-docs/smoke-test.mjs",
+    "solar:plan": "node scripts/build_solar_system_plan.mjs",
+    "solar:collect": "bash scripts/collect_solar_system_runs.sh",
+    "solar:finalize": "node scripts/finalize_solar_system.mjs",
     "db:migrate:local": "wrangler d1 execute llm-arcade-votes --local --file db/migrations/0001_init.sql && wrangler d1 execute llm-arcade-votes --local --file db/migrations/0002_seed_mario.sql && wrangler d1 execute llm-arcade-votes --local --file db/migrations/0003_voter_pair_claims.sql && wrangler d1 execute llm-arcade-votes --local --file db/migrations/0004_seed_mario_additions.sql",
     "db:migrate:remote": "wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0001_init.sql && wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0002_seed_mario.sql && wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0003_voter_pair_claims.sql && wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0004_seed_mario_additions.sql"
   },
