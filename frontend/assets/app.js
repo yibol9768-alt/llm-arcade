@@ -580,6 +580,10 @@
         #game-over-screen, #win-screen { padding: 12px !important; }
       }`;
       (doc.head || doc.documentElement).appendChild(style);
+      if (window.matchMedia("(max-width: 820px), (pointer: coarse)").matches && doc.querySelector(".smjs-page")) {
+        Object.assign(doc.documentElement.style, { width: "100%", height: "100%", overflow: "hidden" });
+        Object.assign(doc.body.style, { margin: "0", width: "100%", height: "100%", overflow: "hidden" });
+      }
     } catch {
       /* 游戏 iframe 尚未就绪时由下一次 load 再处理 */
     }
