@@ -225,10 +225,17 @@
 
     const votes = loadVotes();
     const sv = $("#stat-votes");
-    if (sv && votes.length) {
-      sv.textContent = votes.length;
-      const k = $("#stat-votes-k");
-      if (k) k.textContent = "本机盲投票数(全网榜待上线)";
+    const poolStatus = $("#home-pool-status");
+    if (sv) {
+      apiFetch("/leaderboard?track=mario", {}, 4500)
+        .then((lb) => {
+          sv.textContent = Number(lb.total_votes || 0).toLocaleString("zh-CN");
+          if (poolStatus) poolStatus.textContent = "全网票池在线";
+        })
+        .catch(() => {
+          sv.textContent = votes.length ? votes.length.toLocaleString("zh-CN") : "0";
+          if (poolStatus) poolStatus.textContent = votes.length ? "显示本机票箱" : "票池暂时离线";
+        });
     }
     $$("[data-formula]").forEach((n) => (n.textContent = D.score_formula_zh));
   }
