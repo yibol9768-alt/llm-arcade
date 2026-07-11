@@ -192,6 +192,90 @@
   }
 
   let homeRankingTimer = null;
+  const INDEX_TRACKS = [
+    { id: "mario", name: "一句话马里奥", plannedWeight: 25, live: true },
+    { id: "pinball", name: "弹球机", plannedWeight: 15, live: false },
+    { id: "pelican", name: "鹈鹕骑行", plannedWeight: 15, live: false },
+    { id: "snake", name: "贪吃蛇", plannedWeight: 15, live: false },
+    { id: "synth", name: "合成器", plannedWeight: 15, live: false },
+    { id: "city", name: "微缩城市", plannedWeight: 15, live: false },
+  ];
+  let latestHomeRanking = null;
+
+  function eloToIndex(elo) {
+    return 100 / (1 + Math.pow(10, (1000 - Number(elo || 1000)) / 400));
+  }
+
+  function buildIndexRows(lb) {
+    const marioByDir = new Map((lb.entries || []).map((entry) => [entry.dir, entry]));
+    return D.entrants.map((entrant) => {
+      const mario = marioByDir.get(entrant.dir) || { dir: entrant.dir, elo: 1000, games: 0, wins: 0, ties: 0, losses: 0 };
+      const hasMarioScore = Number(mario.games || 0) > 0;
+      const score = hasMarioScore ? eloToIndex(mario.elo) : 50;
+      return {
+        dir: entrant.dir,
+        score,
+        provisional: !hasMarioScore,
+        tracks: { mario: { ...mario, score, active: hasMarioScore } },
+      };
+    }).sort((a, b) => b.score - a.score || Number(a.provisional) - Number(b.provisional) || a.dir.localeCompare(b.dir));
+  }
+
+  function openIndexModal(row = null) {
+    const modal = $("#index-modal");
+    const content = $("#index-modal-content");
+    if (!modal || !content) return;
+    const activeTracks = INDEX_TRACKS.filter((track) => track.live && latestHomeRanking && latestHomeRanking.entries?.some((entry) => entry.games > 0));
+    const activePlannedTotal = activeTracks.reduce((sum, track) => sum + track.plannedWeight, 0);
+
+    if (!row) {
+      content.innerHTML = `<div class="index-modal-heading">
+          <span class="home-kicker">SCORING METHOD / SEASON 01</span>
+          <h2 id="index-modal-title">综合指数如何计算</h2>
+          <p>综合榜只计入已有有效数据的赛道。尚未上线的赛道不会提前占分，赛道上线后再按计划权重加入。</p>
+        </div>
+        <div class="index-formula"><b>Arcade Index</b><code>Σ（赛道得分 × 当前有效权重）</code><small>赛道得分 = 100 ÷（1 + 10^((1000 − Elo) ÷ 400)）</small></div>
+        <div class="index-track-table" role="table" aria-label="赛道权重">
+          <div class="index-track-head" role="row"><span>赛道</span><span>计划权重</span><span>当前权重</span><span>状态</span></div>
+          ${INDEX_TRACKS.map((track) => {
+            const effective = activePlannedTotal && activeTracks.some((active) => active.id === track.id)
+              ? track.plannedWeight / activePlannedTotal * 100 : 0;
+            return `<div class="index-track-row" role="row"><b>${esc(track.name)}</b><span>${track.plannedWeight}%</span><strong>${effective ? effective.toFixed(0) + "%" : "0%"}</strong><small>${effective ? "计入总分" : "未上线，不计分"}</small></div>`;
+          }).join("")}
+        </div>
+        <p class="index-note">当前只有「一句话马里奥」产生社区数据，因此它在现阶段的有效权重为 100%。新赛道上线后，权重会自动重新归一化。</p>`;
+    } else {
+      const m = metaFor(row.dir);
+      const mario = row.tracks.mario;
+      content.innerHTML = `<div class="index-modal-heading index-model-heading">
+          <span class="index-modal-identity">${identityHTML(row.dir)}</span>
+          <div><span class="home-kicker">RANKING BREAKDOWN</span><h2 id="index-modal-title">${esc(m.model)}</h2><p>${esc(m.vendor)} · ${esc(m.harness)}</p></div>
+          <strong class="index-modal-score"><b>${row.score.toFixed(1)}</b><small>ARCADE INDEX</small></strong>
+        </div>
+        <div class="index-track-table" role="table" aria-label="${esc(m.model)} 各赛道得分明细">
+          <div class="index-track-head index-track-detail" role="row"><span>赛道</span><span>赛道分</span><span>计划权重</span><span>当前权重</span><span>原始数据</span></div>
+          ${INDEX_TRACKS.map((track) => {
+            if (track.id !== "mario" || !mario.active) {
+              return `<div class="index-track-row index-track-detail muted" role="row"><b>${esc(track.name)}</b><span>—</span><span>${track.plannedWeight}%</span><strong>0%</strong><small>未上线，不计分</small></div>`;
+            }
+            return `<div class="index-track-row index-track-detail" role="row"><b>${esc(track.name)}</b><span>${mario.score.toFixed(1)}</span><span>${track.plannedWeight}%</span><strong>100%</strong><small>Elo ${Math.round(mario.elo)} · ${mario.games} 场</small></div>`;
+          }).join("")}
+        </div>
+        <div class="index-formula compact"><b>本期总分</b><code>${row.provisional ? "50.0（暂定基线，尚无有效对局）" : `${mario.score.toFixed(1)} × 100% = ${row.score.toFixed(1)}`}</code></div>
+        <p class="index-note">${row.provisional ? "该组合还没有有效盲投样本，50 分仅作为中性位置展示，不代表社区排名。" : "当前只有马里奥赛道有数据。未来赛道加入后，本页会逐项显示得分和实际权重。"}</p>`;
+    }
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+    $("#index-modal-close")?.focus();
+  }
+
+  function closeIndexModal() {
+    const modal = $("#index-modal");
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+
   function renderHomeRanking(lb) {
     const box = $("#home-ranking-list");
     if (!box) return;
@@ -205,7 +289,11 @@
     if (rv) rv.textContent = total.toLocaleString("zh-CN");
     if (poolStatus) poolStatus.textContent = "全网票池在线";
 
-    if (!total || !lb.entries || !lb.entries.some((e) => e.games > 0)) {
+    latestHomeRanking = lb;
+    const activeTrackCount = lb.entries && lb.entries.some((e) => e.games > 0) ? 1 : 0;
+    const activeTracks = $("#ranking-active-tracks");
+    if (activeTracks) activeTracks.textContent = String(activeTrackCount);
+    if (!total || !activeTrackCount) {
       if (source) source.textContent = "初始榜筹备中";
       if (updated) updated.textContent = "等待 Agent 初评或社区有效盲投";
       box.innerHTML = '<div class="ranking-pending">初始榜筹备中。5.6sol Agent 初评尚未录入，社区产生有效盲投后将自动显示实时 Elo。</div>';
@@ -217,16 +305,20 @@
       const stamp = Number(lb.updated_at || 0) * 1000;
       updated.textContent = stamp ? `更新于 ${new Date(stamp).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}` : "刚刚更新";
     }
-    box.innerHTML = lb.entries.map((e, i) => {
-      const m = metaFor(e.dir);
-      return `<article class="ranking-entry${i === 0 ? " is-top" : ""}">
-      <span class="rank">#${String(i + 1).padStart(2, "0")}${i === 0 ? "<i></i>" : ""}</span>
-      <span class="ranking-brand">${identityHTML(e.dir, true)}</span>
-      <strong class="name">${esc(m.model)}</strong>
-      <b class="rating num">${e.elo}</b>
-      <small class="games num">${e.games} 场 · ${e.wins}胜 ${e.ties}平 ${e.losses}负</small>
-    </article>`;
+    const rows = buildIndexRows(lb);
+    box.innerHTML = rows.map((row, i) => {
+      const m = metaFor(row.dir);
+      const height = Math.max(8, row.score);
+      return `<button type="button" class="index-bar-item vendor-bar-${esc(m.vendor_class)}${row.provisional ? " is-provisional" : ""}" data-index-dir="${esc(row.dir)}" aria-label="第 ${i + 1} 名，${esc(m.vendor)} ${esc(m.model)}，综合指数 ${row.score.toFixed(1)}，打开得分明细">
+        <span class="index-rank">#${String(i + 1).padStart(2, "0")}</span>
+        <span class="index-bar-track"><span class="index-bar" style="--bar-height:${height}%"><strong>${row.score.toFixed(1)}</strong>${row.provisional ? "<small>样本不足</small>" : ""}</span></span>
+        <span class="index-model"><span class="vendor-mark vendor-${esc(m.vendor_class)}">${esc(m.vendor_mark)}</span><b>${esc(m.model)}</b><small>${esc(m.vendor)} · ${esc(m.harness)}</small></span>
+      </button>`;
     }).join("");
+    $$('[data-index-dir]', box).forEach((button) => button.addEventListener("click", () => {
+      const row = rows.find((item) => item.dir === button.dataset.indexDir);
+      if (row) openIndexModal(row);
+    }));
   }
 
   async function refreshHomeRanking() {
@@ -283,7 +375,10 @@
           else button.removeAttribute("aria-current");
         });
         const active = $(`button[data-slide="${idx}"]`, thumbs);
-        active?.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "nearest", inline: "center" });
+        if (active) {
+          const targetLeft = active.offsetLeft - (thumbs.clientWidth - active.offsetWidth) / 2;
+          thumbs.scrollTo({ left: Math.max(0, targetLeft), behavior: REDUCED ? "auto" : "smooth" });
+        }
         main.classList.remove("slide-out");
         main.classList.add("slide-in");
       }, REDUCED ? 0 : 170);
@@ -351,6 +446,10 @@
 
     refreshHomeRanking();
     initCabinetCarousel();
+    $("#index-method-open")?.addEventListener("click", () => openIndexModal());
+    $("#index-modal-close")?.addEventListener("click", closeIndexModal);
+    $("#index-modal")?.addEventListener("click", (event) => { if (event.target.id === "index-modal") closeIndexModal(); });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeIndexModal(); });
     clearInterval(homeRankingTimer);
     homeRankingTimer = setInterval(refreshHomeRanking, 15000);
     $$("[data-formula]").forEach((n) => (n.textContent = D.score_formula_zh));
