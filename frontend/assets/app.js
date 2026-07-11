@@ -21,11 +21,17 @@
   const SANDBOX = "allow-scripts allow-same-origin allow-pointer-lock";
   const metaFor = (dir) => ENTRANT_META[dir] || {
     vendor: "厂商待确认", vendor_mark: "?", vendor_class: "unknown",
-    model: dir, harness: "Harness 待确认", verified: false,
+    vendor_logo: "", model: dir, harness: "Harness 待确认", verified: false,
   };
+  function vendorMarkHTML(m) {
+    const logo = m.vendor_logo
+      ? `<img src="${esc(m.vendor_logo)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+      : esc(m.vendor_mark);
+    return `<span class="vendor-mark vendor-${esc(m.vendor_class)}" title="${esc(m.vendor)}">${logo}</span>`;
+  }
   function identityHTML(dir, compact = false) {
     const m = metaFor(dir);
-    return `<span class="vendor-mark vendor-${esc(m.vendor_class)}">${esc(m.vendor_mark)}</span>
+    return `${vendorMarkHTML(m)}
       <span class="identity-copy"><b>${esc(m.vendor)}</b><strong>${esc(m.model)}${compact ? "" : ` × ${esc(m.harness)}`}</strong>
       ${compact ? "" : `<small>内部代号 ${esc(dir)}${m.verified ? "" : " · 待核对"}</small>`}</span>`;
   }
@@ -39,6 +45,7 @@
 
   /* ---------- 本机投票与 Elo ---------- */
   const VOTES_KEY = "arcade_mario_votes_v1";
+  const TRACK_VOTE_LIMIT = 12;
   function loadVotes() {
     try {
       const v = JSON.parse(localStorage.getItem(VOTES_KEY) || "[]");
@@ -312,7 +319,7 @@
       return `<button type="button" class="index-bar-item vendor-bar-${esc(m.vendor_class)}${row.provisional ? " is-provisional" : ""}" data-index-dir="${esc(row.dir)}" aria-label="第 ${i + 1} 名，${esc(m.vendor)} ${esc(m.model)}，综合指数 ${row.score.toFixed(1)}，打开得分明细">
         <span class="index-rank">#${String(i + 1).padStart(2, "0")}</span>
         <span class="index-bar-track"><span class="index-bar" style="--bar-height:${height}%"><strong>${row.score.toFixed(1)}</strong>${row.provisional ? "<small>样本不足</small>" : ""}</span></span>
-        <span class="index-model"><span class="vendor-mark vendor-${esc(m.vendor_class)}">${esc(m.vendor_mark)}</span><b>${esc(m.model)}</b><small>${esc(m.vendor)} · ${esc(m.harness)}</small></span>
+        <span class="index-model">${vendorMarkHTML(m)}<b>${esc(m.model)}</b><small>${esc(m.vendor)} · ${esc(m.harness)}</small></span>
       </button>`;
     }).join("");
     $$('[data-index-dir]', box).forEach((button) => button.addEventListener("click", () => {
@@ -731,15 +738,38 @@
     voted: false,
     frames: { a: null, b: null },
     activeSide: null,
+    quota: null,
   };
   let netTotalVotes = null;       /* 最近一次全网榜的 total_votes */
 
-  function pickPair() {
-    const n = ranked.length;
-    const i = Math.floor(Math.random() * n);
-    let j = Math.floor(Math.random() * (n - 1));
-    if (j >= i) j++;
-    return { a: ranked[i], b: ranked[j] };
+  function localPairKey(a, b) {
+    return a < b ? `${a}|${b}` : `${b}|${a}`;
+  }
+
+  function pickLocalPair() {
+    const votes = loadVotes();
+    if (votes.length >= TRACK_VOTE_LIMIT) return null;
+    const seen = new Set(votes.map((vote) => localPairKey(vote.a, vote.b)));
+    const exposure = new Map(ranked.map((entrant) => [entrant.dir, 0]));
+    votes.forEach((vote) => {
+      exposure.set(vote.a, (exposure.get(vote.a) || 0) + 1);
+      exposure.set(vote.b, (exposure.get(vote.b) || 0) + 1);
+    });
+    const candidates = [];
+    for (let i = 0; i < ranked.length; i++) {
+      for (let j = i + 1; j < ranked.length; j++) {
+        if (seen.has(localPairKey(ranked[i].dir, ranked[j].dir))) continue;
+        candidates.push({
+          a: ranked[i], b: ranked[j],
+          exposure: exposure.get(ranked[i].dir) + exposure.get(ranked[j].dir),
+        });
+      }
+    }
+    if (!candidates.length) return null;
+    const minExposure = Math.min(...candidates.map((pair) => pair.exposure));
+    const needed = candidates.filter((pair) => pair.exposure === minExposure);
+    const picked = needed[Math.floor(Math.random() * needed.length)];
+    return Math.random() < 0.5 ? picked : { a: picked.b, b: picked.a };
   }
 
   function unmountBattleSide(side) {
@@ -846,12 +876,33 @@
         const p = await apiFetch("/pair?track=mario");
         battle.pair = { a: { dir: p.a.dir }, b: { dir: p.b.dir } };
         battle.pairId = p.pair_id;
+        battle.quota = p.quota || battle.quota;
+        renderBattleStats();
       } catch (e) {
+        if (e.code === "track_vote_limit_reached" || e.code === "track_complete") {
+          battle.quota = { limit: TRACK_VOTE_LIMIT, used: TRACK_VOTE_LIMIT, remaining: 0 };
+          setGate("本赛道的投票额度已完成");
+          $("#battle-result").textContent = "你已完成本赛道全部 12 次判断。排名会继续随其他访客的投票更新。";
+          $("#battle-start").textContent = "本赛道投票已完成";
+          $("#battle-start").disabled = true;
+          renderBattleStats();
+          return;
+        }
         setGate(`领取配对失败(${e.message}),点「开始/换一对」重试`);
         return;
       }
     } else {
-      battle.pair = pickPair();
+      battle.pair = pickLocalPair();
+      const used = loadVotes().length;
+      battle.quota = { limit: TRACK_VOTE_LIMIT, used, remaining: Math.max(0, TRACK_VOTE_LIMIT - used) };
+      if (!battle.pair) {
+        setGate("本机体验版的 12 次判断已完成");
+        $("#battle-result").textContent = "这台设备已经完成本赛道的全部本机判断。";
+        $("#battle-start").textContent = "本赛道投票已完成";
+        $("#battle-start").disabled = true;
+        renderBattleStats();
+        return;
+      }
     }
     buildPanel("a");
     buildPanel("b");
@@ -873,15 +924,27 @@
     reveal(aDir, bDir);
     $("#battle-result").innerHTML =
       `揭晓:A = <span class="mono">${esc(aDir)}</span> · B = <span class="mono">${esc(bDir)}</span>,${voteMsg(r, aDir, bDir)}。${suffix}`;
-    $("#battle-next").style.display = "inline-flex";
+    if (battle.quota && battle.quota.remaining <= 0) {
+      $("#battle-next").style.display = "none";
+      $("#battle-start").textContent = "本赛道投票已完成";
+      $("#battle-start").disabled = true;
+    } else {
+      $("#battle-next").style.display = "inline-flex";
+    }
     updateVoteGate();
   }
 
   /* 网络故障时把这票落进本机票箱(明确标注不入全网池) */
   function saveVoteLocally(r) {
     const votes = loadVotes();
+    const key = localPairKey(battle.pair.a.dir, battle.pair.b.dir);
+    if (votes.length >= TRACK_VOTE_LIMIT || votes.some((vote) => localPairKey(vote.a, vote.b) === key)) {
+      finishReveal(r, battle.pair.a.dir, battle.pair.b.dir, "这组对决已在本机判断过，本次没有重复记录。");
+      return;
+    }
     votes.push({ a: battle.pair.a.dir, b: battle.pair.b.dir, r, t: Date.now() });
     saveVotes(votes);
+    battle.quota = { limit: TRACK_VOTE_LIMIT, used: votes.length, remaining: TRACK_VOTE_LIMIT - votes.length };
     finishReveal(r, battle.pair.a.dir, battle.pair.b.dir, "已记入本机票箱(未入全网池)。");
     renderEloTable();
     renderBattleStats();
@@ -892,6 +955,19 @@
     switch (e.code) {
       case "already_voted":
         finishReveal(r, battle.pair.a.dir, battle.pair.b.dir, "这一对已经投过票了(一 token 一票),这次没有重复计票。");
+        break;
+      case "matchup_already_voted":
+        finishReveal(r, battle.pair.a.dir, battle.pair.b.dir, "你已经判断过这组对决，本次没有重复计票。点「下一对」继续。");
+        break;
+      case "track_vote_limit_reached":
+        battle.quota = { limit: TRACK_VOTE_LIMIT, used: TRACK_VOTE_LIMIT, remaining: 0 };
+        result.innerHTML = "你已完成本赛道全部 12 次判断。游戏仍可继续玩，排名会随其他访客投票更新。";
+        setGate("本赛道投票额度已完成");
+        $$("#battle-vote button[data-vote]").forEach((b) => (b.disabled = true));
+        $("#battle-next").style.display = "none";
+        $("#battle-start").textContent = "本赛道投票已完成";
+        $("#battle-start").disabled = true;
+        renderBattleStats();
         break;
       case "rate_limited":
         result.innerHTML = "今天投满了(单设备每日 60 票),明天再来。游戏还能继续玩,投票明日解锁。";
@@ -922,8 +998,10 @@
 
     if (battle.mode === "local") {
       const votes = loadVotes();
+      if (votes.length >= TRACK_VOTE_LIMIT) return;
       votes.push({ a: battle.pair.a.dir, b: battle.pair.b.dir, r, t: Date.now() });
       saveVotes(votes);
+      battle.quota = { limit: TRACK_VOTE_LIMIT, used: votes.length, remaining: TRACK_VOTE_LIMIT - votes.length };
       finishReveal(r, battle.pair.a.dir, battle.pair.b.dir, "已计入本机 Elo。");
       renderEloTable();
       renderBattleStats();
@@ -941,6 +1019,7 @@
       });
       const aDir = (res.revealed && res.revealed.a_dir) || battle.pair.a.dir;
       const bDir = (res.revealed && res.revealed.b_dir) || battle.pair.b.dir;
+      battle.quota = res.quota || battle.quota;
       finishReveal(r, aDir, bDir, "已计入全网票池(新票最多延迟 60 秒上榜)。");
       refreshNetBoard();
       renderBattleStats();
@@ -953,9 +1032,10 @@
     const local = loadVotes().length;
     if (battle.mode === "online") {
       const net = netTotalVotes == null ? "" : `全网累计 ${netTotalVotes} 票 · `;
-      $("#battle-stats").textContent = net + (local ? `本机票箱 ${local} 票` : "本机票箱为空");
+      const quota = battle.quota ? `本赛道 ${battle.quota.used}/${battle.quota.limit} · 剩余 ${battle.quota.remaining} 票` : "额度将在开始对战后显示";
+      $("#battle-stats").textContent = net + quota;
     } else {
-      $("#battle-stats").textContent = local ? `本机已投 ${local} 票` : "本机还没有投票";
+      $("#battle-stats").textContent = `本机已投 ${Math.min(local, TRACK_VOTE_LIMIT)}/${TRACK_VOTE_LIMIT} · 剩余 ${Math.max(0, TRACK_VOTE_LIMIT - local)} 票`;
     }
   }
 
@@ -1003,7 +1083,7 @@
       badge.innerHTML = '<span class="dot"></span>🌐 全网票池';
       title.textContent = "全网票池:";
       body.textContent =
-        "你的投票会进入全网 Elo / Bradley-Terry 统计。规则:A、B 都打开试玩过即可投票;单设备每日上限 60 票;投完即时揭晓身份。切换作品时另一边自动关闭。";
+        "你的投票会进入全网 Elo / Bradley-Terry 统计。每位访客在本赛道最多判断 12 组，每组只投一次；系统优先发送全网最缺票的对决。A、B 都打开过即可投票，投完即时揭晓身份。";
       $("#net-board").hidden = false;
       $("#local-board").removeAttribute("open"); /* 本机记录降级为折叠小节 */
     } else {
@@ -1191,7 +1271,7 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   function installFetchMock() {
-    const voteQueue = ["ok", "already_voted", "network", "rate_limited", "pair_expired"];
+    const voteQueue = ["ok", "matchup_already_voted", "network", "rate_limited", "pair_expired"];
     let votes = 0;
     const J = (status, data) => Promise.resolve({ ok: status < 400, status, json: async () => data });
     window.fetch = (url) => {
@@ -1204,6 +1284,7 @@
           a: { slot: "A", dir: ranked[0].dir },
           b: { slot: "B", dir: ranked[1].dir },
           issued_at: Math.floor(Date.now() / 1000),
+          quota: { limit: TRACK_VOTE_LIMIT, used: votes, remaining: TRACK_VOTE_LIMIT - votes },
         });
       if (u.includes("/api/leaderboard"))
         return J(200, {
@@ -1216,10 +1297,10 @@
         });
       if (u.includes("/api/vote")) {
         const k = voteQueue.shift() || "ok";
-        if (k === "ok") { votes++; return J(200, { ok: true, revealed: { a_dir: ranked[0].dir, b_dir: ranked[1].dir } }); }
+        if (k === "ok") { votes++; return J(200, { ok: true, revealed: { a_dir: ranked[0].dir, b_dir: ranked[1].dir }, quota: { limit: TRACK_VOTE_LIMIT, used: votes, remaining: TRACK_VOTE_LIMIT - votes } }); }
         if (k === "network") return Promise.reject(new TypeError("Failed to fetch"));
         const map = {
-          already_voted: [409, "this pair_id has already been used"],
+          matchup_already_voted: [409, "this matchup was already judged"],
           rate_limited: [429, "daily vote limit reached (60 per day)"],
           pair_expired: [400, "pair_id has expired, request a new pair"],
         };
@@ -1286,6 +1367,7 @@
     ok("bt_note_shown_when_not_ready", !$("#net-bt-note").hidden);
     await startBattle();
     ok("pair_id_saved", typeof battle.pairId === "string" && battle.pairId.length > 0);
+    ok("quota_loaded", battle.quota && battle.quota.limit === TRACK_VOTE_LIMIT && battle.quota.remaining === TRACK_VOTE_LIMIT);
     ok("anonymous_no_dir_leak",
       !$("#battle-a").textContent.includes(battle.pair.a.dir) && !$("#battle-b").textContent.includes(battle.pair.b.dir));
     ok("gate_locked_before_play", $$("#battle-vote button[data-vote]").every((b) => b.disabled));
@@ -1298,13 +1380,14 @@
     ok("vote_success_net_pool", $("#battle-result").textContent.includes("全网票池"));
     ok("revealed_from_server", $("#battle-a .revealed").textContent.includes(ranked[0].dir));
     ok("online_vote_not_stored_locally", loadVotes().length === 0);
+    ok("quota_decrements", battle.quota.used === 1 && battle.quota.remaining === TRACK_VOTE_LIMIT - 1);
     ok("next_shown", $("#battle-next").style.display !== "none");
     await sleep(80);
     ok("net_meta_refreshed", $("#net-meta").textContent.includes("票"));
-    /* 错误路径 2:already_voted -> 锁票并提示 */
+    /* 错误路径 2:同一对决不可重复 -> 锁票并提示 */
     battle.voted = false;
     await castVote("b");
-    ok("already_voted_locks", battle.voted === true && $("#battle-result").textContent.includes("投过"));
+    ok("matchup_repeat_locks", battle.voted === true && $("#battle-result").textContent.includes("判断过"));
     /* 错误路径 3:网络错误 -> 提供本机票箱回落 */
     battle.voted = false;
     await castVote("b");

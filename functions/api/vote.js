@@ -3,8 +3,10 @@
 // vote, and only then reveals which entrant was in which slot.
 import { CONFIG } from "../_lib/config.js";
 import { jsonResponse, errorResponse, readJsonBody } from "../_lib/http.js";
-import { verifyPairToken, sha256Hex } from "../_lib/hmac.js";
-import { countVotesSince, insertVote } from "../_lib/db.js";
+import { verifyPairToken } from "../_lib/hmac.js";
+import { countVotesSince, ensureVoterPairClaims, getVoterPairKeys, insertVote } from "../_lib/db.js";
+import { pairKey } from "../_lib/sampling.js";
+import { getVoterHash } from "../_lib/voter.js";
 
 const WINNERS = new Set(["A", "B", "tie"]);
 
@@ -38,10 +40,19 @@ export async function onRequestPost(context) {
   }
 
   try {
-    // voter_hash: server-side fingerprint; the raw IP is never stored.
-    const ip = request.headers.get("CF-Connecting-IP") || "unknown-ip";
-    const ua = request.headers.get("User-Agent") || "unknown-ua";
-    const voterHash = await sha256Hex(`${ip}|${ua}|${env.SALT}`);
+    await ensureVoterPairClaims(env.DB);
+    const voterHash = await getVoterHash(request, env.SALT);
+    const judgedPairs = await getVoterPairKeys(env.DB, voterHash, payload.track);
+    if (judgedPairs.has(pairKey(payload.aDir, payload.bDir))) {
+      return errorResponse("matchup_already_voted", "this matchup was already judged", 409);
+    }
+    if (judgedPairs.size >= CONFIG.TRACK_VOTE_LIMIT) {
+      return errorResponse(
+        "track_vote_limit_reached",
+        `track vote limit reached (${CONFIG.TRACK_VOTE_LIMIT})`,
+        429,
+      );
+    }
 
     const utcDayStart = Math.floor(now / 86400) * 86400;
     const todayCount = await countVotesSince(env.DB, voterHash, utcDayStart);
@@ -65,10 +76,18 @@ export async function onRequestPost(context) {
     if (!inserted.ok && inserted.duplicate) {
       return errorResponse("already_voted", "this pair_id has already been used", 409);
     }
+    if (!inserted.ok && inserted.repeatedPair) {
+      return errorResponse("matchup_already_voted", "this matchup was already judged", 409);
+    }
 
     return jsonResponse({
       ok: true,
       revealed: { a_dir: payload.aDir, b_dir: payload.bDir },
+      quota: {
+        limit: CONFIG.TRACK_VOTE_LIMIT,
+        used: judgedPairs.size + 1,
+        remaining: CONFIG.TRACK_VOTE_LIMIT - judgedPairs.size - 1,
+      },
     });
   } catch (err) {
     console.error("vote error:", err);

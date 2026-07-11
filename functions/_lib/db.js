@@ -1,6 +1,29 @@
 // Thin D1 query helpers. All queries are parameterized.
 import { pairKey } from "./sampling.js";
 
+let voterClaimsReady = false;
+
+/** Runtime-safe schema initialization, also backfills historical votes. */
+export async function ensureVoterPairClaims(db) {
+  if (voterClaimsReady) return;
+  await db.batch([
+    db.prepare(
+      "CREATE TABLE IF NOT EXISTS voter_pair_claims (" +
+        "voter_hash TEXT NOT NULL, track TEXT NOT NULL, pair_key TEXT NOT NULL, created_at INTEGER NOT NULL, " +
+        "PRIMARY KEY (voter_hash, track, pair_key))",
+    ),
+    db.prepare(
+      "INSERT OR IGNORE INTO voter_pair_claims (voter_hash, track, pair_key, created_at) " +
+        "SELECT voter_hash, track, CASE WHEN a_dir < b_dir THEN a_dir || '|' || b_dir ELSE b_dir || '|' || a_dir END, MIN(created_at) " +
+        "FROM votes GROUP BY voter_hash, track, CASE WHEN a_dir < b_dir THEN a_dir || '|' || b_dir ELSE b_dir || '|' || a_dir END",
+    ),
+    db.prepare(
+      "CREATE INDEX IF NOT EXISTS idx_voter_pair_claims_track ON voter_pair_claims (track, pair_key)",
+    ),
+  ]);
+  voterClaimsReady = true;
+}
+
 /** Active entrant dirs for a track, alphabetical. */
 export async function getActiveParticipants(db, track) {
   const { results } = await db
@@ -26,6 +49,17 @@ export async function getPairCounts(db, track) {
     counts.set(key, (counts.get(key) || 0) + r.c);
   }
   return counts;
+}
+
+/** Matchups this visitor has already judged in one track. */
+export async function getVoterPairKeys(db, voterHash, track) {
+  const { results } = await db
+    .prepare(
+      "SELECT pair_key FROM voter_pair_claims WHERE voter_hash = ?1 AND track = ?2 ORDER BY created_at",
+    )
+    .bind(voterHash, track)
+    .all();
+  return new Set(results.map((row) => row.pair_key));
 }
 
 /** All votes for a track in chronological order (created_at, then id). */
@@ -56,8 +90,12 @@ export async function countVotesSince(db, voterHash, sinceTs) {
  */
 export async function insertVote(db, vote) {
   try {
-    await db
+    const pairClaim = db
       .prepare(
+        "INSERT INTO voter_pair_claims (voter_hash, track, pair_key, created_at) VALUES (?1, ?2, ?3, ?4)",
+      )
+      .bind(vote.voterHash, vote.track, pairKey(vote.aDir, vote.bDir), vote.createdAt);
+    const voteInsert = db.prepare(
         "INSERT INTO votes (track, a_dir, b_dir, winner, pair_id, voter_hash, created_at) " +
           "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
       )
@@ -69,11 +107,14 @@ export async function insertVote(db, vote) {
         vote.pairId,
         vote.voterHash,
         vote.createdAt,
-      )
-      .run();
+      );
+    await db.batch([pairClaim, voteInsert]);
     return { ok: true };
   } catch (err) {
     const msg = String((err && err.message) || err);
+    if (msg.includes("voter_pair_claims")) {
+      return { ok: false, repeatedPair: true };
+    }
     if (msg.includes("UNIQUE constraint failed")) {
       return { ok: false, duplicate: true };
     }

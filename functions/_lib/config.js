@@ -7,6 +7,9 @@ export const CONFIG = {
   // Max accepted votes per voter_hash per UTC day.
   DAILY_VOTE_LIMIT: 60,
 
+  // Max unique matchups one visitor can judge in a single track/season.
+  TRACK_VOTE_LIMIT: 12,
+
   // Leaderboard responses are cached in the Cache API for this long.
   LEADERBOARD_CACHE_SECONDS: 60,
 
@@ -19,7 +22,4 @@ export const CONFIG = {
   BT_MAX_ITERATIONS: 100,
   BT_EPSILON: 1e-6,
 
-  // Pair sampling: candidates are all pairs whose vote count is within this
-  // slack of the least-voted pair; one is picked uniformly at random.
-  PAIR_COUNT_SLACK: 1,
 };

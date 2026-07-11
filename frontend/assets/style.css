@@ -250,7 +250,7 @@ a.card { text-decoration: none; display: block; }
 .footnote strong { color: var(--ink); }
 
 /* ---------- 数据表格 ---------- */
-.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; scrollbar-color: var(--home-orange, var(--accent)) transparent; }
 table.data {
   width: 100%;
   border-collapse: collapse;
@@ -654,6 +654,8 @@ body[data-page="home"] .topnav a {
   text-transform: uppercase;
 }
 body[data-page="home"] .topnav a:hover { background: var(--home-yellow); }
+.topnav .nav-github { color: var(--home-paper) !important; background: var(--home-ink); }
+.topnav .nav-github:hover { color: var(--home-ink) !important; background: var(--home-yellow); }
 
 .home-live-ranking { padding: 38px 0 32px; background: var(--home-paper); border-bottom: 2px solid var(--home-ink); }
 .ranking-topline { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; margin-bottom: 20px; }
@@ -689,6 +691,7 @@ body[data-page="home"] .topnav a:hover { background: var(--home-yellow); }
 .ranking-footer button { padding: 0; color: var(--home-ink); background: transparent; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; font: inherit; font-weight: 900; cursor: pointer; }
 .ranking-footer a { color: var(--home-ink); font-weight: 900; text-decoration: none; }
 .ranking-footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.index-mobile-hint { display: none; }
 
 body.modal-open { overflow: hidden; }
 .index-modal[hidden] { display: none; }
@@ -820,7 +823,9 @@ body.modal-open { overflow: hidden; }
 .cabinet-identity strong { margin-top: 3px; font: 900 10px/1.15 var(--mono); }
 .cabinet-identity small { margin-top: 3px; color: rgba(255,250,240,.58); font: 600 7px/1 var(--mono); }
 .vendor-mark { display: grid; place-items: center; flex: 0 0 30px; width: 30px; height: 30px; border-radius: 50%; color: var(--home-paper); background: var(--home-ink); border: 1px solid currentColor; font: 900 8px/1 var(--mono); }
-.vendor-openai { background: #111; }.vendor-cursor { background: #1d1d1f; }.vendor-anthropic { background: #d05b35; }.vendor-zhipu { background: #315cf5; }.vendor-xai { background: #050505; }.vendor-moonshot { background: #6546d7; }.vendor-unknown { color: var(--home-ink); background: var(--home-yellow); }
+.vendor-mark img { display: block; width: 58%; height: 58%; object-fit: contain; filter: brightness(0) invert(1); }
+.vendor-openai { background: #111; }.vendor-cursor { background: #1d1d1f; }.vendor-anthropic { background: #d05b35; }.vendor-zhipu { color: #315cf5; background: #fff; }.vendor-xai { background: #050505; }.vendor-moonshot { color: #6546d7; background: #fff; }.vendor-unknown { color: var(--home-ink); background: var(--home-yellow); }
+.vendor-zhipu img, .vendor-moonshot img { width: 68%; height: 68%; filter: none; }
 .cabinet-strip { display: grid; grid-auto-flow: column; grid-auto-columns: 76px; gap: 7px; overflow-x: auto; margin-top: 9px; padding: 0 0 4px; scrollbar-width: none; scroll-snap-type: x mandatory; }
 .cabinet-strip::-webkit-scrollbar { display: none; }
 .cabinet-strip button { position: relative; padding: 0; background: var(--home-ink); border: 2px solid var(--home-ink); opacity: .58; cursor: pointer; scroll-snap-align: center; transition: opacity 150ms ease, transform 150ms ease, border-color 150ms ease; }
@@ -938,7 +943,18 @@ body[data-page="home"] footer.home-footer { padding: 72px 0 42px; background: va
 .footer-meta { text-align: right; }
 .footer-meta p { margin: 5px 0; }
 
+.home-contribute { padding: 82px 0; color: var(--home-ink); background: var(--home-orange); border-bottom: 2px solid var(--home-ink); }
+.home-contribute .home-kicker { color: var(--home-ink); }
+.contribute-grid { display: grid; grid-template-columns: repeat(4,1fr); border: 2px solid var(--home-ink); background: var(--home-ink); gap: 2px; }
+.contribute-grid a { display: grid; grid-template-rows: auto auto 1fr auto; min-height: 235px; padding: 20px; color: var(--home-ink); background: var(--home-paper); text-decoration: none; transition: transform 160ms ease, background 160ms ease; }
+.contribute-grid a:hover { z-index: 1; background: var(--home-yellow); transform: translateY(-5px); }
+.contribute-grid span { font: 900 10px/1 var(--mono); }
+.contribute-grid b { margin-top: 34px; font-size: 21px; line-height: 1.1; letter-spacing: -.03em; }
+.contribute-grid small { margin-top: 10px; color: rgba(11,16,32,.6); font-size: 12px; line-height: 1.6; }
+.contribute-grid em { align-self: end; margin-top: 24px; font: 900 8px/1 var(--mono); font-style: normal; letter-spacing: .08em; }
+
 @media (max-width: 980px) {
+  .contribute-grid { grid-template-columns: 1fr 1fr; }
   .index-chart-shell { overflow-x: auto; }
   .index-chart { min-width: 790px; }
   .home-hero-grid { grid-template-columns: 1fr; }
@@ -950,7 +966,8 @@ body[data-page="home"] footer.home-footer { padding: 72px 0 42px; background: va
 }
 @media (max-width: 680px) {
   .home-marquee-track { gap: 20px; }
-  body[data-page="home"] .home-topbar .topnav a:nth-child(n+3) { display: none; }
+  .topnav a { display: none; }
+  .topnav .nav-contribute, .topnav .nav-github { display: block; }
   .home-live-ranking { padding: 28px 0 24px; }
   .ranking-topline { display: block; }
   .ranking-meta { display: none; }
@@ -966,6 +983,7 @@ body[data-page="home"] footer.home-footer { padding: 72px 0 42px; background: va
   .index-model b { font-size: 10px; }
   .index-model small { font-size: 6px; }
   .ranking-pending { min-height: 330px; }
+  .index-mobile-hint { display: block; margin: 8px 0 0; color: rgba(11,16,32,.58); text-align: center; font: 800 8px/1 var(--mono); letter-spacing: .05em; }
   .ranking-footer { display: grid; grid-template-columns: 1fr auto; line-height: 1.5; }
   .ranking-footer button { grid-column: 1/-1; justify-self: start; }
   .ranking-footer a { text-align: right; }
@@ -982,13 +1000,14 @@ body[data-page="home"] footer.home-footer { padding: 72px 0 42px; background: va
   .index-track-head, .index-track-row { min-width: 590px; }
   .index-track-detail { min-width: 690px; }
   .home-hero { padding-top: 48px; }
-  .home-hero-grid { gap: 45px; padding-bottom: 52px; }
+  .home-hero-grid { gap: 45px; width: 100%; min-width: 0; padding-bottom: 52px; }
+  .home-hero-grid > *, .home-hero-copy, .hero-cabinet { width: 100%; min-width: 0; max-width: 100%; }
   .home-hero h1 { font-size: clamp(62px, 22vw, 92px); }
   .home-hero h1 .outline { padding-left: .1em; }
   .home-hero-lead { font-size: 21px; }
   .home-actions { flex-direction: column; }
   .home-btn { width: 100%; }
-  .hero-cabinet { padding: 12px 12px 20px; box-shadow: 8px 8px 0 var(--home-blue), 9px 9px 0 2px var(--home-paper); }
+  .hero-cabinet { padding: 12px 12px 20px; box-shadow: 6px 6px 0 var(--home-blue), 7px 7px 0 2px var(--home-paper); transform: none; }
   .cabinet-strip { grid-auto-columns: 70px; }
   .cabinet-strip button span { display: none; }
   .cabinet-identity { left: 7px; right: 7px; bottom: 7px; max-width: none; padding: 5px 7px; }
@@ -1000,6 +1019,9 @@ body[data-page="home"] footer.home-footer { padding: 72px 0 42px; background: va
   .home-metrics > div { padding: 18px 10px; border-bottom: 1px solid rgba(255,250,240,.2); }
   .home-metrics strong { font-size: 20px; }
   .home-battle, .home-live-track, .home-roadmap, .home-method { padding: 68px 0; }
+  .home-contribute { padding: 68px 0; }
+  .contribute-grid { grid-template-columns: 1fr; }
+  .contribute-grid a { min-height: 190px; }
   .versus-card { grid-template-columns: 1fr 48px 1fr; min-height: 270px; box-shadow: 7px 7px 0 var(--home-orange); }
   .versus-side b { font-size: 88px; }
   .versus-mid span { width: 48px; height: 48px; font-size: 18px; }
@@ -1299,14 +1321,116 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
 }
 @media (max-width: 640px) {
   body[data-page="mario"] .home-marquee { display: block; }
-  body[data-page="mario"] .arcade-topbar .topnav a:nth-child(n+3) { display: none; }
+  body[data-page="mario"] .arcade-topbar .topnav a:nth-child(n+3) { display: block; }
   body[data-page="mario"] main > .container:first-child { padding-inline: 16px; }
   body[data-page="mario"] .page-head { padding-bottom: 48px; }
   body[data-page="mario"] .page-head-row { display: block; }
   body[data-page="mario"] .page-head-row > .btn { margin-top: 22px; }
   body[data-page="mario"] .entrants-grid { grid-template-columns: 1fr; gap: 24px; }
   body[data-page="mario"] .battle-controls { align-items: flex-start; }
+  body[data-page="mario"] .battle-controls .btn { width: 100%; justify-content: center; }
+  body[data-page="mario"] #battle-stats { width: 100%; line-height: 1.6; }
   body[data-page="mario"] .battle-vote { padding: 20px 12px; }
+  body[data-page="mario"] .battle-vote .gate-hint, body[data-page="mario"] .battle-result { flex: 0 0 100%; line-height: 1.6; }
+  body[data-page="mario"] .battle-vote .btn[data-vote] { flex: 1 1 100%; min-height: 44px; justify-content: center; }
+  body[data-page="mario"] #battle-next { width: 100%; justify-content: center; }
   body[data-page="mario"] .modal-top { flex-wrap: wrap; }
   body[data-page="mario"] .modal-top .hint { width: 100%; order: 3; }
+  body[data-page="mario"] .table-wrap::before {
+    content: "← 左右滑动查看完整数据 →";
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    display: block;
+    width: max-content;
+    padding: 7px 10px;
+    color: var(--home-ink);
+    background: var(--home-yellow);
+    border-right: 1px solid var(--home-ink);
+    border-bottom: 1px solid var(--home-ink);
+    font: 800 8px/1 var(--mono);
+    letter-spacing: .05em;
+  }
+  .index-track-table::before {
+    content: "← 左右滑动查看全部赛道 →";
+    position: sticky;
+    left: 0;
+    display: block;
+    width: max-content;
+    padding: 7px 10px;
+    color: var(--home-ink);
+    background: var(--home-yellow);
+    border-right: 1px solid var(--home-ink);
+    border-bottom: 1px solid var(--home-ink);
+    font: 800 8px/1 var(--mono);
+  }
+}
+
+@media (max-width: 680px) {
+  body[data-page="home"] .topbar-inner,
+  body[data-page="mario"] .topbar-inner {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    flex-wrap: wrap;
+    padding-top: 9px;
+  }
+  .topbar .logo { align-items: center; font-size: 16px; }
+  .topbar .home-logo-mark { width: 32px; height: 32px; }
+  .topbar .topnav {
+    order: 3;
+    display: flex;
+    width: calc(100% + 32px);
+    margin: 8px -16px 0;
+    padding: 7px 10px 8px;
+    overflow-x: auto;
+    border-top: 1px solid rgba(11,16,32,.18);
+    scrollbar-width: none;
+  }
+  .topbar .topnav::-webkit-scrollbar { display: none; }
+  .topbar .topnav a,
+  body[data-page="mario"] .arcade-topbar .topnav a:nth-child(n+3) {
+    display: block;
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .topbar .topnav .nav-github {
+    position: absolute;
+    top: 9px;
+    right: 16px;
+    margin: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  body[data-page="mario"] .battle-stage.on { padding-inline: 9px; }
+  body[data-page="mario"] .battle-stage.on .battle-fullscreen-bar { margin-inline: -9px; padding: 9px; }
+  .battle-fullscreen-bar > div { min-width: 0; }
+  .battle-fullscreen-bar span { font-size: 7px; }
+  .battle-fullscreen-bar b { overflow: hidden; max-width: 220px; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+  .battle-fullscreen-bar .btn { flex: 0 0 auto; padding: 7px 9px; font-size: 9px; }
+  body[data-page="mario"] .battle-grid { gap: 18px; margin-top: 18px; }
+  body[data-page="mario"] .battle-panel { box-shadow: 4px 4px 0 var(--home-orange); }
+  body[data-page="mario"] #battle-a { box-shadow: 4px 4px 0 var(--home-blue); }
+  body[data-page="mario"] .battle-panel .handheld-controls {
+    grid-template-columns: 82px minmax(54px,1fr) 90px;
+    min-height: 128px;
+    padding: 3px 2px 9px;
+  }
+  body[data-page="mario"] .battle-panel .handheld-dpad { transform: scale(.68); }
+  body[data-page="mario"] .battle-panel .handheld-actions { gap: 2px; transform: rotate(-9deg) scale(.68); }
+  body[data-page="mario"] .battle-panel .handheld-center { padding-top: 22px; transform: scale(.7) skew(-7deg); }
+  body[data-page="mario"] .modal-frame-wrap.has-handheld { padding: 8px 8px 0; }
+  body[data-page="mario"] .modal-frame-wrap.has-handheld > iframe { border-width: 6px; border-bottom-width: 9px; }
+  .modal-frame-wrap .handheld-controls {
+    grid-template-columns: 92px minmax(58px,1fr) 102px;
+    flex-basis: 180px;
+    min-height: 158px;
+    padding: 7px 3px 14px;
+  }
+  .modal-frame-wrap .handheld-dpad { transform: scale(.82); }
+  .modal-frame-wrap .handheld-actions { gap: 6px; transform: rotate(-10deg) scale(.84); }
+  .modal-frame-wrap .handheld-center { padding-top: 31px; transform: scale(.82) skew(-7deg); }
 }

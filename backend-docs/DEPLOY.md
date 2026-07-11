@@ -46,6 +46,7 @@ npm run dev                 # = wrangler pages dev,默认 http://127.0.0.1:8788
    ```bash
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0001_init.sql
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0002_seed_mario.sql
+   npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0003_voter_pair_claims.sql
    # 或一条:npm run db:migrate:remote
    ```
 

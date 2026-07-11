@@ -12,7 +12,8 @@
 | 参数 | 值 | 含义 |
 |---|---|---|
 | MAX_PAIR_AGE_SECONDS | 7200 | pair token 有效期(2 小时) |
-| DAILY_VOTE_LIMIT | 60 | 单访客指纹(voter_hash)每 UTC 日上限 |
+| DAILY_VOTE_LIMIT | 60 | 单访客指纹(voter_hash)每 UTC 日防滥用上限 |
+| TRACK_VOTE_LIMIT | 12 | 单访客在一条赛道内的唯一对决上限 |
 | LEADERBOARD_CACHE_SECONDS | 60 | 榜单响应缓存时长(新票最多延迟 60s 上榜) |
 | ELO_K / ELO_INITIAL | 32 / 1000 | Elo 回放参数 |
 | BT_MIN_VOTES | 20 | 赛道总票数低于此值时 bt_score 全部为 null |
@@ -26,6 +27,8 @@
 | 400 | `pair_expired` | pair_id 已超过 2 小时有效期 |
 | 404 | `track_not_found` | 赛道不存在或活跃参赛者不足 2 个 |
 | 409 | `already_voted` | 该 pair_id 已投过票(一 token 一票) |
+| 409 | `matchup_already_voted` | 该访客已经判断过这组对决 |
+| 429 | `track_vote_limit_reached` | 该访客已完成本赛道 12 次判断 |
 | 429 | `rate_limited` | 该访客当日票数已达 60 |
 | 500 | `config_error` | 服务端未配置 PAIR_SECRET/SALT(部署问题) |
 | 500 | `internal` | 其他服务端错误 |
@@ -48,7 +51,7 @@ curl -s https://<site>/api/health
 
 ## 2. GET /api/pair?track=mario
 
-服务端随机抽一对参赛者。采样"轻度平衡":优先票数最少的配对(候选 = 票数不超过最少值 +1 的所有配对,均匀随机取一),A/B 槽位随机分配,槽位不携带任何信息。
+服务端按数据缺口抽取一对参赛者。先排除该访客已经判断过的组合，再依次优先全网票数最少的组合、全网出场次数最少的参赛者、该访客看得最少的参赛者，最后随机打散并随机分配 A/B 槽位。
 
 `pair_id` 是服务端 HMAC-SHA256 签名的不透明 token(编码 track、双方、签发时间和随机 nonce),**前端原样保存、原样回传即可,不要解析或修改**。同一配对每次领取的 pair_id 都不同,每个 pair_id 只能投一票。
 
@@ -62,13 +65,14 @@ curl -s "https://<site>/api/pair?track=mario"
   "track": "mario",
   "a": { "slot": "A", "dir": "5.6luna" },
   "b": { "slot": "B", "dir": "grok4.5" },
-  "issued_at": 1783738525
+  "issued_at": 1783738525,
+  "quota": { "limit": 12, "used": 0, "remaining": 12 }
 }
 ```
 
 盲投提醒:响应里的 `dir` 是给前端加载 iframe 用的(`tracks/mario/<dir>/`),**渲染时不要把 dir 暴露给访客**,页面上只显示 A/B。
 
-错误:400 `bad_request`(缺 track)、404 `track_not_found`。
+错误:400 `bad_request`(缺 track)、404 `track_not_found`、409 `track_complete`、429 `track_vote_limit_reached`。
 
 ## 3. POST /api/vote
 
@@ -80,15 +84,15 @@ curl -s -X POST https://<site>/api/vote \
 
 Body:`{ "pair_id": string, "winner": "A" | "B" | "tie" }`(winner 严格白名单)。
 
-服务端校验顺序:签名有效 → 距签发 ≤2h → 当日票数未超限 → pair_id 未用过。服务端不再设置最短试玩时长;前端应在 A/B 两个作品都被打开过以后才解锁投票。访客指纹 `voter_hash = SHA-256(client_ip + user_agent + 服务端盐)`,不存明文 IP。
+服务端校验顺序:签名有效 → 距签发 ≤2h → 本赛道未满 12 票 → 该对决未投过 → 当日防滥用上限未超 → pair_id 未用过。服务端不设置最短试玩时长;前端在 A/B 两个作品都被打开过以后解锁投票。访客指纹 `voter_hash = SHA-256(client_ip + user_agent + 服务端盐)`,不存明文 IP。
 
 成功(投完才揭晓身份,契合盲投流程):
 
 ```json
-{ "ok": true, "revealed": { "a_dir": "fable5", "b_dir": "gpt5.5" } }
+{ "ok": true, "revealed": { "a_dir": "fable5", "b_dir": "gpt5.5" }, "quota": { "limit": 12, "used": 1, "remaining": 11 } }
 ```
 
-错误:400 `bad_request` / `invalid_pair` / `pair_expired`,409 `already_voted`,429 `rate_limited`。
+错误:400 `bad_request` / `invalid_pair` / `pair_expired`,409 `already_voted` / `matchup_already_voted`,429 `track_vote_limit_reached` / `rate_limited`。
 
 ## 4. GET /api/leaderboard?track=mario
 

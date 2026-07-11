@@ -1,14 +1,16 @@
 // GET /api/pair?track=<track>
 // Serve a signed random pairing, lightly balanced toward least-voted pairs.
 import { jsonResponse, errorResponse } from "../_lib/http.js";
-import { getActiveParticipants, getPairCounts } from "../_lib/db.js";
+import { CONFIG } from "../_lib/config.js";
+import { ensureVoterPairClaims, getActiveParticipants, getPairCounts, getVoterPairKeys } from "../_lib/db.js";
 import { pickPair } from "../_lib/sampling.js";
 import { signPairToken } from "../_lib/hmac.js";
+import { getVoterHash } from "../_lib/voter.js";
 
 export async function onRequestGet(context) {
   const { request, env } = context;
-  if (!env.PAIR_SECRET) {
-    return errorResponse("config_error", "PAIR_SECRET is not configured", 500);
+  if (!env.PAIR_SECRET || !env.SALT) {
+    return errorResponse("config_error", "PAIR_SECRET or SALT is not configured", 500);
   }
 
   const url = new URL(request.url);
@@ -18,6 +20,7 @@ export async function onRequestGet(context) {
   }
 
   try {
+    await ensureVoterPairClaims(env.DB);
     const dirs = await getActiveParticipants(env.DB, track);
     if (dirs.length < 2) {
       return errorResponse(
@@ -27,8 +30,22 @@ export async function onRequestGet(context) {
       );
     }
 
+    const voterHash = await getVoterHash(request, env.SALT);
+    const judgedPairs = await getVoterPairKeys(env.DB, voterHash, track);
+    if (judgedPairs.size >= CONFIG.TRACK_VOTE_LIMIT) {
+      return errorResponse(
+        "track_vote_limit_reached",
+        `track vote limit reached (${CONFIG.TRACK_VOTE_LIMIT})`,
+        429,
+      );
+    }
+
     const counts = await getPairCounts(env.DB, track);
-    const { aDir, bDir } = pickPair(dirs, counts);
+    const picked = pickPair(dirs, counts, Math.random, judgedPairs);
+    if (!picked) {
+      return errorResponse("track_complete", "all matchups have been judged", 409);
+    }
+    const { aDir, bDir } = picked;
     const issuedAt = Math.floor(Date.now() / 1000);
     const pairId = await signPairToken(env.PAIR_SECRET, {
       track,
@@ -43,6 +60,11 @@ export async function onRequestGet(context) {
       a: { slot: "A", dir: aDir },
       b: { slot: "B", dir: bDir },
       issued_at: issuedAt,
+      quota: {
+        limit: CONFIG.TRACK_VOTE_LIMIT,
+        used: judgedPairs.size,
+        remaining: CONFIG.TRACK_VOTE_LIMIT - judgedPairs.size,
+      },
     });
   } catch (err) {
     console.error("pair error:", err);

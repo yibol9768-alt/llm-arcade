@@ -1,5 +1,5 @@
-// Pair sampling: prefer the least-voted pairings, with a little randomness.
-import { CONFIG } from "./config.js";
+// Pair sampling: fill the largest information gaps before adding more votes
+// to already well-covered matchups.
 
 /** Canonical unordered key for a pair of entrant dirs. */
 export function pairKey(dirA, dirB) {
@@ -7,26 +7,48 @@ export function pairKey(dirA, dirB) {
 }
 
 /**
- * Pick one pair from `dirs` (entrant dirs, length >= 2), lightly balanced:
- * candidates are all unordered pairs whose existing vote count is within
- * PAIR_COUNT_SLACK of the minimum, and one candidate is chosen uniformly.
- * Slot assignment (who is A, who is B) is then randomized.
+ * Priority order:
+ * 1. Never repeat a matchup already judged by this visitor.
+ * 2. Lowest global matchup vote count.
+ * 3. Lowest combined global entrant exposure.
+ * 4. Lowest combined exposure for this visitor.
+ * 5. Random tie break, then random A/B slot assignment.
  *
  * counts: Map(pairKey -> votes so far). rng: () => [0,1), injectable for tests.
  * Returns { aDir, bDir }.
  */
-export function pickPair(dirs, counts, rng = Math.random) {
+export function pickPair(dirs, counts, rng = Math.random, excluded = new Set()) {
+  const globalExposure = new Map(dirs.map((dir) => [dir, 0]));
+  for (const [key, count] of counts) {
+    const [x, y] = key.split("|");
+    if (globalExposure.has(x)) globalExposure.set(x, globalExposure.get(x) + count);
+    if (globalExposure.has(y)) globalExposure.set(y, globalExposure.get(y) + count);
+  }
+  const visitorExposure = new Map(dirs.map((dir) => [dir, 0]));
+  for (const key of excluded) {
+    const [x, y] = key.split("|");
+    if (visitorExposure.has(x)) visitorExposure.set(x, visitorExposure.get(x) + 1);
+    if (visitorExposure.has(y)) visitorExposure.set(y, visitorExposure.get(y) + 1);
+  }
   const pairs = [];
   for (let i = 0; i < dirs.length; i++) {
     for (let j = i + 1; j < dirs.length; j++) {
       const key = pairKey(dirs[i], dirs[j]);
-      pairs.push({ x: dirs[i], y: dirs[j], count: counts.get(key) || 0 });
+      if (excluded.has(key)) continue;
+      pairs.push({
+        x: dirs[i], y: dirs[j], count: counts.get(key) || 0,
+        globalExposure: globalExposure.get(dirs[i]) + globalExposure.get(dirs[j]),
+        visitorExposure: visitorExposure.get(dirs[i]) + visitorExposure.get(dirs[j]),
+      });
     }
   }
+  if (!pairs.length) return null;
   const minCount = Math.min(...pairs.map((p) => p.count));
-  const candidates = pairs.filter(
-    (p) => p.count <= minCount + CONFIG.PAIR_COUNT_SLACK,
-  );
+  let candidates = pairs.filter((p) => p.count === minCount);
+  const minGlobalExposure = Math.min(...candidates.map((p) => p.globalExposure));
+  candidates = candidates.filter((p) => p.globalExposure === minGlobalExposure);
+  const minVisitorExposure = Math.min(...candidates.map((p) => p.visitorExposure));
+  candidates = candidates.filter((p) => p.visitorExposure === minVisitorExposure);
   const pick = candidates[Math.floor(rng() * candidates.length)];
   // Random slot assignment so position A/B carries no information.
   return rng() < 0.5

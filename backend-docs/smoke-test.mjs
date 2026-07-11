@@ -82,21 +82,30 @@ function mockVoteDb() {
   return {
     inserted,
     prepare(sql) {
-      return {
-        bind(...values) {
-          return {
-            async first() {
-              assert.match(sql, /SELECT COUNT\(\*\)/);
-              return { c: 0 };
-            },
-            async run() {
-              assert.match(sql, /INSERT INTO votes/);
-              inserted.push(values);
-              return {};
-            },
-          };
+      const statement = (values = []) => ({
+        sql,
+        values,
+        async all() {
+          if (sql.includes("voter_pair_claims")) return { results: [] };
+          throw new Error(`unexpected all query: ${sql}`);
         },
+        async first() {
+          assert.match(sql, /SELECT COUNT\(\*\)/);
+          return { c: 0 };
+        },
+        async run() {
+          if (sql.includes("INSERT INTO votes")) inserted.push(values);
+          return {};
+        },
+      });
+      return {
+        ...statement(),
+        bind(...values) { return statement(values); },
       };
+    },
+    async batch(statements) {
+      for (const statement of statements) await statement.run();
+      return statements.map(() => ({}));
     },
   };
 }
@@ -125,6 +134,7 @@ await test("vote: a freshly issued signed pair can be submitted immediately", as
   assert.deepEqual(await response.json(), {
     ok: true,
     revealed: { a_dir: "a", b_dir: "b" },
+    quota: { limit: CONFIG.TRACK_VOTE_LIMIT, used: 1, remaining: CONFIG.TRACK_VOTE_LIMIT - 1 },
   });
   assert.equal(db.inserted.length, 1);
 });
@@ -140,6 +150,29 @@ await test("sampling: least-voted pairs are preferred", () => {
   for (let i = 0; i < 20; i++) {
     const { aDir, bDir } = pickPair(dirs, counts, Math.random);
     assert.equal(pairKey(aDir, bDir), pairKey("b", "c"));
+  }
+});
+
+await test("sampling: a visitor never receives an already judged matchup", () => {
+  const dirs = ["a", "b", "c"];
+  const excluded = new Set([pairKey("a", "b"), pairKey("a", "c")]);
+  for (let i = 0; i < 20; i++) {
+    const pair = pickPair(dirs, new Map(), Math.random, excluded);
+    assert.equal(pairKey(pair.aDir, pair.bDir), pairKey("b", "c"));
+  }
+});
+
+await test("sampling: entrant exposure breaks equal pair-count ties", () => {
+  const dirs = ["a", "b", "c", "d"];
+  const counts = new Map([
+    [pairKey("a", "b"), 5],
+    [pairKey("a", "c"), 5],
+  ]);
+  for (let i = 0; i < 20; i++) {
+    const pair = pickPair(dirs, counts, Math.random);
+    assert.ok(
+      new Set([pairKey("b", "d"), pairKey("c", "d")]).has(pairKey(pair.aDir, pair.bDir)),
+    );
   }
 });
 

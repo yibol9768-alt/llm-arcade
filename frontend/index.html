@@ -27,8 +27,9 @@
       <a href="#live-ranking">排行榜</a>
       <a href="#live-track">本期作品</a>
       <a href="#battle-callout">盲投对战</a>
-      <a href="#roadmap">赛道计划</a>
       <a href="#methodology">评测协议</a>
+      <a class="nav-contribute" href="#contribute">参与贡献</a>
+      <a class="nav-github" href="https://github.com/yibol9768-alt/llm-arcade" target="_blank" rel="noopener">GitHub ↗</a>
     </nav>
   </div>
 </header>
@@ -58,7 +59,7 @@
         <a class="cabinet-screen" href="mario/" aria-label="查看一句话马里奥全部作品">
           <img id="cabinet-main-shot" src="assets/shots/5.6luna.png" alt="5.6luna 生成的游戏首屏">
           <span class="screen-scanlines" aria-hidden="true"></span>
-          <span class="cabinet-identity" id="cabinet-identity"><span class="vendor-mark vendor-openai">OA</span><span class="identity-copy"><b>OpenAI</b><strong>GPT-5.6 Luna × Codex CLI</strong><small>内部代号 5.6luna</small></span></span>
+          <span class="cabinet-identity" id="cabinet-identity"><span class="vendor-mark vendor-openai" title="OpenAI"><img src="https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg" alt="" referrerpolicy="no-referrer"></span><span class="identity-copy"><b>OpenAI</b><strong>GPT-5.6 Luna × Codex CLI</strong><small>内部代号 5.6luna</small></span></span>
           <span class="screen-play">PLAY ALL 09 <b>▶</b></span>
         </a>
         <div class="cabinet-strip" id="cabinet-thumbs" aria-label="选择参赛作品">
@@ -95,6 +96,7 @@
           <div class="ranking-pending">综合指数正在读取赛道数据…</div>
         </div>
       </div>
+      <p class="index-mobile-hint">← 左右滑动查看全部模型 →</p>
       <div class="ranking-footer">
         <span><b id="ranking-votes">0</b> 次社区判断 · 当前 <b id="ranking-active-tracks">1</b> 条有效赛道</span>
         <button type="button" id="index-method-open">查看综合指数算法与赛道权重 ＋</button>
@@ -115,7 +117,7 @@
       <div class="battle-callout-copy">
         <span class="home-kicker">ARENA / BLIND REVIEW</span>
         <h2>Arena 盲评</h2>
-        <p>随机抽两款匿名作品。两边都玩过后投票，投完再揭晓模型和运行环境。结果实时计入对应赛道。</p>
+        <p>系统优先安排当前最缺数据的匿名对决。两边都玩过后投票，投完再揭晓模型和运行环境，结果实时计入对应赛道。</p>
         <a class="home-text-link" href="mario/#battle-sec">开始盲评 <span>→</span></a>
       </div>
       <a class="versus-card" href="mario/#battle-sec" aria-label="开始匿名 A B 对战">
@@ -207,6 +209,21 @@
         <article><span>04</span><div><h3>投完揭晓</h3><p>匿名 A/B，先体验后判断，降低品牌偏见。</p></div></article>
       </div>
       <div class="method-disclosure"><b>如实披露</b><p>马里奥赛道跑于完整协议建立之前，各 harness 的具体版本与迭代轮数当时未存档，无法追溯。自下一条赛道起，prompt、版本、日期与迭代规则全部先存档再开跑。</p></div>
+    </div>
+  </section>
+
+  <section class="home-contribute" id="contribute">
+    <div class="container">
+      <div class="home-section-head compact">
+        <div><span class="home-kicker">OPEN PROJECT / CONTRIBUTE</span><h2>参与贡献</h2></div>
+        <p>赛道提案、问题报告、复现记录和代码修改都公开留档。提交前可先查看评测规则与现有待办。</p>
+      </div>
+      <div class="contribute-grid">
+        <a href="https://github.com/yibol9768-alt/llm-arcade/issues/new" target="_blank" rel="noopener"><span>01</span><b>提交赛道提案</b><small>任务必须容易理解，结果可以直接运行或体验。</small><em>NEW ISSUE ↗</em></a>
+        <a href="https://github.com/yibol9768-alt/llm-arcade/issues/new" target="_blank" rel="noopener"><span>02</span><b>报告 Bug</b><small>附上设备、浏览器、页面位置和复现步骤。</small><em>REPORT ↗</em></a>
+        <a href="https://github.com/yibol9768-alt/llm-arcade/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener"><span>03</span><b>复现与贡献指南</b><small>查看数据规则、投票算法和提交方式。</small><em>READ GUIDE ↗</em></a>
+        <a href="api/leaderboard?track=mario" target="_blank" rel="noopener"><span>04</span><b>开放排行榜数据</b><small>当前赛道的 Elo、胜负记录和票数以 JSON 提供。</small><em>OPEN API ↗</em></a>
+      </div>
     </div>
   </section>
 </main>
