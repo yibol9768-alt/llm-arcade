@@ -320,6 +320,8 @@ td.rank-1 .medal { color: var(--accent); }
   transition: opacity 400ms ease;
 }
 .preview iframe.live.on { opacity: 1; }
+.solar-live-preview iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.solar-live-preview .live-dot { display: inline-flex; }
 .preview .mono-fallback {
   position: absolute;
   inset: 0;
@@ -454,6 +456,8 @@ td.rank-1 .medal { color: var(--accent); }
   border: 0;
   transform-origin: top left;
 }
+body[data-page="solar-system"] .battle-frame iframe { width: 100%; height: 100%; }
+body[data-page="solar-system"] #solar-battle-badge { border: 2px solid var(--home-ink); border-radius: 0; color: var(--home-ink); background: var(--home-paper); }
 .battle-cover {
   position: absolute;
   inset: 0;
@@ -1101,6 +1105,7 @@ body[data-page="solar-system"] .home-marquee { display: block; }
 .solar-run-model small { margin-top: 4px; color: var(--ink-3); font: 700 9px/1.2 var(--mono); }
 .solar-run-row code { overflow: hidden; padding: 9px 10px; color: var(--ink-3); background: var(--home-ivory); border: 1px solid rgba(11,16,32,.2); font: 600 9px/1.35 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
 .solar-run-row em { padding: 8px 6px; color: var(--ink-3); border: 1px solid var(--home-ink); font: 800 9px/1 var(--mono); text-align: center; font-style: normal; }
+.solar-run-row em.is-verified { color: #fff; background: #16754a; border-color: #16754a; }
 .solar-gate { padding-block: 90px; color: var(--home-paper); background: var(--home-blue); border-bottom: 2px solid var(--home-ink); }
 .solar-gate span { color: var(--home-yellow); font: 900 10px/1 var(--mono); letter-spacing: .14em; }
 .solar-gate h2 { max-width: 720px; margin: 16px 0 38px; font-size: clamp(40px,6vw,78px); line-height: .95; letter-spacing: -.04em; }
@@ -1143,7 +1148,7 @@ body[data-page="solar-system"] .site-footer { color: var(--home-paper); backgrou
 }
 
 /* ---------- Mario 赛道页：延续街机杂志视觉 ---------- */
-body[data-page="mario"] {
+:is(body[data-page="mario"], body[data-page="solar-system"]) {
   --home-ink: #0b1020;
   --home-ivory: #f4efe2;
   --home-paper: #fffaf0;
@@ -1155,23 +1160,23 @@ body[data-page="mario"] {
   color: var(--home-ink);
   overflow-x: hidden;
 }
-body[data-page="mario"] .container { max-width: 1240px; }
-body[data-page="mario"] .arcade-topbar {
+:is(body[data-page="mario"], body[data-page="solar-system"]) .container { max-width: 1240px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .arcade-topbar {
   background: rgba(244, 239, 226, .94);
   border-bottom: 2px solid var(--home-ink);
   backdrop-filter: blur(12px);
 }
-body[data-page="mario"] .topbar-inner { height: 64px; }
-body[data-page="mario"] .logo { font-weight: 850; text-transform: uppercase; letter-spacing: -.03em; }
-body[data-page="mario"] .topnav a {
+:is(body[data-page="mario"], body[data-page="solar-system"]) .topbar-inner { height: 64px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .logo { font-weight: 850; text-transform: uppercase; letter-spacing: -.03em; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .topnav a {
   border-radius: 0;
   color: var(--home-ink);
   font: 700 11px/1 var(--mono);
   text-transform: uppercase;
 }
-body[data-page="mario"] .topnav a:hover { background: var(--home-yellow); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .topnav a:hover { background: var(--home-yellow); }
 
-body[data-page="mario"] main > .container:first-child {
+:is(body[data-page="mario"], body[data-page="solar-system"]) main > .container:first-child {
   max-width: none;
   padding: 0 max(24px, calc((100vw - 1192px) / 2));
   color: var(--home-paper);
@@ -1182,19 +1187,19 @@ body[data-page="mario"] main > .container:first-child {
     var(--home-ink);
   background-size: auto, 36px 36px, 36px 36px, auto;
 }
-body[data-page="mario"] .breadcrumb { padding-top: 34px; color: rgba(255,250,240,.45); font: 700 10px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
-body[data-page="mario"] .breadcrumb a { color: rgba(255,250,240,.68); }
-body[data-page="mario"] .page-head { padding: 34px 0 64px; }
-body[data-page="mario"] .page-head-row { align-items: center; }
-body[data-page="mario"] .page-head h1 {
+:is(body[data-page="mario"], body[data-page="solar-system"]) .breadcrumb { padding-top: 34px; color: rgba(255,250,240,.45); font: 700 10px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .breadcrumb a { color: rgba(255,250,240,.68); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .page-head { padding: 34px 0 64px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .page-head-row { align-items: center; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .page-head h1 {
   margin: 0;
   color: var(--home-paper);
   font-size: clamp(42px, 5.7vw, 78px);
   line-height: 1;
   letter-spacing: -.065em;
 }
-body[data-page="mario"] .page-head h1 span { color: var(--home-orange) !important; font: 800 12px/1 var(--mono) !important; letter-spacing: .08em; text-transform: uppercase; }
-body[data-page="mario"] .page-head .prompt-quote {
+:is(body[data-page="mario"], body[data-page="solar-system"]) .page-head h1 span { color: var(--home-orange) !important; font: 800 12px/1 var(--mono) !important; letter-spacing: .08em; text-transform: uppercase; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .page-head .prompt-quote {
   margin-top: 32px;
   max-width: 930px;
   padding: 23px 26px;
@@ -1205,29 +1210,29 @@ body[data-page="mario"] .page-head .prompt-quote {
   border-radius: 0;
   font-size: 19px;
 }
-body[data-page="mario"] .prompt-quote .q-note { color: rgba(255,250,240,.5); }
-body[data-page="mario"] .page-head .meta-line { color: rgba(255,250,240,.6); font: 700 10px/1.5 var(--mono); letter-spacing: .04em; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .prompt-quote .q-note { color: rgba(255,250,240,.5); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .page-head .meta-line { color: rgba(255,250,240,.6); font: 700 10px/1.5 var(--mono); letter-spacing: .04em; }
 
-body[data-page="mario"] .section { padding: 86px 0; }
-body[data-page="mario"] .section-head { display: grid; grid-template-columns: .7fr 1.3fr; gap: 40px; align-items: end; margin-bottom: 38px; }
-body[data-page="mario"] .section-head .kicker { grid-column: 1 / -1; margin-bottom: -22px; color: var(--home-orange); font: 800 10px/1 var(--mono); letter-spacing: .13em; }
-body[data-page="mario"] .section-head h2 { margin: 0; font-size: clamp(34px,4vw,54px); line-height: 1.05; letter-spacing: -.055em; }
-body[data-page="mario"] .section-head p { margin: 0; max-width: 630px; line-height: 1.8; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .section { padding: 86px 0; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .section-head { display: grid; grid-template-columns: .7fr 1.3fr; gap: 40px; align-items: end; margin-bottom: 38px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .section-head .kicker { grid-column: 1 / -1; margin-bottom: -22px; color: var(--home-orange); font: 800 10px/1 var(--mono); letter-spacing: .13em; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .section-head h2 { margin: 0; font-size: clamp(34px,4vw,54px); line-height: 1.05; letter-spacing: -.055em; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .section-head p { margin: 0; max-width: 630px; line-height: 1.8; }
 
-body[data-page="mario"] #entrants-sec { padding-top: 78px !important; background: var(--home-ivory); border-block: 2px solid var(--home-ink); }
-body[data-page="mario"] .entrants-grid { gap: 26px; }
-body[data-page="mario"] .entrant-card {
+:is(body[data-page="mario"], body[data-page="solar-system"]) #entrants-sec { padding-top: 78px !important; background: var(--home-ivory); border-block: 2px solid var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .entrants-grid { gap: 26px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .entrant-card {
   border: 2px solid var(--home-ink);
   border-radius: 0;
   box-shadow: 7px 7px 0 var(--home-orange);
   background: var(--home-paper);
 }
-body[data-page="mario"] .card.lift:hover { transform: translate(-3px,-3px); box-shadow: 10px 10px 0 var(--home-orange); border-color: var(--home-ink); }
-body[data-page="mario"] .preview { border-bottom: 2px solid var(--home-ink); background: var(--home-ink); }
-body[data-page="mario"] .preview .live-dot { top: 9px; right: 9px; border: 1px solid rgba(255,255,255,.55); border-radius: 0; background: var(--home-ink); font-family: var(--mono); }
-body[data-page="mario"] .entrant-body { padding: 19px 19px 20px; gap: 12px; }
-body[data-page="mario"] .entrant-name { justify-content: space-between; }
-body[data-page="mario"] .entrant-name .code { font-size: 18px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .card.lift:hover { transform: translate(-3px,-3px); box-shadow: 10px 10px 0 var(--home-orange); border-color: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .preview { border-bottom: 2px solid var(--home-ink); background: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .preview .live-dot { top: 9px; right: 9px; border: 1px solid rgba(255,255,255,.55); border-radius: 0; background: var(--home-ink); font-family: var(--mono); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .entrant-body { padding: 19px 19px 20px; gap: 12px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .entrant-name { justify-content: space-between; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .entrant-name .code { font-size: 18px; }
 .entrant-run-note { margin: 0; padding: 10px 11px; color: var(--home-ink); background: rgba(255,212,71,.38); border-left: 4px solid var(--home-orange); font: 700 9px/1.55 var(--mono); }
 .entrant-run-note strong { display: block; margin-bottom: 4px; color: var(--home-orange); font-size: 8px; letter-spacing: .08em; }
 .entrant-identity { display: flex; align-items: center; gap: 10px; min-width: 0; padding-bottom: 10px; border-bottom: 1px solid var(--home-line); }
@@ -1242,25 +1247,25 @@ body[data-page="mario"] .entrant-name .code { font-size: 18px; }
 .table-identity .identity-copy b { color: var(--home-orange); font: 800 7px/1 var(--mono); }
 .table-identity .identity-copy strong { margin-top: 2px; font: 800 10px/1 var(--mono); }
 .table-harness { display: block; margin: 4px 0 0 29px; color: var(--ink-3); font: 600 8px/1 var(--mono); }
-body[data-page="mario"] .tag-internal, body[data-page="mario"] .feat { border-radius: 0; border-color: var(--home-line); background: transparent; font-family: var(--mono); }
-body[data-page="mario"] .feat.on { color: var(--home-ink); background: var(--home-yellow); border-color: var(--home-ink); }
-body[data-page="mario"] .entrant-meta { padding-top: 9px; border-top: 1px solid var(--home-line); font-family: var(--mono); }
-body[data-page="mario"] .entrant-score .v { font: 900 30px/1 var(--mono); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .tag-internal, :is(body[data-page="mario"], body[data-page="solar-system"]) .feat { border-radius: 0; border-color: var(--home-line); background: transparent; font-family: var(--mono); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .feat.on { color: var(--home-ink); background: var(--home-yellow); border-color: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .entrant-meta { padding-top: 9px; border-top: 1px solid var(--home-line); font-family: var(--mono); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .entrant-score .v { font: 900 30px/1 var(--mono); }
 
-body[data-page="mario"] .btn { border-width: 2px; border-radius: 0; font-family: var(--mono); box-shadow: none; }
-body[data-page="mario"] .btn-primary { color: var(--home-ink); background: var(--home-orange); border-color: var(--home-ink); }
-body[data-page="mario"] .btn-primary:hover { color: var(--home-paper); background: var(--home-ink); box-shadow: 4px 4px 0 var(--home-blue); }
-body[data-page="mario"] .btn-secondary { color: var(--home-ink); background: var(--home-paper); border-color: var(--home-ink); }
-body[data-page="mario"] .btn-secondary:hover { background: var(--home-yellow); border-color: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .btn { border-width: 2px; border-radius: 0; font-family: var(--mono); box-shadow: none; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .btn-primary { color: var(--home-ink); background: var(--home-orange); border-color: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .btn-primary:hover { color: var(--home-paper); background: var(--home-ink); box-shadow: 4px 4px 0 var(--home-blue); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .btn-secondary { color: var(--home-ink); background: var(--home-paper); border-color: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .btn-secondary:hover { background: var(--home-yellow); border-color: var(--home-ink); }
 
-body[data-page="mario"] #battle-sec { background: var(--home-yellow); border-bottom: 2px solid var(--home-ink); }
-body[data-page="mario"] #battle-sec .kicker { color: var(--home-blue); }
-body[data-page="mario"] #battle-sec .section-head h2 { max-width: 500px; }
-body[data-page="mario"] #battle-mode-badge { border: 2px solid var(--home-ink); border-radius: 0; color: var(--home-ink); background: var(--home-paper); }
-body[data-page="mario"] .battle-note { margin-bottom: 28px; padding: 16px 18px; color: var(--home-paper); background: var(--home-ink); border: 0; border-left: 5px solid var(--home-orange); border-radius: 0; }
-body[data-page="mario"] .battle-controls { justify-content: space-between; padding-bottom: 18px; border-bottom: 2px solid var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #battle-sec { background: var(--home-yellow); border-bottom: 2px solid var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #battle-sec .kicker { color: var(--home-blue); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #battle-sec .section-head h2 { max-width: 500px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #battle-mode-badge { border: 2px solid var(--home-ink); border-radius: 0; color: var(--home-ink); background: var(--home-paper); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-note { margin-bottom: 28px; padding: 16px 18px; color: var(--home-paper); background: var(--home-ink); border: 0; border-left: 5px solid var(--home-orange); border-radius: 0; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-controls { justify-content: space-between; padding-bottom: 18px; border-bottom: 2px solid var(--home-ink); }
 .battle-fullscreen-bar { display: none; }
-body[data-page="mario"] .battle-stage.on {
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on {
   position: fixed;
   inset: 0;
   z-index: 120;
@@ -1274,7 +1279,7 @@ body[data-page="mario"] .battle-stage.on {
     var(--home-yellow);
   background-size: 34px 34px;
 }
-body[data-page="mario"] .battle-stage.on .battle-fullscreen-bar {
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on .battle-fullscreen-bar {
   position: sticky;
   top: 0;
   z-index: 8;
@@ -1292,43 +1297,43 @@ body[data-page="mario"] .battle-stage.on .battle-fullscreen-bar {
 .battle-fullscreen-bar > div { display: flex; align-items: baseline; gap: 16px; }
 .battle-fullscreen-bar span { color: var(--home-orange); font: 900 9px/1 var(--mono); letter-spacing: .12em; }
 .battle-fullscreen-bar b { font-size: 14px; }
-body[data-page="mario"] .battle-grid { gap: 26px; margin-top: 26px; }
-body[data-page="mario"] .battle-panel { border: 3px solid var(--home-ink); border-radius: 0; box-shadow: 8px 8px 0 var(--home-orange); }
-body[data-page="mario"] .battle-panel:not(.is-playing) { opacity: .92; }
-body[data-page="mario"] .battle-panel.is-playing { outline: 4px solid var(--home-paper); outline-offset: 4px; }
-body[data-page="mario"] #battle-a { box-shadow: 8px 8px 0 var(--home-blue); }
-body[data-page="mario"] .battle-panel-top { padding: 13px 15px; color: var(--home-paper); background: var(--home-ink); border-bottom: 2px solid var(--home-ink); }
-body[data-page="mario"] #battle-a .battle-panel-top { background: var(--home-blue); }
-body[data-page="mario"] #battle-b .battle-panel-top { color: var(--home-ink); background: var(--home-orange); }
-body[data-page="mario"] .battle-panel-top .who { font: 900 14px/1 var(--mono); letter-spacing: .08em; }
-body[data-page="mario"] .battle-panel-top .btn { padding: 6px 10px; }
-body[data-page="mario"] .battle-frame { background: var(--home-ink); }
-body[data-page="mario"] .battle-cover { color: var(--home-paper); background: var(--home-ink); border-radius: 0; font-family: var(--mono); }
-body[data-page="mario"] .battle-cover:hover { color: var(--home-ink); background: var(--home-paper); }
-body[data-page="mario"] .battle-cover .big { display: grid; place-items: center; width: 66px; height: 66px; color: var(--home-ink); background: var(--home-yellow); border-radius: 50%; }
-body[data-page="mario"] .battle-vote { margin-top: 28px; padding: 25px; color: var(--home-paper); background: var(--home-ink); border: 0; border-radius: 0; }
-body[data-page="mario"] .battle-vote .gate-hint { color: rgba(255,250,240,.6); font-family: var(--mono); }
-body[data-page="mario"] .battle-vote .btn-secondary { background: transparent; color: var(--home-paper); border-color: var(--home-paper); }
-body[data-page="mario"] .battle-vote .btn-secondary:hover { color: var(--home-ink); background: var(--home-yellow); border-color: var(--home-yellow); }
-body[data-page="mario"] .battle-vote .btn:disabled { opacity: .3; }
-body[data-page="mario"] .elo-head { padding-top: 16px; border-top: 2px solid var(--home-ink); }
-body[data-page="mario"] #net-board .table-wrap, body[data-page="mario"] #local-board .table-wrap { border: 2px solid var(--home-ink); border-radius: 0; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-grid { gap: 26px; margin-top: 26px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel { border: 3px solid var(--home-ink); border-radius: 0; box-shadow: 8px 8px 0 var(--home-orange); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel:not(.is-playing) { opacity: .92; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel.is-playing { outline: 4px solid var(--home-paper); outline-offset: 4px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #battle-a { box-shadow: 8px 8px 0 var(--home-blue); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel-top { padding: 13px 15px; color: var(--home-paper); background: var(--home-ink); border-bottom: 2px solid var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #battle-a .battle-panel-top { background: var(--home-blue); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #battle-b .battle-panel-top { color: var(--home-ink); background: var(--home-orange); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel-top .who { font: 900 14px/1 var(--mono); letter-spacing: .08em; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel-top .btn { padding: 6px 10px; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-frame { background: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-cover { color: var(--home-paper); background: var(--home-ink); border-radius: 0; font-family: var(--mono); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-cover:hover { color: var(--home-ink); background: var(--home-paper); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-cover .big { display: grid; place-items: center; width: 66px; height: 66px; color: var(--home-ink); background: var(--home-yellow); border-radius: 50%; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote { margin-top: 28px; padding: 25px; color: var(--home-paper); background: var(--home-ink); border: 0; border-radius: 0; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote .gate-hint { color: rgba(255,250,240,.6); font-family: var(--mono); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote .btn-secondary { background: transparent; color: var(--home-paper); border-color: var(--home-paper); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote .btn-secondary:hover { color: var(--home-ink); background: var(--home-yellow); border-color: var(--home-yellow); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote .btn:disabled { opacity: .3; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .elo-head { padding-top: 16px; border-top: 2px solid var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #net-board .table-wrap, :is(body[data-page="mario"], body[data-page="solar-system"]) #local-board .table-wrap { border: 2px solid var(--home-ink); border-radius: 0; }
 
-body[data-page="mario"] #checklist-sec { background: var(--home-paper); border-bottom: 2px solid var(--home-ink); }
-body[data-page="mario"] #checklist-sec .table-wrap { border: 2px solid var(--home-ink); border-radius: 0; }
-body[data-page="mario"] table.data th { color: var(--home-paper); background: var(--home-ink); }
-body[data-page="mario"] table.data tbody tr:nth-child(even) { background: var(--home-ivory); }
-body[data-page="mario"] .chart-card { border: 2px solid var(--home-ink); border-radius: 0; box-shadow: 8px 8px 0 var(--home-blue); }
-body[data-page="mario"] .footnote { border: 1px solid var(--home-line); border-left: 4px solid var(--home-orange); border-radius: 0; background: var(--home-ivory); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #checklist-sec { background: var(--home-paper); border-bottom: 2px solid var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #checklist-sec .table-wrap { border: 2px solid var(--home-ink); border-radius: 0; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) table.data th { color: var(--home-paper); background: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) table.data tbody tr:nth-child(even) { background: var(--home-ivory); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .chart-card { border: 2px solid var(--home-ink); border-radius: 0; box-shadow: 8px 8px 0 var(--home-blue); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .footnote { border: 1px solid var(--home-line); border-left: 4px solid var(--home-orange); border-radius: 0; background: var(--home-ivory); }
 
-body[data-page="mario"] #disclosure-sec { color: var(--home-paper); background: var(--home-blue); }
-body[data-page="mario"] #disclosure-sec .kicker { color: var(--home-yellow); }
-body[data-page="mario"] #disclosure-sec .method-card { color: var(--home-paper); background: rgba(11,16,32,.24); border: 1px solid rgba(255,250,240,.35); border-radius: 0; box-shadow: none; }
-body[data-page="mario"] #disclosure-sec .method-card ul { color: rgba(255,250,240,.72); }
-body[data-page="mario"] #disclosure-sec .disclosure { border-left: 5px solid var(--home-yellow); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #disclosure-sec { color: var(--home-paper); background: var(--home-blue); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #disclosure-sec .kicker { color: var(--home-yellow); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #disclosure-sec .method-card { color: var(--home-paper); background: rgba(11,16,32,.24); border: 1px solid rgba(255,250,240,.35); border-radius: 0; box-shadow: none; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #disclosure-sec .method-card ul { color: rgba(255,250,240,.72); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) #disclosure-sec .disclosure { border-left: 5px solid var(--home-yellow); }
 
-body[data-page="mario"] footer.site { padding: 50px 0; color: rgba(255,250,240,.68); background: var(--home-ink); border: 0; }
-body[data-page="mario"] footer.site strong { color: var(--home-paper); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) footer.site { padding: 50px 0; color: rgba(255,250,240,.68); background: var(--home-ink); border: 0; }
+:is(body[data-page="mario"], body[data-page="solar-system"]) footer.site strong { color: var(--home-paper); }
 
 /* ---------- 开放数据页 ---------- */
 body[data-page="data"] {
@@ -1424,11 +1429,11 @@ body[data-page="data"] .topnav a:hover { background: var(--home-yellow); }
 body[data-page="data"] .data-footer { border-top: 0; }
 body[data-page="data"] .data-footer a { color: var(--home-yellow); }
 
-body[data-page="mario"] .modal { background: rgba(11,16,32,.8); }
-body[data-page="mario"] .modal-box { background: var(--home-ink); }
-body[data-page="mario"] .modal-top { color: var(--home-ink); background: var(--home-orange); border-bottom: 3px solid var(--home-ink); }
-body[data-page="mario"] .modal-top .hint { color: rgba(11,16,32,.65); }
-body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .modal { background: rgba(11,16,32,.8); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .modal-box { background: var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .modal-top { color: var(--home-ink); background: var(--home-orange); border-bottom: 3px solid var(--home-ink); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .modal-top .hint { color: rgba(11,16,32,.65); }
+:is(body[data-page="mario"], body[data-page="solar-system"]) .modal-top .tag-internal { border-color: var(--home-ink); }
 .modal-title-group { min-width: 0; }
 .modal-eyebrow { display: none; }
 .modal-title-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -1440,7 +1445,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
 .handheld-controls { display: none; }
 
 @media (min-width: 821px) and (pointer: fine) {
-  body[data-page="mario"] .modal {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal {
     padding: 22px;
     background:
       radial-gradient(circle at 84% 15%, rgba(40,100,255,.28), transparent 30%),
@@ -1449,14 +1454,14 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
       rgba(11,16,32,.97);
     background-size: auto, 36px 36px, 36px 36px, auto;
   }
-  body[data-page="mario"] .modal-box {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-box {
     width: min(1600px, 100%);
     height: 100%;
     overflow: hidden;
     border: 2px solid var(--home-paper);
     box-shadow: 10px 10px 0 var(--home-blue);
   }
-  body[data-page="mario"] .modal-top {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-top {
     min-height: 76px;
     gap: 28px;
     padding: 12px 16px 12px 20px;
@@ -1482,7 +1487,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
     box-shadow: 0 0 0 4px rgba(54,215,122,.14);
   }
   .modal-eyebrow b { color: var(--home-ink); font-weight: 900; }
-  body[data-page="mario"] .modal-title-row .code { font-size: 18px; letter-spacing: -.02em; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-row .code { font-size: 18px; letter-spacing: -.02em; }
   .modal-title-row strong {
     display: block;
     overflow: hidden;
@@ -1512,20 +1517,20 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
     text-align: center;
   }
   .modal-actions { flex: 0 0 auto; }
-  body[data-page="mario"] .modal-actions .btn {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-actions .btn {
     min-height: 42px;
     padding-inline: 15px;
     font-size: 9px;
   }
-  body[data-page="mario"] .modal-actions .modal-close-btn {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-actions .modal-close-btn {
     color: var(--home-paper);
     background: var(--home-ink);
   }
-  body[data-page="mario"] .modal-actions .modal-close-btn:hover {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-actions .modal-close-btn:hover {
     color: var(--home-ink);
     background: var(--home-orange);
   }
-  body[data-page="mario"] .modal-stage {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-stage {
     position: relative;
     display: grid;
     grid-template-rows: 26px minmax(0,1fr) 28px;
@@ -1546,7 +1551,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   .modal-stage-foot { justify-content: flex-start; gap: 8px; }
   .modal-stage-foot b { margin-left: auto; color: rgba(255,250,240,.34); font-weight: 800; }
   .modal-status-dot { width: 7px; height: 7px; background: #36d77a; border-radius: 50%; box-shadow: 0 0 0 4px rgba(54,215,122,.12); }
-  body[data-page="mario"] .modal-frame-wrap {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-frame-wrap {
     width: 100%;
     min-height: 0;
     overflow: hidden;
@@ -1557,12 +1562,12 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
 }
 
 @media (max-width: 820px), (pointer: coarse) {
-  body[data-page="mario"] .modal { padding: 0; }
-  body[data-page="mario"] .modal-box { background: #c8c3b3; }
-  body[data-page="mario"] .modal-top { position: relative; z-index: 3; padding: 8px 10px; }
-  body[data-page="mario"] .modal-stage { display: flex; }
-  body[data-page="mario"] .modal-title-row strong, body[data-page="mario"] .modal-key-hints { display: none; }
-  body[data-page="mario"] .modal-frame-wrap.has-handheld {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal { padding: 0; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-box { background: #c8c3b3; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-top { position: relative; z-index: 3; padding: 8px 10px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-stage { display: flex; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-row strong, :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-key-hints { display: none; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-frame-wrap.has-handheld {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1570,7 +1575,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
     padding: 12px 12px 0;
     background: #c8c3b3;
   }
-  body[data-page="mario"] .modal-frame-wrap.has-handheld > iframe {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-frame-wrap.has-handheld > iframe {
     position: relative;
     inset: auto;
     flex: 0 0 auto;
@@ -1620,56 +1625,56 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   .handheld-actions label { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #55416d; font: 900 8px/1 var(--mono); }
   .handheld-actions button { width: 50px; height: 50px; border: 0; border-radius: 50%; color: rgba(255,255,255,.72); background: #93465f; box-shadow: inset 0 -4px 0 #6d3044, 0 5px 0 #777568; font: 900 17px/1 var(--mono); touch-action: none; }
   .handheld-actions button.pressed { box-shadow: inset 0 -1px 0 #6d3044, 0 2px 0 #777568; transform: translateY(3px); }
-  body[data-page="mario"] .modal-frame-wrap.has-handheld .handheld-controls {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-frame-wrap.has-handheld .handheld-controls {
     align-self: center;
     width: min(100%, calc((100svh - 310px) * 4 / 3));
   }
 
-  body[data-page="mario"] .battle-panel .handheld-controls {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-controls {
     grid-template-columns: 95px 1fr 108px;
     min-height: 145px;
     padding: 6px 4px 13px;
     border-top: 3px solid var(--home-ink);
     border-radius: 0;
   }
-  body[data-page="mario"] .battle-panel .handheld-dpad { transform: scale(.82); }
-  body[data-page="mario"] .battle-panel .handheld-actions { gap: 8px; transform: rotate(-12deg) scale(.82); }
-  body[data-page="mario"] .battle-panel .handheld-center { padding-top: 28px; transform: scale(.82) skew(-7deg); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-dpad { transform: scale(.82); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-actions { gap: 8px; transform: rotate(-12deg) scale(.82); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-center { padding-top: 28px; transform: scale(.82) skew(-7deg); }
 }
 
 @media (max-width: 800px) {
-  body[data-page="mario"] .section { padding: 64px 0; }
-  body[data-page="mario"] .section-head { grid-template-columns: 1fr; gap: 10px; }
-  body[data-page="mario"] .section-head .kicker { grid-column: 1; margin-bottom: 5px; }
-  body[data-page="mario"] .page-head h1 span { display: block; margin-top: 14px; }
-  body[data-page="mario"] .battle-grid { grid-template-columns: 1fr; }
-  body[data-page="mario"] .battle-stage.on { padding-inline: 12px; }
-  body[data-page="mario"] .battle-stage.on .battle-fullscreen-bar { margin-inline: -12px; padding-inline: 12px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .section { padding: 64px 0; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .section-head { grid-template-columns: 1fr; gap: 10px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .section-head .kicker { grid-column: 1; margin-bottom: 5px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .page-head h1 span { display: block; margin-top: 14px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-grid { grid-template-columns: 1fr; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on { padding-inline: 12px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on .battle-fullscreen-bar { margin-inline: -12px; padding-inline: 12px; }
   .battle-fullscreen-bar > div { display: block; }
   .battle-fullscreen-bar b { display: block; margin-top: 4px; font-size: 11px; }
 }
 @media (max-width: 640px) {
-  body[data-page="mario"] .home-marquee { display: block; }
-  body[data-page="mario"] .arcade-topbar .topnav a:nth-child(n+3) { display: block; }
-  body[data-page="mario"] main > .container:first-child { padding-inline: 16px; }
-  body[data-page="mario"] .page-head { padding-bottom: 48px; }
-  body[data-page="mario"] .page-head-row { display: block; }
-  body[data-page="mario"] .page-head-row > .btn { margin-top: 22px; }
-  body[data-page="mario"] .entrants-grid { grid-template-columns: 1fr; gap: 24px; }
-  body[data-page="mario"] .battle-controls { align-items: flex-start; }
-  body[data-page="mario"] .battle-controls .btn { width: 100%; justify-content: center; }
-  body[data-page="mario"] #battle-stats { width: 100%; line-height: 1.6; }
-  body[data-page="mario"] .battle-vote { padding: 20px 12px; }
-  body[data-page="mario"] .battle-vote .gate-hint, body[data-page="mario"] .battle-result { flex: 0 0 100%; line-height: 1.6; }
-  body[data-page="mario"] .battle-vote .btn[data-vote] { flex: 1 1 100%; min-height: 44px; justify-content: center; }
-  body[data-page="mario"] #battle-next { width: 100%; justify-content: center; }
-  body[data-page="mario"] .modal-top { flex-wrap: nowrap; gap: 7px; min-height: 54px; }
-  body[data-page="mario"] .modal-title-group { flex: 1 1 auto; overflow: hidden; }
-  body[data-page="mario"] .modal-title-row { gap: 6px; }
-  body[data-page="mario"] .modal-title-row .code { overflow: hidden; max-width: 92px; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
-  body[data-page="mario"] .modal-actions { flex: 0 0 auto; gap: 6px; }
-  body[data-page="mario"] .modal-actions .btn { min-height: 38px; padding: 7px 10px; white-space: nowrap; }
-  body[data-page="mario"] .table-wrap::before {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .home-marquee { display: block; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .arcade-topbar .topnav a:nth-child(n+3) { display: block; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) main > .container:first-child { padding-inline: 16px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .page-head { padding-bottom: 48px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .page-head-row { display: block; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .page-head-row > .btn { margin-top: 22px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .entrants-grid { grid-template-columns: 1fr; gap: 24px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-controls { align-items: flex-start; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-controls .btn { width: 100%; justify-content: center; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) #battle-stats { width: 100%; line-height: 1.6; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote { padding: 20px 12px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote .gate-hint, :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-result { flex: 0 0 100%; line-height: 1.6; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-vote .btn[data-vote] { flex: 1 1 100%; min-height: 44px; justify-content: center; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) #battle-next { width: 100%; justify-content: center; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-top { flex-wrap: nowrap; gap: 7px; min-height: 54px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-group { flex: 1 1 auto; overflow: hidden; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-row { gap: 6px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-row .code { overflow: hidden; max-width: 92px; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-actions { flex: 0 0 auto; gap: 6px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-actions .btn { min-height: 38px; padding: 7px 10px; white-space: nowrap; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .table-wrap::before {
     content: "← 左右滑动查看完整数据 →";
     position: sticky;
     left: 0;
@@ -1701,7 +1706,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
 
 @media (max-width: 680px) {
   body[data-page="home"] .topbar-inner,
-  body[data-page="mario"] .topbar-inner,
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .topbar-inner,
   body[data-page="data"] .topbar-inner {
     position: relative;
     height: auto;
@@ -1723,7 +1728,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   }
   .topbar .topnav::-webkit-scrollbar { display: none; }
   .topbar .topnav a,
-  body[data-page="mario"] .arcade-topbar .topnav a:nth-child(n+3) {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .arcade-topbar .topnav a:nth-child(n+3) {
     display: block;
     flex: 0 0 auto;
     padding: 7px 10px;
@@ -1740,26 +1745,26 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
 }
 
 @media (max-width: 430px) {
-  body[data-page="mario"] .modal-title-row .tag-internal { display: none; }
-  body[data-page="mario"] .battle-stage.on { padding-inline: 9px; }
-  body[data-page="mario"] .battle-stage.on .battle-fullscreen-bar { margin-inline: -9px; padding: 9px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-title-row .tag-internal { display: none; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on { padding-inline: 9px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-stage.on .battle-fullscreen-bar { margin-inline: -9px; padding: 9px; }
   .battle-fullscreen-bar > div { min-width: 0; }
   .battle-fullscreen-bar span { font-size: 7px; }
   .battle-fullscreen-bar b { overflow: hidden; max-width: 220px; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
   .battle-fullscreen-bar .btn { flex: 0 0 auto; padding: 7px 9px; font-size: 9px; }
-  body[data-page="mario"] .battle-grid { gap: 18px; margin-top: 18px; }
-  body[data-page="mario"] .battle-panel { box-shadow: 4px 4px 0 var(--home-orange); }
-  body[data-page="mario"] #battle-a { box-shadow: 4px 4px 0 var(--home-blue); }
-  body[data-page="mario"] .battle-panel .handheld-controls {
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-grid { gap: 18px; margin-top: 18px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel { box-shadow: 4px 4px 0 var(--home-orange); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) #battle-a { box-shadow: 4px 4px 0 var(--home-blue); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-controls {
     grid-template-columns: 82px minmax(54px,1fr) 90px;
     min-height: 128px;
     padding: 3px 2px 9px;
   }
-  body[data-page="mario"] .battle-panel .handheld-dpad { transform: scale(.68); }
-  body[data-page="mario"] .battle-panel .handheld-actions { gap: 2px; transform: rotate(-9deg) scale(.68); }
-  body[data-page="mario"] .battle-panel .handheld-center { padding-top: 22px; transform: scale(.7) skew(-7deg); }
-  body[data-page="mario"] .modal-frame-wrap.has-handheld { padding: 8px 8px 0; }
-  body[data-page="mario"] .modal-frame-wrap.has-handheld > iframe { border-width: 6px; border-bottom-width: 9px; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-dpad { transform: scale(.68); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-actions { gap: 2px; transform: rotate(-9deg) scale(.68); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .battle-panel .handheld-center { padding-top: 22px; transform: scale(.7) skew(-7deg); }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-frame-wrap.has-handheld { padding: 8px 8px 0; }
+  :is(body[data-page="mario"], body[data-page="solar-system"]) .modal-frame-wrap.has-handheld > iframe { border-width: 6px; border-bottom-width: 9px; }
   .modal-frame-wrap .handheld-controls {
     grid-template-columns: 92px minmax(58px,1fr) 102px;
     flex-basis: 220px;

@@ -103,7 +103,7 @@ window.SOLAR_SYSTEM_RUN_PLAN = {
       "harness": "Cursor",
       "machine": "Mac",
       "target_dir": "/Users/liuyibo/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/glm5.2/",
-      "status": "not_run"
+      "status": "completed_verified"
     },
     {
       "slug": "grok4.5",

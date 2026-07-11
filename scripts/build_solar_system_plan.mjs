@@ -31,4 +31,5 @@ writeFileSync(
   "/* Generated from tracks/solar-system/_run_plan.json. Do not edit directly. */\n" +
     "window.SOLAR_SYSTEM_RUN_PLAN = " + JSON.stringify(plan, null, 2) + ";\n",
 );
-console.log(`wrote ${outPath} (${plan.runs.length} planned runs, 0 published artifacts)`);
+const verified = plan.runs.filter((run) => run.status === "completed_verified").length;
+console.log(`wrote ${outPath} (${plan.runs.length} planned runs, ${verified} verified artifact(s))`);

@@ -1,76 +1,123 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>一句话太阳系 · 统一协议与运行计划 | LLM Arcade</title>
-<meta name="description" content="LLM Arcade 下一赛道：一句话太阳系。公开完全相同的任务说明、15 个计划运行位与作品上线门槛。当前尚无已完成作品。">
-<meta name="robots" content="index,follow">
-<link rel="icon" href="../assets/brand/llm-arcade-mark-192.png">
-<link rel="stylesheet" href="../assets/style.css?v=20260711g">
+<title>一句话太阳系 · AI 作品在线试玩与盲评 | LLM Arcade</title>
+<meta name="description" content="同一句 prompt 生成可交互探索的太阳系网页。只收录真实完成并核验的作品，支持在线试玩与匿名盲评。">
+<meta property="og:title" content="一句话太阳系 · AI 作品在线试玩与盲评 | LLM Arcade">
+<meta property="og:description" content="同一句 prompt，不同模型与编码 agent。真实作品逐份上线，满两份后开放匿名盲评。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/llm-arcade-favicon-64.png?v=20260711h">
+<link rel="stylesheet" href="../assets/style.css?v=20260711h">
 </head>
-<body data-page="solar-system">
-<div class="home-marquee" aria-label="赛道状态">
-  <div class="home-marquee-track"><span>NEXT TRACK</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>FIFTEEN PLANNED RUNS</span><b>✦</b><span>ZERO PUBLISHED BUILDS</span><b>✦</b><span>NEXT TRACK</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>FIFTEEN PLANNED RUNS</span><b>✦</b><span>ZERO PUBLISHED BUILDS</span></div>
+<body data-page="solar-system" data-game-base="../games/solar-system/">
+
+<div class="home-marquee" aria-label="本站特色">
+  <div class="home-marquee-track"><span>ONE PROMPT</span><b>✦</b><span>REAL BUILDS ONLY</span><b>✦</b><span>EXPLORE THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>REAL BUILDS ONLY</span><b>✦</b><span>EXPLORE THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span></div>
 </div>
-<header class="topbar home-topbar">
+
+<header class="topbar arcade-topbar">
   <div class="container topbar-inner">
-    <a class="logo" href="../" aria-label="返回 LLM Arcade 首页"><span class="home-logo-mark"><img src="../assets/brand/llm-arcade-mark-192.png" alt=""></span><span>LLM Arcade</span><span class="logo-zh">大模型街机厅</span></a>
-    <nav class="topnav" aria-label="主导航"><a href="#protocol">统一 Prompt</a><a href="#run-plan">运行计划</a><a href="../mario/">马里奥赛道</a><a class="nav-github" href="https://github.com/yibol9768-alt/llm-arcade">GitHub ↗</a></nav>
+    <a class="logo" href="../"><span class="home-logo-mark"><img src="../assets/brand/llm-arcade-mark-192.png" alt=""></span><span>LLM Arcade</span><span class="logo-zh">大模型街机厅</span></a>
+    <nav class="topnav" aria-label="主导航">
+      <a href="#entrants-sec">参赛作品</a>
+      <a href="#battle-sec">对战盲投</a>
+      <a href="#protocol-sec">统一协议</a>
+      <a href="#run-plan">运行计划</a>
+      <a href="../data/">开放数据</a>
+      <a class="nav-contribute" href="../#contribute">参与贡献</a>
+      <a class="nav-github" href="https://github.com/yibol9768-alt/llm-arcade" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
   </div>
 </header>
 
 <main>
-  <section class="solar-hero">
-    <div class="container solar-hero-grid">
-      <div>
-        <span class="home-kicker">NEXT / COLLECTING BUILDS</span>
-        <h1>一句话<br><span>太阳系</span></h1>
-        <p class="solar-hero-en">ONE-PROMPT SOLAR SYSTEM</p>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="面包屑"><a href="../">首页</a> / <a href="../#live-track">赛道</a> / 一句话太阳系</nav>
+    <header class="page-head">
+      <div class="page-head-row">
+        <h1>🪐 一句话太阳系 <span style="font-size:15px;font-weight:500;color:var(--ink-2)">One-Prompt Solar System</span></h1>
+        <button class="btn btn-secondary btn-sm" id="copy-link">🔗 复制链接</button>
       </div>
-      <div class="solar-status-card">
-        <strong>当前状态</strong><b>尚未运行</b>
-        <p>计划运行 <span id="solar-plan-count">15</span> 个模型与运行环境组合，当前完成并核验的作品为 0。</p>
-        <small>因此本页不展示试玩、截图、排行榜或评分。</small>
+      <blockquote class="prompt-quote">
+        「帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。」
+        <span class="q-note">原始 prompt 逐字原文 · 每次只替换目标目录 · 作品完成并核验后逐份上线</span>
+      </blockquote>
+      <div class="meta-line num">
+        <span><b id="solar-complete-count">0</b> 份真实参赛成品</span>
+        <span>15 个计划运行位</span>
+        <span>原始作品只读归档</span>
+      </div>
+    </header>
+  </div>
+
+  <section class="section alt" id="entrants-sec" style="padding-top:44px">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Entrants</span>
+        <h2>参赛作品 · 直接探索</h2>
+        <p>这里只展示已从真实目标目录归档、逐文件一致性通过并在浏览器中实际加载成功的作品。</p>
+      </div>
+      <div class="entrants-grid" id="solar-entrants"></div>
+    </div>
+  </section>
+
+  <section class="section" id="battle-sec">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Battle</span>
+        <h2>⚔ 对战盲投 <span class="badge" id="solar-battle-badge" style="vertical-align:3px"><span class="dot blue"></span>准备中</span></h2>
+        <p>身份在投票前隐藏。两边都打开探索一次后即可投票，投完才揭晓模型、厂商和运行环境。</p>
+      </div>
+      <div class="battle-note" role="note"><strong id="solar-battle-note-title">正在检查参赛作品…</strong><span id="solar-battle-note-body"></span></div>
+      <div class="battle-controls">
+        <button class="btn btn-primary" id="solar-battle-start">⚔ 开始一场对战</button>
+        <span id="solar-battle-stats" class="num" style="font-size:13px;color:var(--ink-2)"></span>
+      </div>
+      <div class="battle-stage" id="solar-battle-stage">
+        <div class="battle-fullscreen-bar"><div><span>BLIND BATTLE</span><b>一句话太阳系 · 匿名对战</b></div><button class="btn btn-secondary btn-sm" id="solar-battle-close" type="button">✕ 退出对战</button></div>
+        <div class="battle-grid"><div class="card battle-panel" id="solar-battle-a"></div><div class="card battle-panel" id="solar-battle-b"></div></div>
+        <div class="battle-vote" id="solar-battle-vote">
+          <p class="gate-hint" id="solar-battle-gate"></p>
+          <button class="btn btn-secondary" data-solar-vote="a" disabled>🅰 A 更好</button>
+          <button class="btn btn-secondary" data-solar-vote="t" disabled>不相上下</button>
+          <button class="btn btn-secondary" data-solar-vote="b" disabled>🅱 B 更好</button>
+          <div class="battle-result" id="solar-battle-result" aria-live="polite"></div>
+          <button class="btn btn-primary" id="solar-battle-next" style="display:none">下一对 →</button>
+        </div>
+      </div>
+      <div id="solar-net-board" hidden><div class="elo-head"><h3>全网 Elo 榜 <span style="font-size:12px;font-weight:500;color:var(--ink-3)">K=32 · 初始 1000 · 随有效投票更新</span></h3><span id="solar-net-meta" class="num" style="font-size:12.5px;color:var(--ink-2)"></span></div><div id="solar-net-table-box"></div></div>
+    </div>
+  </section>
+
+  <section class="section alt" id="protocol-sec">
+    <div class="container">
+      <div class="section-head"><span class="kicker">Protocol</span><h2>统一协议</h2><p>每次运行只替换目标目录，其他文字逐字不变。</p></div>
+      <div class="solar-prompt-card"><div class="solar-prompt-top"><span>LOCKED PROMPT</span><b>ONLY 【目标目录】 CHANGES</b></div><pre id="solar-prompt"></pre></div>
+      <div class="method-grid" style="margin-top:42px">
+        <div class="card method-card"><h3>执行方式</h3><ul><li>模型自行规划、编码、运行和调试，不询问设计细节；</li><li>只能访问自己的目标目录，禁止读取其他参赛作品；</li><li>入口固定为目标目录中的 index.html；</li><li>作品归档后冻结，网站外层不修改参赛源码。</li></ul></div>
+        <div class="card method-card disclosure"><h3>上线与评测门槛</h3><ul><li>单个作品通过文件一致性与浏览器验收后即可上线试玩；</li><li>至少 2 份真实作品后才启用匿名配对和排行榜；</li><li>未完成运行位不计入参赛数量，不生成截图、分数或对局；</li><li>模型、厂商、harness 与机器按可核验运行记录披露。</li></ul></div>
       </div>
     </div>
   </section>
 
-  <section class="solar-protocol" id="protocol">
-    <div class="container">
-      <div class="home-section-head"><div><span class="home-kicker">FAIRNESS PROTOCOL</span><h2>统一任务说明</h2></div><p>每次运行只替换目标目录，其他文字逐字不变。参赛模型不得读取父目录或其他作品。</p></div>
-      <div class="solar-prompt-card">
-        <div class="solar-prompt-top"><span>LOCKED PROMPT</span><b>ONLY 【目标目录】 CHANGES</b></div>
-        <pre id="solar-prompt"></pre>
-      </div>
-      <div class="solar-rules">
-        <article><b>01</b><h3>同题</h3><p>任务、要求和顺序完全一致，只替换目标目录。</p></article>
-        <article><b>02</b><h3>隔离</h3><p>只能访问自己的目标目录，禁止参考其他模型产物。</p></article>
-        <article><b>03</b><h3>自主</h3><p>模型自行规划、编码、运行与调试，不询问设计细节。</p></article>
-        <article><b>04</b><h3>验真后上线</h3><p>必须存在可运行 index.html，并通过原件一致性和加载检查。</p></article>
-      </div>
-    </div>
-  </section>
-
-  <section class="solar-plan" id="run-plan">
-    <div class="container">
-      <div class="home-section-head"><div><span class="home-kicker">RUN MATRIX</span><h2>计划运行位</h2></div><p>“未运行”是计划状态，不代表参赛作品已经完成。产物完成前不会进入盲评池。</p></div>
-      <div id="solar-run-groups"></div>
-    </div>
-  </section>
-
-  <section class="solar-gate">
-    <div class="container">
-      <span>PUBLICATION GATE</span><h2>作品完成后，经过四道闸门</h2>
-      <ol><li>检测目标目录中的真实 index.html</li><li>逐字节复制到只读 tracks 归档</li><li>检查本地依赖、生成真实首屏与公开数据</li><li>最后加入试玩页面、匿名配对和 D1 参赛者表</li></ol>
-    </div>
+  <section class="section" id="run-plan">
+    <div class="container"><div class="section-head"><span class="kicker">Run Matrix</span><h2>计划运行位</h2><p>“未运行”只代表计划状态；已完成作品会明确标成“已核验”。</p></div><div id="solar-run-groups"></div></div>
   </section>
 </main>
 
-<footer class="site-footer"><div class="container"><p><strong>LLM Arcade</strong> · 当前页面仅公开协议与计划，不宣称已有太阳系参赛作品。</p></div></footer>
-<script src="../assets/entrants.js?v=20260711g"></script>
-<script src="../assets/solar-system-plan.js?v=20260711g"></script>
-<script src="../assets/solar-system-data.js?v=20260711g"></script>
-<script src="../assets/solar-system.js?v=20260711g"></script>
+<footer class="site"><div class="container"><p>🕹 <strong>LLM Arcade 大模型街机厅</strong> · 用人人看得懂的一句话任务，评测模型 × harness 的 agent 实战能力。</p><p class="fine">太阳系作品均为 AI 生成的交互网页，原始参赛源码保持冻结。</p></div></footer>
+
+<div class="modal" id="solar-play-modal" role="dialog" aria-modal="true" aria-label="全屏试玩">
+  <div class="modal-box"><div class="modal-top"><div class="modal-title-group"><span class="modal-eyebrow">NOW EXPLORING <b id="solar-modal-position">01 / 01</b></span><div class="modal-title-row"><span class="code" id="solar-modal-code"></span><span class="tag-internal">内部代号</span><strong id="solar-modal-identity"></strong></div></div><div class="modal-key-hints"><span><kbd>DRAG</kbd> 旋转视角</span><span><kbd>ESC</kbd> 退出试玩</span></div><div class="modal-actions"><button class="btn btn-secondary btn-sm" id="solar-modal-next"><span aria-hidden="true">↻</span> 下一款</button><button class="btn btn-secondary btn-sm modal-close-btn" id="solar-modal-close" aria-label="关闭试玩窗口">✕ <span>关闭</span></button></div></div><div class="modal-stage"><div class="modal-stage-label"><span>LLM ARCADE</span><span>INTERACTIVE OUTPUT / ORIGINAL BUILD</span></div><div class="modal-frame-wrap" id="solar-modal-frame-wrap"></div><div class="modal-stage-foot"><span class="modal-status-dot"></span> LIVE SESSION <b>ORIGINAL BUILD</b></div></div></div>
+</div>
+
+<script src="../assets/entrants.js?v=20260711h"></script>
+<script src="../assets/solar-system-plan.js?v=20260711h"></script>
+<script src="../assets/solar-system-data.js?v=20260711h"></script>
+<script src="../assets/solar-system.js?v=20260711h"></script>
 </body>
 </html>

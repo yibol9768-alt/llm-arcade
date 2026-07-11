@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>太阳系九大行星 · 立体运行 · GLM 5.2</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='14' fill='%23ffcb6b'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%23ff9b3d' stroke-width='2' opacity='0.5'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 加载层 -->
+  <div id="loading">
+    <div class="loading-orbit"><span></span></div>
+    <div class="loading-text">正在加载太阳系…</div>
+  </div>
+
+  <!-- 3D 场景容器 -->
+  <div id="scene"></div>
+  <div id="labels"></div>
+
+  <!-- 顶部标题 -->
+  <header id="topbar">
+    <div class="brand">
+      <div class="brand-logo">☉</div>
+      <div class="brand-text">
+        <div class="brand-title">太阳系 · 九大行星</div>
+        <div class="brand-sub">交互式立体运行模型 · 含冥王星</div>
+      </div>
+    </div>
+    <nav id="planet-nav" class="planet-nav"></nav>
+  </header>
+
+  <!-- 行星信息面板 -->
+  <aside id="info-panel" class="hidden">
+    <button id="info-close" class="info-close" title="关闭">✕</button>
+    <div class="info-head">
+      <div class="info-swatch" id="info-swatch"></div>
+      <div>
+        <div class="info-name-zh" id="info-name-zh"></div>
+        <div class="info-name-en" id="info-name-en"></div>
+      </div>
+    </div>
+    <div class="info-type" id="info-type"></div>
+    <div class="info-stats" id="info-stats"></div>
+    <div class="info-fact" id="info-fact"></div>
+    <button id="info-focus" class="info-focus">聚焦跟随</button>
+  </aside>
+
+  <!-- 底部控制台 -->
+  <footer id="controls">
+    <div class="ctrl-group">
+      <button id="btn-pause" class="ctrl-btn" title="暂停 / 继续">⏸ <span id="pause-label">暂停</span></button>
+      <button id="btn-reset" class="ctrl-btn" title="重置视角与时间">⟲ 重置</button>
+    </div>
+
+    <div class="ctrl-group slider-group">
+      <label for="speed">时间速度</label>
+      <input type="range" id="speed" min="0" max="500" value="100" step="1" />
+      <span class="speed-val" id="speed-val">1.0×</span>
+    </div>
+
+    <div class="ctrl-group toggle-group">
+      <label class="toggle">
+        <input type="checkbox" id="t-orbits" checked />
+        <span>轨道</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="t-labels" checked />
+        <span>标签</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="t-real" />
+        <span>真实大小</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="t-trails" />
+        <span>轨迹</span>
+      </label>
+    </div>
+  </footer>
+
+  <!-- 操作提示 -->
+  <div id="hint">
+    <span class="hint-k">拖拽</span>旋转 ·
+    <span class="hint-k">滚轮</span>缩放 ·
+    <span class="hint-k">右键</span>平移 ·
+    <span class="hint-k">点击行星</span>查看详情
+  </div>
+
+  <!-- 错误提示 -->
+  <div id="error" class="hidden"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
