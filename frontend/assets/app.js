@@ -531,6 +531,53 @@
           visibility: hidden !important;
           pointer-events: none !important;
         }
+
+        /* Fable5:固定 768×720 画布缩进掌机屏幕,隐藏重复的桌面说明栏。 */
+        .smjs-page {
+          width: 100vw !important;
+          height: 100vh !important;
+          min-height: 0 !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+        }
+        .smjs-head, .smjs-bar { display: none !important; }
+        .smjs-frame {
+          width: auto !important;
+          height: 100vh !important;
+          max-width: 100vw !important;
+          aspect-ratio: 256 / 240 !important;
+          border-width: 0 !important;
+          box-shadow: none !important;
+        }
+        .smjs-frame #screen {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: contain !important;
+        }
+
+        /* GLM-5.2:压缩固定桌面标题页,游戏态画布按完整高度等比显示。 */
+        body:has(#game-container) {
+          width: 100vw !important;
+          height: 100vh !important;
+          min-height: 0 !important;
+        }
+        #game-container { width: 100% !important; height: 100% !important; justify-content: center !important; }
+        #title-screen { width: 100% !important; padding: 8px !important; }
+        #title-screen .title-logo { margin-bottom: 7px !important; }
+        #title-screen .title-super { font-size: 17px !important; letter-spacing: 5px !important; }
+        #title-screen .title-mario { font-size: 40px !important; letter-spacing: 2px !important; }
+        #title-screen .title-bros { font-size: 21px !important; letter-spacing: 4px !important; }
+        #title-screen .title-subtitle { margin-bottom: 14px !important; font-size: 11px !important; }
+        #title-screen .title-instructions { margin-bottom: 10px !important; }
+        #title-screen .title-instructions p { font-size: 13px !important; }
+        #title-screen .title-controls { font-size: 9px !important; line-height: 1.5 !important; }
+        #game-screen { height: 100vh !important; }
+        #game-screen #game-canvas {
+          width: auto !important;
+          height: 100vh !important;
+          max-width: 100vw !important;
+        }
+        #game-over-screen, #win-screen { padding: 12px !important; }
       }`;
       (doc.head || doc.documentElement).appendChild(style);
     } catch {
