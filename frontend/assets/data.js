@@ -1,6 +1,6 @@
 /* 由 scripts/build_data.mjs 生成,勿手改;重跑顺序见文件头注释与 frontend/README.md */
 window.ARCADE_DATA = {
-  "built_at": "2026-07-11T02:35:57.192Z",
+  "built_at": "2026-07-11T08:40:59.387Z",
   "track": {
     "id": "mario",
     "title_zh": "一句话马里奥",
@@ -10,11 +10,12 @@ window.ARCADE_DATA = {
     "date_run": "2026-07-10",
     "protocol": {
       "mode": "single-prompt",
-      "human_edits": "none-claimed",
-      "archived": "partial",
-      "disclosure": "各参赛 harness 的具体版本、轮数细节当时未存档,页面需如实披露"
+      "agent_execution": "autonomous",
+      "artifact_policy": "original-submissions-frozen; touch controls and evaluation shell are external",
+      "archived": "prompt, entrant identities, runtime families, original artifacts",
+      "not_archived": "exact harness build numbers and full execution logs"
     },
-    "entrants_note": "display_name/harness 等用户给对照表后补齐"
+    "entrants_note": "厂商、模型与运行环境对照表已确认"
   },
   "score_weights": {
     "loads_ok": 40,
@@ -23,13 +24,14 @@ window.ARCADE_DATA = {
     "uses_localstorage": 15,
     "has_readme": 10
   },
-  "score_formula_zh": "静态检查分 = 可加载 40 + 音效 20 + 触屏支持 15 + 本地存档 15 + README 10(满分 100);仅反映代码静态特征,不代表好玩程度,正式排名待盲投上线。",
-  "checklist_generated_at": "2026-07-11T02:34:06.759Z",
+  "score_formula_zh": "静态检查分 = 可加载 40 + 音效 20 + 触屏支持 15 + 本地存档 15 + README 10(满分 100);仅反映代码静态特征,不代表好玩程度,正式排名以全网盲投 Elo 为准。",
+  "checklist_generated_at": "2026-07-11T08:40:59.356Z",
   "entrants": [
     {
       "dir": "5.6luna",
-      "display_name": null,
-      "harness": null,
+      "display_name": "GPT-5.6 Luna",
+      "vendor": "OpenAI",
+      "harness": "Codex",
       "files": 3,
       "bytes": 52193,
       "code_lines": 1152,
@@ -45,8 +47,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "5.6sol",
-      "display_name": null,
-      "harness": null,
+      "display_name": "GPT-5.6 Sol",
+      "vendor": "OpenAI",
+      "harness": "Codex",
       "files": 4,
       "bytes": 80861,
       "code_lines": 2585,
@@ -62,8 +65,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "5.6terra",
-      "display_name": null,
-      "harness": null,
+      "display_name": "GPT-5.6 Terra",
+      "vendor": "OpenAI",
+      "harness": "Codex",
       "files": 1,
       "bytes": 48259,
       "code_lines": 1277,
@@ -79,8 +83,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "composer2.5",
-      "display_name": null,
-      "harness": null,
+      "display_name": "Composer 2.5",
+      "vendor": "Cursor",
+      "harness": "Cursor",
       "files": 4,
       "bytes": 40546,
       "code_lines": 1433,
@@ -96,8 +101,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "fable5",
-      "display_name": null,
-      "harness": null,
+      "display_name": "Claude Fable 5",
+      "vendor": "Anthropic",
+      "harness": "Claude Code",
       "files": 4,
       "bytes": 85734,
       "code_lines": 1535,
@@ -113,8 +119,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "glm5.2",
-      "display_name": null,
-      "harness": null,
+      "display_name": "GLM-5.2",
+      "vendor": "智谱 AI",
+      "harness": "Cursor",
       "files": 10,
       "bytes": 123696,
       "code_lines": 4237,
@@ -130,8 +137,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "gpt5.5",
-      "display_name": null,
-      "harness": null,
+      "display_name": "GPT-5.5",
+      "vendor": "OpenAI",
+      "harness": "Codex",
       "files": 4,
       "bytes": 43006,
       "code_lines": 1566,
@@ -147,8 +155,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "grok4.5",
-      "display_name": null,
-      "harness": null,
+      "display_name": "Grok 4.5",
+      "vendor": "xAI",
+      "harness": "Cursor",
       "files": 4,
       "bytes": 41596,
       "code_lines": 1653,
@@ -164,8 +173,9 @@ window.ARCADE_DATA = {
     },
     {
       "dir": "k2.7code",
-      "display_name": null,
-      "harness": null,
+      "display_name": "Kimi K2.7-Code",
+      "vendor": "Moonshot AI",
+      "harness": "Cursor",
       "files": 2,
       "bytes": 38343,
       "code_lines": 1413,

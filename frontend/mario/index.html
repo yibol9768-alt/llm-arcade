@@ -134,7 +134,7 @@
         <div class="scatter-wrap" id="scatter"></div>
       </div>
       <div class="footnote">
-        <strong>脚注:</strong>静态检查分仅反映代码静态特征,<strong>不代表好玩程度</strong>;正式排名待全网盲投上线。评分公式:<span data-formula></span>
+        <strong>脚注:</strong>静态检查分仅反映代码静态特征,<strong>不代表好玩程度</strong>;正式排名以全网盲投 Elo 为准。评分公式:<span data-formula></span>
         「可加载」= index.html 存在且其引用的本地 js/css 文件全部存在;「触屏」= 监听 touchstart / pointerdown(后者同样覆盖触屏,本批 6 家用它)。
       </div>
     </div>
@@ -149,20 +149,21 @@
       </div>
       <div class="method-grid">
         <div class="card method-card">
-          <h3>本赛道协议</h3>
+          <h3>本轮执行方式</h3>
           <ul>
-            <li>所有参赛者收到<strong>逐字相同</strong>的一句 prompt:「帮我生成一个马里奥小游戏」;</li>
-            <li>agent 全自动规划、写码、迭代,人不碰键盘;</li>
-            <li>成品零人工修改,发现 bug 也不修;</li>
-            <li>成品目录只读,本页游戏为其逐字节副本。</li>
+            <li>9 个「模型 × 运行环境」组合使用同一条已存档任务:「帮我生成一个马里奥小游戏」;</li>
+            <li>Agent 在各自的 Codex、Claude Code 或 Cursor 环境中自主规划、编码、运行与迭代;</li>
+            <li>提交后的原始作品被冻结保存,不因评分、试玩反馈或发现 bug 而修改源码;</li>
+            <li>网站只在作品外层提供触屏操作、展示框架与盲投系统,不改写游戏本体。</li>
           </ul>
         </div>
         <div class="card method-card disclosure">
-          <h3>如实披露</h3>
+          <h3>记录与公开范围</h3>
           <ul>
-            <li>本赛道跑于协议规范建立之前:各 harness 具体版本与迭代轮数<strong>当时未存档</strong>,无法追溯;</li>
-            <li>自下一条赛道起协议先行,全部要素先存档再开跑;</li>
-            <li>厂商、模型与运行环境来自公开运行记录；无法核对的字段会明确标注。</li>
+            <li>原始 prompt、厂商、模型、运行环境和 9 份原始成品现已确认并公开存档;</li>
+            <li>源码特征、试玩入口、匿名对战和社区投票结果均在站内公开,排名随有效投票更新;</li>
+            <li>本轮未单独留存 harness 的具体构建号与完整运行日志,因此不展示无法核验的版本、耗时或迭代次数;</li>
+            <li>后续赛道将在开跑前固化 prompt、版本、日期、配置与迭代预算,并随结果一并公开。</li>
           </ul>
         </div>
       </div>

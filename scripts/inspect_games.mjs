@@ -24,7 +24,7 @@
  *   + 触屏支持 15(has_touch)
  *   + 本地存档 15(uses_localstorage)
  *   + README 10(has_readme)
- * 此分数只反映代码静态特征,不代表好玩程度;正式排名待盲投上线。
+ * 此分数只反映代码静态特征,不代表好玩程度;正式排名以全网盲投 Elo 为准。
  */
 import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
@@ -70,7 +70,7 @@ const WEIGHTS = {
 };
 const FORMULA_ZH =
   "静态检查分 = 可加载 40 + 音效 20 + 触屏支持 15 + 本地存档 15 + README 10(满分 100);" +
-  "仅反映代码静态特征,不代表好玩程度,正式排名待盲投上线。";
+  "仅反映代码静态特征,不代表好玩程度,正式排名以全网盲投 Elo 为准。";
 
 const dirs = readdirSync(TRACK_DIR).filter((d) => {
   const p = join(TRACK_DIR, d);
