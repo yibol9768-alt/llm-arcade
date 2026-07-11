@@ -14,4 +14,4 @@ pages_build_output_dir = "frontend"
 [[d1_databases]]
 binding = "DB"
 database_name = "llm-arcade-votes"
-database_id = "TO_BE_FILLED"
+database_id = "026baa33-5ce2-4e1c-bf6f-d93b6143ad88"
