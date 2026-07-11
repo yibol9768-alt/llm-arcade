@@ -638,15 +638,12 @@ body[data-page="home"] { overflow-x: hidden; }
 body[data-page="home"] .topbar-inner { height: 64px; }
 body[data-page="home"] .logo { font-weight: 850; text-transform: uppercase; letter-spacing: -.03em; }
 .home-logo-mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  background: var(--home-ink);
-  color: var(--home-paper);
-  border-radius: 50%;
-  font: 800 12px/1 var(--mono);
+  display: block;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
 }
+.home-logo-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
 body[data-page="home"] .topnav a {
   border-radius: 0;
   color: var(--home-ink);
@@ -824,6 +821,9 @@ body.modal-open { overflow: hidden; }
 .cabinet-identity small { margin-top: 3px; color: rgba(255,250,240,.58); font: 600 7px/1 var(--mono); }
 .vendor-mark { display: grid; place-items: center; flex: 0 0 30px; width: 30px; height: 30px; border-radius: 50%; color: var(--home-paper); background: var(--home-ink); border: 1px solid currentColor; font: 900 8px/1 var(--mono); }
 .vendor-mark img { display: block; width: 58%; height: 58%; object-fit: contain; filter: brightness(0) invert(1); }
+.vendor-fallback { display: none; font: 900 8px/1 var(--mono); }
+.vendor-mark.logo-failed img { display: none; }
+.vendor-mark.logo-failed .vendor-fallback { display: block; }
 .vendor-openai { background: #111; }.vendor-cursor { background: #1d1d1f; }.vendor-anthropic { background: #d05b35; }.vendor-zhipu { color: #315cf5; background: #fff; }.vendor-xai { background: #050505; }.vendor-moonshot { color: #6546d7; background: #fff; }.vendor-unknown { color: var(--home-ink); background: var(--home-yellow); }
 .vendor-zhipu img, .vendor-moonshot img { width: 68%; height: 68%; filter: none; }
 .cabinet-strip { display: grid; grid-auto-flow: column; grid-auto-columns: 76px; gap: 7px; overflow-x: auto; margin-top: 9px; padding: 0 0 4px; scrollbar-width: none; scroll-snap-type: x mandatory; }
@@ -1376,7 +1376,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
     padding-top: 9px;
   }
   .topbar .logo { align-items: center; font-size: 16px; }
-  .topbar .home-logo-mark { width: 32px; height: 32px; }
+  .topbar .home-logo-mark { flex-basis: 32px; width: 32px; height: 32px; }
   .topbar .topnav {
     order: 3;
     display: flex;

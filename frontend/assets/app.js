@@ -25,10 +25,16 @@
   };
   function vendorMarkHTML(m) {
     const logo = m.vendor_logo
-      ? `<img src="${esc(m.vendor_logo)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+      ? `<img data-vendor-logo src="${esc(m.vendor_logo)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="vendor-fallback" aria-hidden="true">${esc(m.vendor_mark)}</span>`
       : esc(m.vendor_mark);
     return `<span class="vendor-mark vendor-${esc(m.vendor_class)}" title="${esc(m.vendor)}">${logo}</span>`;
   }
+  document.addEventListener("error", (event) => {
+    const image = event.target;
+    if (image instanceof HTMLImageElement && image.matches("img[data-vendor-logo]")) {
+      image.parentElement?.classList.add("logo-failed");
+    }
+  }, true);
   function identityHTML(dir, compact = false) {
     const m = metaFor(dir);
     return `${vendorMarkHTML(m)}
