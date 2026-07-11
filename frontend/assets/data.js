@@ -1,6 +1,6 @@
 /* 由 scripts/build_data.mjs 生成,勿手改;重跑顺序见文件头注释与 frontend/README.md */
 window.ARCADE_DATA = {
-  "built_at": "2026-07-11T10:56:32.288Z",
+  "built_at": "2026-07-11T12:24:26.609Z",
   "track": {
     "id": "mario",
     "title_zh": "一句话马里奥",
@@ -26,7 +26,7 @@ window.ARCADE_DATA = {
     "uses_localstorage": 15,
     "has_readme": 10
   },
-  "score_formula_zh": "静态检查分 = 可加载 40 + 音效 20 + 触屏支持 15 + 本地存档 15 + README 10(满分 100);仅反映代码静态特征,不代表好玩程度,正式排名以全网盲投 Elo 为准。",
+  "score_formula_zh": "静态检查分 = 可加载 40 + 音效 20 + 触屏支持 15 + 本地存档 15 + README 10(满分 100);仅反映代码静态特征,不代表好玩程度;社区评价由完整排序与匿名盲投分别统计。",
   "checklist_generated_at": "2026-07-11T10:31:29.721Z",
   "entrants": [
     {

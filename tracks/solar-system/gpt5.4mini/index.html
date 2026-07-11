@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>九大行星立体运行图</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-a: #050816;
+      --bg-b: #09162d;
+      --bg-c: #121d37;
+      --panel: rgba(11, 18, 34, 0.72);
+      --panel-strong: rgba(11, 18, 34, 0.9);
+      --line: rgba(184, 214, 255, 0.16);
+      --text: #ecf3ff;
+      --muted: rgba(226, 236, 255, 0.72);
+      --accent: #78e8ff;
+      --accent-2: #ffd36e;
+      --good: #91ffbc;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(1200px 800px at 20% 20%, rgba(56, 112, 255, 0.18), transparent 60%),
+        radial-gradient(900px 600px at 80% 12%, rgba(255, 158, 64, 0.10), transparent 54%),
+        linear-gradient(180deg, var(--bg-a), var(--bg-b) 52%, var(--bg-c));
+      color: var(--text);
+      font-family: "Trebuchet MS", "Gill Sans", "Avenir Next", sans-serif;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      isolation: isolate;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    canvas:active { cursor: grabbing; }
+
+    .hud {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+      padding: 18px;
+    }
+
+    .panel {
+      pointer-events: auto;
+      background: linear-gradient(180deg, rgba(18, 28, 52, 0.78), rgba(8, 12, 24, 0.62));
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .title-card {
+      grid-column: 1 / 2;
+      align-self: start;
+      max-width: 760px;
+      padding: 18px 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--accent));
+      box-shadow: 0 0 22px rgba(120, 232, 255, 0.9);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      font-size: clamp(28px, 4.2vw, 54px);
+      line-height: 0.95;
+      letter-spacing: 0.03em;
+      text-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+      max-width: 68ch;
+    }
+
+    .toolbar {
+      grid-column: 1 / 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      pointer-events: auto;
+    }
+
+    .tool-group {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .spacer {
+      flex: 1 1 auto;
+    }
+
+    button, .pill, input[type="range"] {
+      font: inherit;
+    }
+
+    button, .pill {
+      border: 1px solid rgba(179, 211, 255, 0.22);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+      user-select: none;
+    }
+
+    button:hover, .pill:hover {
+      transform: translateY(-1px);
+      border-color: rgba(179, 211, 255, 0.45);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    button:active, .pill:active {
+      transform: translateY(0);
+    }
+
+    button.primary {
+      background: linear-gradient(180deg, rgba(120, 232, 255, 0.22), rgba(120, 232, 255, 0.12));
+      border-color: rgba(120, 232, 255, 0.45);
+    }
+
+    button.active {
+      background: linear-gradient(180deg, rgba(145, 255, 188, 0.20), rgba(145, 255, 188, 0.10));
+      border-color: rgba(145, 255, 188, 0.5);
+      color: #dfffea;
+    }
+
+    label.range {
+      display: grid;
+      gap: 6px;
+      min-width: 220px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .planet-strip {
+      grid-column: 1 / 2;
+      align-self: end;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .pill {
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    .pill.selected {
+      border-color: rgba(255, 211, 110, 0.6);
+      background: rgba(255, 211, 110, 0.14);
+      color: #fff2cc;
+    }
+
+    .side-card {
+      grid-column: 2 / 3;
+      grid-row: 1 / span 2;
+      align-self: start;
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      min-height: min(100%, 620px);
+    }
+
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .card-title h2 {
+      margin: 0;
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(179, 211, 255, 0.18);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .stats {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stat {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 12px;
+      align-items: baseline;
+      font-size: 14px;
+    }
+
+    .stat .label {
+      color: var(--muted);
+    }
+
+    .stat .value {
+      color: var(--text);
+    }
+
+    .description {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .mini-readout {
+      display: grid;
+      gap: 12px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(179, 211, 255, 0.14);
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hint {
+      grid-column: 1 / 2;
+      align-self: end;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 0 6px 2px;
+      letter-spacing: 0.02em;
+    }
+
+    .corner-glow {
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(70px);
+      opacity: 0.22;
+      z-index: -1;
+    }
+
+    .glow-left { left: -180px; top: -140px; background: rgba(75, 116, 255, 0.55); }
+    .glow-right { right: -160px; top: 16px; background: rgba(255, 177, 94, 0.42); }
+
+    @media (max-width: 980px) {
+      .hud {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto auto;
+        padding: 12px;
+      }
+
+      .side-card {
+        grid-column: 1;
+        grid-row: 3;
+        min-height: unset;
+      }
+
+      .title-card, .toolbar, .planet-strip, .hint {
+        grid-column: 1;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      label.range {
+        min-width: min(100%, 260px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="corner-glow glow-left"></div>
+    <div class="corner-glow glow-right"></div>
+    <canvas id="scene"></canvas>
+
+    <div class="hud">
+      <section class="panel title-card">
+        <div class="eyebrow">Interactive Solar System Explorer</div>
+        <h1>太阳系九大行星立体运行图</h1>
+        <div class="subtitle">
+          拖拽旋转视角，滚轮缩放，点击任意行星进行聚焦。可切换轨道线、标签和轨迹尾迹，观察包括冥王星在内的九大行星围绕太阳的动态运行。
+        </div>
+      </section>
+
+      <section class="panel toolbar" aria-label="controls">
+        <div class="tool-group">
+          <button id="toggleRun" class="primary">暂停</button>
+          <button id="focusSun">聚焦太阳</button>
+          <button id="resetView">重置视角</button>
+        </div>
+        <div class="spacer"></div>
+        <label class="range">
+          <span>运行速度 <strong id="speedReadout">1.00x</strong></span>
+          <input id="speed" type="range" min="0" max="240" value="120" />
+        </label>
+        <div class="tool-group">
+          <button id="toggleOrbits" class="active">轨道线</button>
+          <button id="toggleLabels" class="active">标签</button>
+          <button id="toggleTrails" class="active">尾迹</button>
+        </div>
+      </section>
+
+      <aside class="panel side-card" aria-live="polite">
+        <div class="card-title">
+          <div>
+            <h2 id="planetName">太阳</h2>
+            <div class="badge" id="planetBadge">中心恒星</div>
+          </div>
+          <div class="badge" id="planetDistance">0 AU</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="label">半径</div><div class="value" id="planetRadius">695,700 km</div></div>
+          <div class="stat"><div class="label">公转周期</div><div class="value" id="planetPeriod">-</div></div>
+          <div class="stat"><div class="label">运行角度</div><div class="value" id="planetAngle">0.00 rad</div></div>
+          <div class="stat"><div class="label">当前位置</div><div class="value" id="planetPos">x 0, y 0, z 0</div></div>
+        </div>
+
+        <div class="description" id="planetDesc">
+          太阳位于系统中心，所有行星都会围绕它的引力井完成周期性运行。
+        </div>
+
+        <div class="mini-readout">
+          <div class="mini-row"><span>操作</span><span>拖拽 / 滚轮 / 点击行星</span></div>
+          <div class="mini-row"><span>观察模式</span><span>三维透视 + 动态尾迹</span></div>
+          <div class="mini-row"><span>当前选中</span><span id="selectedName">太阳</span></div>
+        </div>
+      </aside>
+
+      <section class="panel planet-strip" aria-label="planet shortcuts">
+        <button class="pill selected" data-focus="sun">太阳</button>
+        <button class="pill" data-focus="Mercury">水星</button>
+        <button class="pill" data-focus="Venus">金星</button>
+        <button class="pill" data-focus="Earth">地球</button>
+        <button class="pill" data-focus="Mars">火星</button>
+        <button class="pill" data-focus="Jupiter">木星</button>
+        <button class="pill" data-focus="Saturn">土星</button>
+        <button class="pill" data-focus="Uranus">天王星</button>
+        <button class="pill" data-focus="Neptune">海王星</button>
+        <button class="pill" data-focus="Pluto">冥王星</button>
+      </section>
+
+      <div class="hint">提示：选中行星后，视角会自动围绕该天体聚焦，适合逐个探索。</div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById('scene');
+      const ctx = canvas.getContext('2d');
+      const ui = {
+        toggleRun: document.getElementById('toggleRun'),
+        focusSun: document.getElementById('focusSun'),
+        resetView: document.getElementById('resetView'),
+        toggleOrbits: document.getElementById('toggleOrbits'),
+        toggleLabels: document.getElementById('toggleLabels'),
+        toggleTrails: document.getElementById('toggleTrails'),
+        speed: document.getElementById('speed'),
+        speedReadout: document.getElementById('speedReadout'),
+        planetName: document.getElementById('planetName'),
+        planetBadge: document.getElementById('planetBadge'),
+        planetDistance: document.getElementById('planetDistance'),
+        planetRadius: document.getElementById('planetRadius'),
+        planetPeriod: document.getElementById('planetPeriod'),
+        planetAngle: document.getElementById('planetAngle'),
+        planetPos: document.getElementById('planetPos'),
+        planetDesc: document.getElementById('planetDesc'),
+        selectedName: document.getElementById('selectedName'),
+        pills: Array.from(document.querySelectorAll('.pill')),
+      };
+
+      const TAU = Math.PI * 2;
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const smoothstep = (t) => t * t * (3 - 2 * t);
+      const deg = (d) => d * Math.PI / 180;
+
+      const orbitScale = (au) => 68 + Math.pow(au, 0.5) * 120;
+      const bodyScale = (km) => Math.max(3.2, Math.pow(km, 1 / 3) * 0.36);
+
+      const bodies = [
+        {
+          name: 'Sun',
+          badge: '中心恒星',
+          color: '#ffd46c',
+          radiusKm: 695700,
+          orbitAU: 0,
+          periodDays: 0,
+          tilt: 0,
+          node: 0,
+          phase: 0,
+          desc: '太阳位于系统中心，所有行星都会围绕它的引力井完成周期性运行。',
+        },
+        {
+          name: 'Mercury',
+          zh: '水星',
+          badge: '岩质行星',
+          color: '#b7b2a8',
+          radiusKm: 2439.7,
+          orbitAU: 0.39,
+          periodDays: 88,
+          tilt: 7,
+          node: 25,
+          phase: 0.2,
+          desc: '最靠近太阳的行星，公转最快，表面布满撞击坑与极端温差。',
+        },
+        {
+          name: 'Venus',
+          zh: '金星',
+          badge: '岩质行星',
+          color: '#ead29a',
+          radiusKm: 6051.8,
+          orbitAU: 0.72,
+          periodDays: 225,
+          tilt: 3.4,
+          node: 70,
+          phase: 1.1,
+          desc: '厚厚的云层包裹着炽热表面，明亮得像一颗低垂的黄白色星球。',
+        },
+        {
+          name: 'Earth',
+          zh: '地球',
+          badge: '岩质行星',
+          color: '#78b8ff',
+          radiusKm: 6371,
+          orbitAU: 1.0,
+          periodDays: 365,
+          tilt: 0,
+          node: 130,
+          phase: 2.1,
+          desc: '唯一已知拥有广阔液态海洋和复杂生命的行星，云层与海洋形成鲜明对比。',
+        },
+        {
+          name: 'Mars',
+          zh: '火星',
+          badge: '岩质行星',
+          color: '#d46c42',
+          radiusKm: 3389.5,
+          orbitAU: 1.52,
+          periodDays: 687,
+          tilt: 1.85,
+          node: 165,
+          phase: 0.8,
+          desc: '氧化铁让它呈现铁锈红色，拥有巨大的奥林匹斯山和峡谷地貌。',
+        },
+        {
+          name: 'Jupiter',
+          zh: '木星',
+          badge: '气态巨行星',
+          color: '#d8b18a',
+          radiusKm: 69911,
+          orbitAU: 5.2,
+          periodDays: 4333,
+          tilt: 1.3,
+          node: 220,
+          phase: 2.8,
+          desc: '太阳系最大行星，条纹云带和大红斑构成了极具辨识度的表面气象。',
+        },
+        {
+          name: 'Saturn',
+          zh: '土星',
+          badge: '气态巨行星',
+          color: '#e9d8a7',
+          radiusKm: 58232,
+          orbitAU: 9.58,
+          periodDays: 10759,
+          tilt: 2.5,
+          node: 280,
+          phase: 1.5,
+          ring: true,
+          desc: '拥有壮观行星环的气态巨行星，环系由冰与岩石碎片组成。',
+        },
+        {
+          name: 'Uranus',
+          zh: '天王星',
+          badge: '冰巨行星',
+          color: '#9edcff',
+          radiusKm: 25362,
+          orbitAU: 19.2,
+          periodDays: 30687,
+          tilt: 0.8,
+          node: 320,
+          phase: 0.4,
+          desc: '轴倾角极端，常被称为横躺着自转的行星，呈冷淡的青蓝色。',
+        },
+        {
+          name: 'Neptune',
+          zh: '海王星',
+          badge: '冰巨行星',
+          color: '#5f85ff',
+          radiusKm: 24622,
+          orbitAU: 30.05,
+          periodDays: 60190,
+          tilt: 1.8,
+          node: 355,
+          phase: 2.9,
+          desc: '外太阳系深蓝色世界，拥有快速风暴和动态大气层。',
+        },
+        {
+          name: 'Pluto',
+          zh: '冥王星',
+          badge: '矮行星',
+          color: '#c8b4aa',
+          radiusKm: 1188.3,
+          orbitAU: 39.48,
+          periodDays: 90560,
+          tilt: 17.2,
+          node: 14,
+          phase: 1.9,
+          desc: '位于柯伊伯带的矮行星，轨道偏心率高，表面由冰与岩石构成。',
+        }
+      ];
+
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+        running: true,
+        speed: 1,
+        showOrbits: true,
+        showLabels: true,
+        showTrails: true,
+        selected: 'Sun',
+        target: { x: 0, y: 0, z: 0 },
+        camera: { yaw: 0.78, pitch: 0.42, distance: 1820 },
+        cameraTarget: { yaw: 0.78, pitch: 0.42, distance: 1820 },
+        pointer: { active: false, moved: false, x: 0, y: 0, startX: 0, startY: 0, time: 0 },
+        timeDays: 0,
+        hover: null,
+      };
+
+      const starField = Array.from({ length: 680 }, (_, i) => {
+        const r = Math.random();
+        const theta = Math.random() * TAU;
+        const phi = Math.acos(2 * Math.random() - 1);
+        return {
+          x: Math.cos(theta) * Math.sin(phi) * (900 + Math.random() * 1700),
+          y: Math.sin(theta) * Math.sin(phi) * (900 + Math.random() * 1700),
+          z: Math.cos(phi) * (900 + Math.random() * 1700),
+          size: 0.8 + Math.random() * 1.8,
+          twinkle: 0.4 + Math.random() * 1.6,
+          hue: r > 0.82 ? 50 : (r > 0.55 ? 205 : 220),
+        };
+      });
+
+      function rotateX(v, ang) {
+        const c = Math.cos(ang), s = Math.sin(ang);
+        return { x: v.x, y: v.y * c - v.z * s, z: v.y * s + v.z * c };
+      }
+
+      function rotateY(v, ang) {
+        const c = Math.cos(ang), s = Math.sin(ang);
+        return { x: v.x * c + v.z * s, y: v.y, z: -v.x * s + v.z * c };
+      }
+
+      function computePlanetPosition(body, days) {
+        if (body.name === 'Sun') return { x: 0, y: 0, z: 0 };
+        const orbitR = orbitScale(body.orbitAU);
+        const angle = body.phase + days * (TAU / body.periodDays);
+        let p = {
+          x: Math.cos(angle) * orbitR,
+          y: 0,
+          z: Math.sin(angle) * orbitR,
+        };
+        p = rotateX(p, deg(body.tilt));
+        p = rotateY(p, deg(body.node));
+        return p;
+      }
+
+      function resize() {
+        state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        state.width = Math.floor(canvas.clientWidth * state.dpr);
+        state.height = Math.floor(canvas.clientHeight * state.dpr);
+        canvas.width = state.width;
+        canvas.height = state.height;
+      }
+
+      function project(point) {
+        const cam = getCamera();
+        const v = {
+          x: point.x - cam.pos.x,
+          y: point.y - cam.pos.y,
+          z: point.z - cam.pos.z,
+        };
+        const x = v.x * cam.right.x + v.y * cam.right.y + v.z * cam.right.z;
+        const y = v.x * cam.up.x + v.y * cam.up.y + v.z * cam.up.z;
+        const z = v.x * cam.forward.x + v.y * cam.forward.y + v.z * cam.forward.z;
+        if (z <= 0.1) return null;
+        const fov = 760;
+        const scale = fov / z;
+        return {
+          x: state.width / 2 + x * scale,
+          y: state.height / 2 - y * scale,
+          z,
+          scale,
+        };
+      }
+
+      function cross(a, b) {
+        return {
+          x: a.y * b.z - a.z * b.y,
+          y: a.z * b.x - a.x * b.z,
+          z: a.x * b.y - a.y * b.x,
+        };
+      }
+
+      function dot(a, b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+      }
+
+      function normalize(v) {
+        const l = Math.hypot(v.x, v.y, v.z) || 1;
+        return { x: v.x / l, y: v.y / l, z: v.z / l };
+      }
+
+      function getCamera() {
+        const cam = state.camera;
+        const target = state.target;
+        const cosPitch = Math.cos(cam.pitch);
+        const sinPitch = Math.sin(cam.pitch);
+        const sinYaw = Math.sin(cam.yaw);
+        const cosYaw = Math.cos(cam.yaw);
+        const pos = {
+          x: target.x + sinYaw * cosPitch * cam.distance,
+          y: target.y + sinPitch * cam.distance,
+          z: target.z + cosYaw * cosPitch * cam.distance,
+        };
+        const forward = normalize({
+          x: target.x - pos.x,
+          y: target.y - pos.y,
+          z: target.z - pos.z,
+        });
+        let right = normalize(cross(forward, { x: 0, y: 1, z: 0 }));
+        if (!Number.isFinite(right.x) || Math.hypot(right.x, right.y, right.z) < 1e-6) {
+          right = { x: 1, y: 0, z: 0 };
+        }
+        const up = cross(right, forward);
+        return { pos, forward, right, up };
+      }
+
+      function setSelected(name) {
+        state.selected = name;
+        const body = bodies.find((b) => b.name === name);
+        if (body) {
+          ui.planetName.textContent = body.name === 'Sun' ? '太阳' : body.zh;
+          ui.planetBadge.textContent = body.badge;
+          ui.planetDistance.textContent = body.name === 'Sun' ? '0 AU' : `${body.orbitAU.toFixed(body.orbitAU < 10 ? 2 : 1)} AU`;
+          ui.planetRadius.textContent = body.name === 'Sun' ? '695,700 km' : `${body.radiusKm.toLocaleString('en-US', { maximumFractionDigits: 1 })} km`;
+          ui.planetPeriod.textContent = body.name === 'Sun' ? '-' : `${body.periodDays.toLocaleString('en-US')} days`;
+          ui.planetAngle.textContent = body.name === 'Sun' ? '0.00 rad' : `${(body.phase % TAU).toFixed(2)} rad`;
+          ui.planetDesc.textContent = body.desc;
+          ui.selectedName.textContent = body.name === 'Sun' ? '太阳' : body.zh;
+        }
+        ui.pills.forEach((pill) => {
+          pill.classList.toggle('selected', pill.dataset.focus === (name === 'Sun' ? 'sun' : name));
+        });
+      }
+
+      function syncUiToggles() {
+        ui.toggleRun.textContent = state.running ? '暂停' : '播放';
+        ui.toggleRun.classList.toggle('active', state.running);
+        ui.toggleOrbits.classList.toggle('active', state.showOrbits);
+        ui.toggleLabels.classList.toggle('active', state.showLabels);
+        ui.toggleTrails.classList.toggle('active', state.showTrails);
+      }
+
+      function resetView() {
+        state.cameraTarget.yaw = 0.78;
+        state.cameraTarget.pitch = 0.42;
+        state.cameraTarget.distance = 1820;
+        state.target = { x: 0, y: 0, z: 0 };
+        setSelected('Sun');
+      }
+
+      function drawBackground(time) {
+        const g = ctx.createLinearGradient(0, 0, 0, state.height);
+        g.addColorStop(0, '#050816');
+        g.addColorStop(0.48, '#081126');
+        g.addColorStop(1, '#05070f');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, state.width, state.height);
+
+        const vignette = ctx.createRadialGradient(
+          state.width * 0.52, state.height * 0.48, state.height * 0.1,
+          state.width * 0.5, state.height * 0.5, state.height * 0.82
+        );
+        vignette.addColorStop(0, 'rgba(255,255,255,0.05)');
+        vignette.addColorStop(0.55, 'rgba(8,12,24,0.06)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.52)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, state.width, state.height);
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (const star of starField) {
+          const twinkle = 0.55 + 0.45 * Math.sin(time * 0.0012 * star.twinkle + star.x * 0.01);
+          const alpha = 0.12 + twinkle * 0.48;
+          ctx.fillStyle = `hsla(${star.hue}, 90%, 86%, ${alpha})`;
+          const px = state.width / 2 + star.x * 0.38;
+          const py = state.height / 2 + star.y * 0.38;
+          if (px < -20 || py < -20 || px > state.width + 20 || py > state.height + 20) continue;
+          ctx.beginPath();
+          ctx.arc(px, py, star.size * state.dpr * 0.52, 0, TAU);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawOrbit(body, cam) {
+        const orbitR = orbitScale(body.orbitAU);
+        const step = 72;
+        const pts = [];
+        for (let i = 0; i <= step; i++) {
+          const a = (i / step) * TAU;
+          let p = {
+            x: Math.cos(a) * orbitR,
+            y: 0,
+            z: Math.sin(a) * orbitR,
+          };
+          p = rotateX(p, deg(body.tilt));
+          p = rotateY(p, deg(body.node));
+          const pr = project(p);
+          if (pr) pts.push(pr);
+        }
+        if (pts.length < 2) return;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        const focused = state.selected === body.name;
+        ctx.strokeStyle = focused ? 'rgba(255, 211, 110, 0.72)' : 'rgba(148, 181, 255, 0.22)';
+        ctx.lineWidth = focused ? 2.1 : 1;
+        ctx.setLineDash([focused ? 0 : 8, 9]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      function drawTrail(body) {
+        if (!body.trail || body.trail.length < 2) return;
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        const selected = state.selected === body.name;
+        ctx.lineWidth = selected ? 1.8 : 1.05;
+        for (let i = 1; i < body.trail.length; i++) {
+          const a = project(body.trail[i - 1]);
+          const b = project(body.trail[i]);
+          if (!a || !b) continue;
+          const alpha = (i / body.trail.length) * (selected ? 0.36 : 0.18);
+          ctx.strokeStyle = `rgba(120, 232, 255, ${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawPlanet(body, pos, time) {
+        const pr = project(pos);
+        if (!pr) return null;
+        const scale = pr.scale;
+        const size = (body.name === 'Sun' ? 28 : bodyScale(body.radiusKm)) * scale * 0.95;
+        const radius = Math.max(body.name === 'Sun' ? 24 : 2.8, size);
+        const selected = state.selected === body.name;
+
+        if (body.ring) {
+          ctx.save();
+          ctx.translate(pr.x, pr.y);
+          const ringTilt = -0.55;
+          ctx.rotate(ringTilt);
+          ctx.scale(1, 0.38);
+          const inner = radius * 1.35;
+          const outer = radius * 2.25;
+          const ringGrad = ctx.createRadialGradient(0, 0, inner, 0, 0, outer);
+          ringGrad.addColorStop(0, 'rgba(255,255,255,0.0)');
+          ringGrad.addColorStop(0.45, 'rgba(231, 213, 164, 0.25)');
+          ringGrad.addColorStop(0.75, 'rgba(231, 213, 164, 0.68)');
+          ringGrad.addColorStop(1, 'rgba(255,255,255,0.0)');
+          ctx.strokeStyle = ringGrad;
+          ctx.lineWidth = Math.max(6, radius * 0.38);
+          ctx.beginPath();
+          ctx.arc(0, 0, radius * 1.8, 0, TAU);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        const glow = ctx.createRadialGradient(pr.x, pr.y, radius * 0.22, pr.x, pr.y, radius * 2.8);
+        glow.addColorStop(0, body.name === 'Sun' ? 'rgba(255,238,165,0.95)' : `${body.color}dd`);
+        glow.addColorStop(0.45, body.name === 'Sun' ? 'rgba(255,208,92,0.45)' : `${body.color}55`);
+        glow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y, radius * 1.9, 0, TAU);
+        ctx.fill();
+
+        const surface = ctx.createRadialGradient(
+          pr.x - radius * 0.28, pr.y - radius * 0.35, radius * 0.2,
+          pr.x, pr.y, radius
+        );
+        if (body.name === 'Sun') {
+          surface.addColorStop(0, '#fff6c0');
+          surface.addColorStop(0.45, '#ffd45a');
+          surface.addColorStop(1, '#8e4900');
+        } else {
+          surface.addColorStop(0, '#ffffff');
+          surface.addColorStop(0.2, body.color);
+          surface.addColorStop(1, '#09111f');
+        }
+        ctx.fillStyle = surface;
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y, radius, 0, TAU);
+        ctx.fill();
+
+        if (body.name === 'Sun') {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          for (let i = 0; i < 6; i++) {
+            const pulse = 1 + Math.sin(time * 0.0014 + i) * 0.06;
+            ctx.strokeStyle = `rgba(255, 186, 62, ${0.08 + i * 0.012})`;
+            ctx.lineWidth = 2.2 + i * 1.8;
+            ctx.beginPath();
+            ctx.arc(pr.x, pr.y, radius * (1.08 + i * 0.1) * pulse, 0, TAU);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        if (selected) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(255, 211, 110, 0.95)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pr.x, pr.y, radius + 8, 0, TAU);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        return { x: pr.x, y: pr.y, r: radius, z: pr.z, scale, screen: pr };
+      }
+
+      function drawLabel(body, pos, screen) {
+        const label = body.name === 'Sun' ? '太阳' : body.zh;
+        const dist = body.name === 'Sun' ? '' : ` · ${body.orbitAU.toFixed(body.orbitAU < 10 ? 2 : 1)} AU`;
+        const text = label + dist;
+        const alpha = body.name === state.selected ? 1 : 0.8;
+        ctx.save();
+        ctx.font = `${Math.max(12, 11 * state.dpr)}px "Trebuchet MS", sans-serif`;
+        const w = ctx.measureText(text).width;
+        const x = screen.x + 12;
+        const y = screen.y - 12;
+        ctx.fillStyle = `rgba(8, 12, 24, ${0.72 * alpha})`;
+        ctx.strokeStyle = `rgba(179, 211, 255, ${0.18 * alpha})`;
+        roundRect(ctx, x - 8, y - 18, w + 16, 26, 10);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = body.name === state.selected ? '#fff2cc' : `rgba(240, 246, 255, ${alpha})`;
+        ctx.fillText(text, x, y);
+        ctx.restore();
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      function updateTrails(body, pos) {
+        if (!body.trail) body.trail = [];
+        body.trail.push({ x: pos.x, y: pos.y, z: pos.z });
+        const max = 84;
+        if (body.trail.length > max) body.trail.splice(0, body.trail.length - max);
+      }
+
+      function updateUIFromSelection() {
+        setSelected(state.selected);
+      }
+
+      function hitTestBodies(x, y, positions) {
+        let hit = null;
+        let best = Infinity;
+        for (const item of positions) {
+          if (!item.screen) continue;
+          const dx = x - item.screen.x;
+          const dy = y - item.screen.y;
+          const dist = Math.hypot(dx, dy);
+          const threshold = Math.max(12, item.r * 1.1);
+          if (dist <= threshold && dist < best) {
+            best = dist;
+            hit = item.body.name;
+          }
+        }
+        return hit;
+      }
+
+      function animate(time) {
+        if (!state.lastTime) state.lastTime = time;
+        const dt = Math.min(40, time - state.lastTime);
+        state.lastTime = time;
+
+        if (state.running) {
+          state.timeDays += dt * 0.04 * state.speed;
+        }
+
+        const selectedBody = bodies.find((b) => b.name === state.selected) || bodies[0];
+        const selectedPos = computePlanetPosition(selectedBody, state.timeDays);
+        state.target.x = lerp(state.target.x, selectedPos.x, 0.08);
+        state.target.y = lerp(state.target.y, selectedPos.y, 0.08);
+        state.target.z = lerp(state.target.z, selectedPos.z, 0.08);
+
+        state.camera.yaw = lerp(state.camera.yaw, state.cameraTarget.yaw, 0.08);
+        state.camera.pitch = lerp(state.camera.pitch, state.cameraTarget.pitch, 0.08);
+        state.camera.distance = lerp(state.camera.distance, state.cameraTarget.distance, 0.08);
+        state.camera.pitch = clamp(state.camera.pitch, -1.16, 1.16);
+        state.camera.distance = clamp(state.camera.distance, 620, 4200);
+
+        drawBackground(time);
+
+        const cam = getCamera();
+        const rendered = [];
+
+        for (const body of bodies.slice(1)) {
+          const pos = computePlanetPosition(body, state.timeDays);
+          body.current = pos;
+          if (state.showTrails) updateTrails(body, pos);
+          else body.trail = [];
+          if (state.showOrbits) drawOrbit(body, cam);
+        }
+
+        if (state.showTrails) {
+          for (const body of bodies.slice(1)) drawTrail(body);
+        }
+
+        const sorted = bodies.map((body) => ({
+          body,
+          pos: body.name === 'Sun' ? { x: 0, y: 0, z: 0 } : body.current,
+        })).sort((a, b) => {
+          const pa = project(a.pos);
+          const pb = project(b.pos);
+          return (pb ? pb.z : -1) - (pa ? pa.z : -1);
+        });
+
+        for (const item of sorted) {
+          const draw = drawPlanet(item.body, item.pos, time);
+          if (draw) rendered.push({ body: item.body, ...draw });
+        }
+
+        if (state.showLabels) {
+          rendered
+            .sort((a, b) => b.z - a.z)
+            .forEach((item) => {
+              const isTiny = item.body.name !== 'Sun' && item.r * item.scale < 7;
+              if (isTiny && item.body.name !== state.selected) return;
+              drawLabel(item.body, item.body.current || { x: 0, y: 0, z: 0 }, { x: item.x, y: item.y });
+            });
+        }
+
+        const selected = bodies.find((b) => b.name === state.selected) || bodies[0];
+        const pos = selected.name === 'Sun' ? { x: 0, y: 0, z: 0 } : selected.current;
+        const angle = selected.name === 'Sun' ? 0 : Math.atan2(pos.z, pos.x);
+        ui.speedReadout.textContent = `${state.speed.toFixed(2)}x`;
+        ui.planetAngle.textContent = `${angle.toFixed(2)} rad`;
+        ui.planetPos.textContent = `x ${pos.x.toFixed(1)}, y ${pos.y.toFixed(1)}, z ${pos.z.toFixed(1)}`;
+
+        requestAnimationFrame(animate);
+      }
+
+      function toCanvasPoint(evt) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: (evt.clientX - rect.left) * state.dpr,
+          y: (evt.clientY - rect.top) * state.dpr,
+        };
+      }
+
+      canvas.addEventListener('pointerdown', (evt) => {
+        canvas.setPointerCapture(evt.pointerId);
+        state.pointer.active = true;
+        state.pointer.moved = false;
+        state.pointer.startX = evt.clientX;
+        state.pointer.startY = evt.clientY;
+        state.pointer.x = evt.clientX;
+        state.pointer.y = evt.clientY;
+        state.pointer.time = performance.now();
+      });
+
+      canvas.addEventListener('pointermove', (evt) => {
+        if (!state.pointer.active) return;
+        const dx = evt.clientX - state.pointer.x;
+        const dy = evt.clientY - state.pointer.y;
+        state.pointer.x = evt.clientX;
+        state.pointer.y = evt.clientY;
+        const movedDist = Math.hypot(evt.clientX - state.pointer.startX, evt.clientY - state.pointer.startY);
+        if (movedDist > 4) state.pointer.moved = true;
+        state.cameraTarget.yaw -= dx * 0.0045;
+        state.cameraTarget.pitch -= dy * 0.0042;
+        state.cameraTarget.pitch = clamp(state.cameraTarget.pitch, -1.16, 1.16);
+      });
+
+      canvas.addEventListener('pointerup', (evt) => {
+        if (!state.pointer.active) return;
+        state.pointer.active = false;
+        const moved = state.pointer.moved;
+        const elapsed = performance.now() - state.pointer.time;
+        if (!moved && elapsed < 300) {
+          const pt = toCanvasPoint(evt);
+          const positions = bodies.map((body) => ({
+            body,
+            screen: project(body.name === 'Sun' ? { x: 0, y: 0, z: 0 } : (body.current || computePlanetPosition(body, state.timeDays))),
+            r: (() => {
+              const pr = project(body.name === 'Sun' ? { x: 0, y: 0, z: 0 } : (body.current || computePlanetPosition(body, state.timeDays)));
+              if (!pr) return 0;
+              const base = (body.name === 'Sun' ? 28 : bodyScale(body.radiusKm)) * pr.scale * 0.95;
+              return Math.max(body.name === 'Sun' ? 24 : 2.8, base);
+            })(),
+          }));
+          const hit = hitTestBodies(pt.x, pt.y, positions);
+          if (hit) {
+            state.selected = hit;
+            updateUIFromSelection();
+          }
+        }
+      });
+
+      canvas.addEventListener('pointerleave', () => {
+        state.pointer.active = false;
+      });
+
+      canvas.addEventListener('wheel', (evt) => {
+        evt.preventDefault();
+        const factor = Math.exp(evt.deltaY * 0.0012);
+        state.cameraTarget.distance = clamp(state.cameraTarget.distance * factor, 520, 4300);
+      }, { passive: false });
+
+      ui.toggleRun.addEventListener('click', () => {
+        state.running = !state.running;
+        syncUiToggles();
+      });
+
+      ui.focusSun.addEventListener('click', () => {
+        state.selected = 'Sun';
+        updateUIFromSelection();
+      });
+
+      ui.resetView.addEventListener('click', () => {
+        resetView();
+        updateUIFromSelection();
+      });
+
+      ui.toggleOrbits.addEventListener('click', () => {
+        state.showOrbits = !state.showOrbits;
+        syncUiToggles();
+      });
+
+      ui.toggleLabels.addEventListener('click', () => {
+        state.showLabels = !state.showLabels;
+        syncUiToggles();
+      });
+
+      ui.toggleTrails.addEventListener('click', () => {
+        state.showTrails = !state.showTrails;
+        syncUiToggles();
+      });
+
+      ui.speed.addEventListener('input', () => {
+        state.speed = 0.2 + (Number(ui.speed.value) / 240) * 3.4;
+        ui.speedReadout.textContent = `${state.speed.toFixed(2)}x`;
+      });
+
+      ui.pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const key = pill.dataset.focus;
+          state.selected = key === 'sun' ? 'Sun' : key;
+          updateUIFromSelection();
+        });
+      });
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('keydown', (evt) => {
+        if (evt.key === ' ') {
+          evt.preventDefault();
+          state.running = !state.running;
+          syncUiToggles();
+        } else if (evt.key === 'r' || evt.key === 'R') {
+          resetView();
+          updateUIFromSelection();
+        }
+      });
+
+      resize();
+      state.speed = 0.2 + (Number(ui.speed.value) / 240) * 3.4;
+      syncUiToggles();
+      updateUIFromSelection();
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>

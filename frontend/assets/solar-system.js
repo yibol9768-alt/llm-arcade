@@ -25,6 +25,7 @@
       : esc(mark);
     return `<span class="vendor-mark vendor-${esc(item?.vendor_class || "unknown")}" title="${esc(entrant.vendor)}">${logo}</span>`;
   };
+  const identityHTML = (entrant) => `${logoHTML(entrant)}<span class="identity-copy"><b>${esc(entrant.vendor)}</b><strong>${esc(entrant.display_name)}</strong><small>${esc(entrant.harness)} · ${esc(entrant.machine)}</small></span>`;
 
   $("#solar-prompt").textContent = plan.prompt_template;
   $("#solar-complete-count").textContent = String(data.entrants.length);
@@ -91,6 +92,137 @@
     if (!response.ok) { const error = new Error(body?.error?.message || `HTTP ${response.status}`); error.code = body?.error?.code; throw error; }
     return body;
   };
+
+  /* 完整排序与 A/B Elo 分开记录，每位访客在本赛道保留一张可更新榜单。 */
+  const rankingDraftKey = "arcade_solar_system_complete_ranking_draft_v1";
+  const completeRanking = { order: [], saved: [], loading: true };
+  const validCompleteOrder = (order) => {
+    if (!Array.isArray(order) || order.length !== data.entrants.length) return false;
+    const expected = new Set(data.entrants.map((entrant) => entrant.dir));
+    return new Set(order).size === expected.size && order.every((dir) => expected.has(dir));
+  };
+  const shuffledEntrantDirs = () => {
+    const order = data.entrants.map((entrant) => entrant.dir);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    return order;
+  };
+  const saveRankingDraft = () => {
+    try { localStorage.setItem(rankingDraftKey, JSON.stringify(completeRanking.order)); } catch { /* ignore */ }
+  };
+  const rankingEntrant = (dir) => entrantByDir.get(dir);
+  const renderCompleteRankingEditor = () => {
+    const list = $("#solar-ranking-sort-list");
+    if (!list) return;
+    list.innerHTML = completeRanking.order.map((dir, index) => {
+      const entrant = rankingEntrant(dir);
+      const entrantIndex = data.entrants.findIndex((item) => item.dir === dir);
+      return `<li class="ranking-sort-item" draggable="true" data-ranking-dir="${esc(dir)}" data-ranking-index="${index}">
+        <span class="ranking-position">${String(index + 1).padStart(2, "0")}</span>
+        <span class="ranking-drag" aria-hidden="true">⠿</span>
+        <span class="ranking-item-identity">${identityHTML(entrant)}</span>
+        <span class="ranking-item-actions">
+          <button type="button" class="ranking-play" data-ranking-play="${entrantIndex}" aria-label="探索 ${esc(entrant.display_name)}">探索</button>
+          <button type="button" data-ranking-move="up" ${index === 0 ? "disabled" : ""} aria-label="将 ${esc(entrant.display_name)} 上移">↑</button>
+          <button type="button" data-ranking-move="down" ${index === completeRanking.order.length - 1 ? "disabled" : ""} aria-label="将 ${esc(entrant.display_name)} 下移">↓</button>
+        </span>
+      </li>`;
+    }).join("");
+    $$('[data-ranking-move]', list).forEach((button) => button.addEventListener("click", () => {
+      const from = Number(button.closest("[data-ranking-index]").dataset.rankingIndex);
+      const to = button.dataset.rankingMove === "up" ? from - 1 : from + 1;
+      if (to < 0 || to >= completeRanking.order.length) return;
+      [completeRanking.order[from], completeRanking.order[to]] = [completeRanking.order[to], completeRanking.order[from]];
+      saveRankingDraft();
+      renderCompleteRankingEditor();
+      $(`[data-ranking-index="${to}"] [data-ranking-move="${button.dataset.rankingMove}"]`, list)?.focus();
+      $("#solar-ranking-save-status").textContent = "排序已修改，提交后计入大家的结果。";
+    }));
+    $$('[data-ranking-play]', list).forEach((button) => button.addEventListener("click", () => openModal(Number(button.dataset.rankingPlay))));
+    $$(".ranking-sort-item", list).forEach((item) => {
+      item.addEventListener("dragstart", (event) => {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", item.dataset.rankingIndex);
+        item.classList.add("is-dragging");
+      });
+      item.addEventListener("dragend", () => item.classList.remove("is-dragging"));
+      item.addEventListener("dragover", (event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; });
+      item.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const from = Number(event.dataTransfer.getData("text/plain"));
+        const to = Number(item.dataset.rankingIndex);
+        if (!Number.isInteger(from) || from === to) return;
+        const [moved] = completeRanking.order.splice(from, 1);
+        completeRanking.order.splice(to, 0, moved);
+        saveRankingDraft();
+        renderCompleteRankingEditor();
+        $("#solar-ranking-save-status").textContent = "排序已修改，提交后计入大家的结果。";
+      });
+    });
+  };
+  const renderCompleteRankingConsensus = (payload) => {
+    const box = $("#solar-ranking-consensus-list");
+    if (!box) return;
+    const total = Number(payload.total_ballots || 0);
+    $("#solar-ranking-ballot-count").textContent = `${total} 份榜单`;
+    if (!total) {
+      box.innerHTML = '<div class="empty-hint">还没有完整排序票。提交第一张榜单后，这里会显示平均名次。</div>';
+      return;
+    }
+    box.innerHTML = payload.entries.map((entry, index) => {
+      const entrant = rankingEntrant(entry.dir);
+      return `<div class="ranking-consensus-row"><span class="ranking-consensus-rank">#${index + 1}</span><span class="ranking-consensus-identity">${identityHTML(entrant)}</span><span class="ranking-average"><b>${Number(entry.average_rank).toFixed(2)}</b><small>平均名次</small></span></div>`;
+    }).join("");
+  };
+  const loadCompleteRanking = async () => {
+    const status = $("#solar-ranking-save-status");
+    let draft = null;
+    try { draft = JSON.parse(localStorage.getItem(rankingDraftKey) || "null"); } catch { draft = null; }
+    try {
+      const payload = await api("/rankings?track=solar-system");
+      completeRanking.saved = validCompleteOrder(payload.my_order) ? [...payload.my_order] : [];
+      completeRanking.order = completeRanking.saved.length ? [...completeRanking.saved] : validCompleteOrder(draft) ? [...draft] : shuffledEntrantDirs();
+      renderCompleteRankingConsensus(payload);
+      status.textContent = completeRanking.saved.length ? "已载入你上次提交的榜单，可以修改后再次提交。" : "初始顺序已随机打乱，请从最喜欢排到最不喜欢。";
+    } catch {
+      completeRanking.order = validCompleteOrder(draft) ? [...draft] : shuffledEntrantDirs();
+      status.textContent = "暂时未连接到完整排序票池；你的调整会先保存在这台设备。";
+    }
+    completeRanking.loading = false;
+    saveRankingDraft();
+    renderCompleteRankingEditor();
+  };
+  const initCompleteRanking = () => {
+    const list = $("#solar-ranking-sort-list");
+    if (!list || data.entrants.length < 2) return;
+    $("#solar-ranking-shuffle").addEventListener("click", () => {
+      completeRanking.order = shuffledEntrantDirs(); saveRankingDraft(); renderCompleteRankingEditor();
+      $("#solar-ranking-save-status").textContent = "已重新随机打乱，提交后才会计入结果。";
+    });
+    $("#solar-ranking-reset").addEventListener("click", () => {
+      completeRanking.order = completeRanking.saved.length ? [...completeRanking.saved] : shuffledEntrantDirs(); saveRankingDraft(); renderCompleteRankingEditor();
+      $("#solar-ranking-save-status").textContent = completeRanking.saved.length ? "已恢复到你上次提交的榜单。" : "你还没有提交记录，已生成新的随机顺序。";
+    });
+    $("#solar-ranking-submit").addEventListener("click", async (event) => {
+      if (completeRanking.loading || !validCompleteOrder(completeRanking.order)) return;
+      const button = event.currentTarget;
+      button.disabled = true;
+      $("#solar-ranking-save-status").textContent = "正在提交完整排序…";
+      try {
+        const payload = await api("/rankings?track=solar-system", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: completeRanking.order }) });
+        completeRanking.saved = [...completeRanking.order];
+        renderCompleteRankingConsensus(payload);
+        $("#solar-ranking-save-status").textContent = "提交成功。以后重新排序并提交，会覆盖你自己的上一张榜单。";
+      } catch (error) {
+        $("#solar-ranking-save-status").textContent = `提交失败：${error.message}。当前顺序已保存在这台设备。`;
+      } finally { button.disabled = false; }
+    });
+    loadCompleteRanking();
+  };
+  initCompleteRanking();
+
   const pairKey = (a, b) => [a, b].sort().join("|");
   const localPair = () => {
     const seen = new Set(loadVotes().map((vote) => pairKey(vote.a, vote.b)));

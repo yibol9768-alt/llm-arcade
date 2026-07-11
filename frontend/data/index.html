@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>开放排行榜与数据 | LLM Arcade</title>
-<meta name="description" content="查看 LLM Arcade 各赛道的实时 Elo、胜负记录、社区票数与开放 JSON 数据。">
+<meta name="description" content="查看 LLM Arcade 的实时 Elo、完整排序、综合指数、赛道权重与开放 JSON 数据。">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/llm-arcade-favicon-64.png?v=20260711f">
-<link rel="stylesheet" href="../assets/style.css?v=20260711f">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/llm-arcade-favicon-64.png?v=20260711i">
+<link rel="stylesheet" href="../assets/style.css?v=20260711j">
 </head>
 <body data-page="data">
 <div class="home-marquee" aria-label="本站特色">
@@ -75,8 +75,8 @@
 
   <section class="data-api-section">
     <div class="container data-api-grid">
-      <div><span class="home-kicker">API ENDPOINT</span><h2>给人看，也给程序读。</h2><p>接口无需登录，返回当前马里奥赛道的实时排行榜。页面展示不会改变原始字段。</p></div>
-      <div class="data-endpoint"><code>GET /api/leaderboard?track=mario</code><button type="button" id="copy-api">复制接口地址</button></div>
+      <div><span class="home-kicker">API ENDPOINTS</span><h2>给人看，也给程序读。</h2><p>接口无需登录。可以分别读取马里奥、太阳系的 Elo 与完整排序，以及“评测方法 × 赛道权重”的综合排行榜。</p></div>
+      <div class="data-api-endpoints"><div class="data-endpoint"><code>GET /api/leaderboard?track=mario</code><button type="button" data-copy-api="../api/leaderboard?track=mario">复制马里奥 Elo</button></div><div class="data-endpoint"><code>GET /api/leaderboard?track=solar-system</code><button type="button" data-copy-api="../api/leaderboard?track=solar-system">复制太阳系 Elo</button></div><div class="data-endpoint"><code>GET /api/rankings?track=solar-system</code><button type="button" data-copy-api="../api/rankings?track=solar-system">复制太阳系排序</button></div><div class="data-endpoint"><code>GET /api/arcade-index</code><button type="button" data-copy-api="../api/arcade-index">复制综合榜接口</button></div></div>
     </div>
   </section>
 </main>
@@ -88,7 +88,7 @@
   </div>
 </footer>
 
-<script src="../assets/entrants.js?v=20260711f"></script>
-<script src="../assets/data-page.js?v=20260711f"></script>
+<script src="../assets/entrants.js?v=20260711j"></script>
+<script src="../assets/data-page.js?v=20260711j"></script>
 </body>
 </html>

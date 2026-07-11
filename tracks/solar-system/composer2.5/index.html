@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>太阳系九大行星 · 交互探索</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene"></canvas>
+
+    <header class="hud top">
+      <div class="brand">
+        <span class="brand-mark"></span>
+        <div>
+          <h1>太阳系探索</h1>
+          <p>九大行星立体运行 · 含冥王星</p>
+        </div>
+      </div>
+      <div class="hint">拖拽旋转 · 滚轮缩放 · 点击行星聚焦</div>
+    </header>
+
+    <aside class="hud panel" id="info-panel">
+      <div class="panel-kicker">当前焦点</div>
+      <h2 id="body-name">太阳</h2>
+      <p id="body-type" class="type-tag">恒星</p>
+      <dl id="body-stats"></dl>
+      <p id="body-desc" class="desc"></p>
+    </aside>
+
+    <nav class="hud planet-nav" id="planet-nav" aria-label="行星选择"></nav>
+
+    <footer class="hud controls">
+      <label class="control">
+        <span>时间流速</span>
+        <input type="range" id="speed" min="0" max="40" value="8" step="1" />
+        <output id="speed-val">8×</output>
+      </label>
+      <label class="control check">
+        <input type="checkbox" id="toggle-orbits" checked />
+        <span>轨道</span>
+      </label>
+      <label class="control check">
+        <input type="checkbox" id="toggle-labels" checked />
+        <span>标签</span>
+      </label>
+      <label class="control check">
+        <input type="checkbox" id="toggle-pause" />
+        <span>暂停</span>
+      </label>
+      <button type="button" id="btn-reset" class="btn">总览</button>
+      <button type="button" id="btn-follow" class="btn ghost">跟随</button>
+    </footer>
+
+    <div id="loading">
+      <div class="loader">
+        <div class="orbit-ring"></div>
+        <div class="core"></div>
+        <p>正在构建太阳系…</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

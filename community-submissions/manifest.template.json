@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "track": "mario-or-solar-system",
+  "submission_slug": "github-user-model-slug",
+  "submitter_github": "github-user",
+  "prompt_exact": "逐字原始 Prompt",
+  "model": "待填写",
+  "vendor": "待填写",
+  "harness": "Claude Code, Codex, Cursor, or other verified harness",
+  "machine": "待填写",
+  "run_count": 1,
+  "interruptions": [],
+  "human_code_edits": 0,
+  "generated_at": null,
+  "entrypoint": "artifact/index.html",
+  "run_command": "待填写",
+  "verification": "待填写",
+  "notes": "不确定字段填写 null 或待确认，不要猜测"
+}

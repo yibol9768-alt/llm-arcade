@@ -1,0 +1,74 @@
+name: 提交真实作品
+description: 提交你使用模型和 Agent 自行运行完成的网页作品
+title: "[作品提交] "
+body:
+  - type: dropdown
+    id: track
+    attributes:
+      label: 赛道
+      options:
+        - 一句话马里奥
+        - 一句话太阳系
+        - 其他已提案赛道
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: 逐字原始 Prompt
+      description: 请原样粘贴，不要概括。
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: 模型与厂商
+      placeholder: GLM-5.2 / 智谱 AI
+    validations:
+      required: true
+  - type: input
+    id: harness
+    attributes:
+      label: Harness 与运行机器
+      placeholder: Cursor / Mac
+    validations:
+      required: true
+  - type: input
+    id: runs
+    attributes:
+      label: 运行次数与 human_code_edits
+      placeholder: run_count=1, human_code_edits=0
+    validations:
+      required: true
+  - type: textarea
+    id: interruptions
+    attributes:
+      label: 中断、重试和人工操作
+      description: 没有则写“无”。任何失败运行和更明确的补充指令都要如实写出。
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: 作品文件或代码链接
+      description: 可以拖入压缩包、提供仓库链接，或改用 community-submissions 目录提交 Pull Request。入口必须是 index.html。
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: 打开方式与验证结果
+      description: 说明使用的本地服务、浏览器、主要交互和已知问题。
+    validations:
+      required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: 提交确认
+      options:
+        - label: 这是实际运行产物，不是占位作品或人工重写版本
+          required: true
+        - label: 我已经删除密钥、Cookie、账号和私人日志
+          required: true
+        - label: 我理解社区提交需要核验，不会自动进入官方排行榜
+          required: true

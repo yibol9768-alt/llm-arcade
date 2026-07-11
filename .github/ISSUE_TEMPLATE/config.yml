@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 贡献指南
+    url: https://github.com/yibol9768-alt/llm-arcade/blob/main/CONTRIBUTING.md
+    about: 提交前先查看赛道、代码和真实作品的要求

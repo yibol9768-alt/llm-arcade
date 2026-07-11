@@ -48,6 +48,8 @@ npm run dev                 # = wrangler pages dev,默认 http://127.0.0.1:8788
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0002_seed_mario.sql
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0003_voter_pair_claims.sql
    npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0004_seed_mario_additions.sql
+   npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0005_seed_solar_system.sql
+   npx wrangler d1 execute llm-arcade-votes --remote --file db/migrations/0006_complete_rankings.sql
    # 或一条:npm run db:migrate:remote
    ```
 
@@ -80,6 +82,8 @@ npm run dev                 # = wrangler pages dev,默认 http://127.0.0.1:8788
    curl -s https://<pages 域名>/api/health          # {"ok":true,...}
    curl -s "https://<pages 域名>/api/pair?track=mario"
    curl -s "https://<pages 域名>/api/leaderboard?track=mario"
+   curl -s "https://<pages 域名>/api/rankings?track=mario"
+   curl -s "https://<pages 域名>/api/arcade-index"
    ```
 
 ## 三、日常运维

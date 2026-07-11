@@ -212,61 +212,29 @@
   }
 
   let homeRankingTimer = null;
-  const INDEX_TRACKS = [
-    { id: "mario", name: "一句话马里奥", plannedWeight: 25, live: true },
-    { id: "pinball", name: "弹球机", plannedWeight: 15, live: false },
-    { id: "pelican", name: "鹈鹕骑行", plannedWeight: 15, live: false },
-    { id: "snake", name: "贪吃蛇", plannedWeight: 15, live: false },
-    { id: "synth", name: "合成器", plannedWeight: 15, live: false },
-    { id: "city", name: "微缩城市", plannedWeight: 15, live: false },
-  ];
   let latestHomeRanking = null;
-
-  function eloToIndex(elo) {
-    return 100 / (1 + Math.pow(10, (1000 - Number(elo || 1000)) / 400));
-  }
-
-  function buildIndexRows(lb) {
-    const marioByDir = new Map((lb.entries || []).map((entry) => [entry.dir, entry]));
-    return D.entrants.map((entrant) => {
-      const mario = marioByDir.get(entrant.dir) || { dir: entrant.dir, elo: 1000, games: 0, wins: 0, ties: 0, losses: 0 };
-      const hasMarioScore = Number(mario.games || 0) > 0;
-      const score = hasMarioScore ? eloToIndex(mario.elo) : 50;
-      return {
-        dir: entrant.dir,
-        score,
-        provisional: !hasMarioScore,
-        tracks: { mario: { ...mario, score, active: hasMarioScore } },
-      };
-    }).sort((a, b) => b.score - a.score || Number(a.provisional) - Number(b.provisional) || a.dir.localeCompare(b.dir));
-  }
 
   function openIndexModal(row = null) {
     const modal = $("#index-modal");
     const content = $("#index-modal-content");
     if (!modal || !content) return;
-    const activeTracks = INDEX_TRACKS.filter((track) => track.live && latestHomeRanking && latestHomeRanking.entries?.some((entry) => entry.games > 0));
-    const activePlannedTotal = activeTracks.reduce((sum, track) => sum + track.plannedWeight, 0);
+    const tracks = latestHomeRanking?.tracks || [];
 
     if (!row) {
       content.innerHTML = `<div class="index-modal-heading">
           <span class="home-kicker">SCORING METHOD / SEASON 01</span>
           <h2 id="index-modal-title">综合指数如何计算</h2>
-          <p>综合榜只计入已有有效数据的赛道。尚未上线的赛道不会提前占分，赛道上线后再按计划权重加入。</p>
+          <p>先在每条赛道内合并 A/B Elo 与完整排序，再按赛道权重合成总分。只有产生真实社区数据的赛道才会占当前权重。</p>
         </div>
-        <div class="index-formula"><b>Arcade Index</b><code>Σ（赛道得分 × 当前有效权重）</code><small>赛道得分 = 100 ÷（1 + 10^((1000 − Elo) ÷ 400)）</small></div>
+        <div class="index-formula"><b>赛道分</b><code>Elo 分 × 60% + 完整排序分 × 40%</code><small>若某种评测尚无真实数据，其权重自动归给已有数据的方法。Elo 与平均名次都先归一化到 0–100。</small></div>
+        <div class="index-formula compact"><b>Arcade Index</b><code>Σ（赛道分 × 当前有效赛道权重）</code></div>
         <div class="index-track-table" role="table" aria-label="赛道权重">
           <div class="index-track-head" role="row"><span>赛道</span><span>计划权重</span><span>当前权重</span><span>状态</span></div>
-          ${INDEX_TRACKS.map((track) => {
-            const effective = activePlannedTotal && activeTracks.some((active) => active.id === track.id)
-              ? track.plannedWeight / activePlannedTotal * 100 : 0;
-            return `<div class="index-track-row" role="row"><b>${esc(track.name)}</b><span>${track.plannedWeight}%</span><strong>${effective ? effective.toFixed(0) + "%" : "0%"}</strong><small>${effective ? "计入总分" : "未上线，不计分"}</small></div>`;
-          }).join("")}
+          ${tracks.map((track) => `<div class="index-track-row" role="row"><b>${esc(track.name)}</b><span>${(track.planned_weight * 100).toFixed(0)}%</span><strong>${(track.effective_weight * 100).toFixed(0)}%</strong><small>${track.active ? `${track.pairwise_votes} 次盲投 · ${track.complete_ballots} 份完整排序` : `${track.participant_count} 份作品，等待有效评测`}</small></div>`).join("")}
         </div>
-        <p class="index-note">当前只有「一句话马里奥」产生社区数据，因此它在现阶段的有效权重为 100%。新赛道上线后，权重会自动重新归一化。</p>`;
+        <p class="index-note">计划权重目前为马里奥 50%、太阳系 50%。太阳系尚未形成有效对战，因此当前不会提前占分；产生真实数据后自动加入综合榜。</p>`;
     } else {
       const m = metaFor(row.dir);
-      const mario = row.tracks.mario;
       content.innerHTML = `<div class="index-modal-heading index-model-heading">
           <span class="index-modal-identity">${identityHTML(row.dir)}</span>
           <div><span class="home-kicker">RANKING BREAKDOWN</span><h2 id="index-modal-title">${esc(m.model)}</h2><p>${esc(m.vendor)} · ${esc(m.harness)}</p></div>
@@ -274,15 +242,17 @@
         </div>
         <div class="index-track-table" role="table" aria-label="${esc(m.model)} 各赛道得分明细">
           <div class="index-track-head index-track-detail" role="row"><span>赛道</span><span>赛道分</span><span>计划权重</span><span>当前权重</span><span>原始数据</span></div>
-          ${INDEX_TRACKS.map((track) => {
-            if (track.id !== "mario" || !mario.active) {
-              return `<div class="index-track-row index-track-detail muted" role="row"><b>${esc(track.name)}</b><span>—</span><span>${track.plannedWeight}%</span><strong>0%</strong><small>未上线，不计分</small></div>`;
-            }
-            return `<div class="index-track-row index-track-detail" role="row"><b>${esc(track.name)}</b><span>${mario.score.toFixed(1)}</span><span>${track.plannedWeight}%</span><strong>100%</strong><small>Elo ${Math.round(mario.elo)} · ${mario.games} 场</small></div>`;
+          ${tracks.map((track) => {
+            const detail = row.tracks[track.id];
+            const rawParts = [];
+            if (detail.games > 0) rawParts.push(`Elo ${detail.elo} · ${detail.games} 场`);
+            if (detail.average_rank != null) rawParts.push(`完整排序平均第 ${Number(detail.average_rank).toFixed(2)}`);
+            const raw = rawParts.length ? rawParts.join(" · ") : "暂无该组合的有效数据，使用中性 50 分";
+            return `<div class="index-track-row index-track-detail${track.active ? "" : " muted"}" role="row"><b>${esc(track.name)}</b><span>${track.active ? Number(detail.score).toFixed(1) : "—"}</span><span>${(track.planned_weight * 100).toFixed(0)}%</span><strong>${(track.effective_weight * 100).toFixed(0)}%</strong><small>${track.active ? raw : "赛道尚无有效社区数据"}</small></div>`;
           }).join("")}
         </div>
-        <div class="index-formula compact"><b>本期总分</b><code>${row.provisional ? "50.0（暂定基线，尚无有效对局）" : `${mario.score.toFixed(1)} × 100% = ${row.score.toFixed(1)}`}</code></div>
-        <p class="index-note">${row.provisional ? "该组合还没有有效盲投样本，50 分仅作为中性位置展示，不代表社区排名。" : "当前只有马里奥赛道有数据。未来赛道加入后，本页会逐项显示得分和实际权重。"}</p>`;
+        <div class="index-formula compact"><b>当前综合分</b><code>${row.score.toFixed(1)}</code></div>
+        <p class="index-note">${row.provisional ? "至少一条有效赛道仍缺少该组合的数据，缺失项暂按中性 50 分处理并标记样本不足。" : "该分数已经按当前有效评测方法和赛道权重合成。"}</p>`;
     }
     modal.hidden = false;
     document.body.classList.add("modal-open");
@@ -299,7 +269,7 @@
   function renderHomeRanking(lb) {
     const box = $("#home-ranking-list");
     if (!box) return;
-    const total = Number(lb && lb.total_votes || 0);
+    const total = Number(lb && lb.total_judgments || 0);
     const sv = $("#stat-votes");
     const rv = $("#ranking-votes");
     const poolStatus = $("#home-pool-status");
@@ -307,25 +277,25 @@
     const updated = $("#ranking-updated");
     if (sv) sv.textContent = total.toLocaleString("zh-CN");
     if (rv) rv.textContent = total.toLocaleString("zh-CN");
-    if (poolStatus) poolStatus.textContent = "全网票池在线";
+    if (poolStatus) poolStatus.textContent = "社区评测池在线";
 
     latestHomeRanking = lb;
-    const activeTrackCount = lb.entries && lb.entries.some((e) => e.games > 0) ? 1 : 0;
+    const activeTrackCount = Number(lb.active_track_count || 0);
     const activeTracks = $("#ranking-active-tracks");
     if (activeTracks) activeTracks.textContent = String(activeTrackCount);
     if (!total || !activeTrackCount) {
       if (source) source.textContent = "初始榜筹备中";
-      if (updated) updated.textContent = "等待 Agent 初评或社区有效盲投";
-      box.innerHTML = '<div class="ranking-pending">初始榜筹备中。5.6sol Agent 初评尚未录入，社区产生有效盲投后将自动显示实时 Elo。</div>';
+      if (updated) updated.textContent = "等待社区有效评测";
+      box.innerHTML = '<div class="ranking-pending">综合榜筹备中。产生有效盲投或完整排序后自动显示。</div>';
       return;
     }
 
-    if (source) source.textContent = "社区实时 Elo";
+    if (source) source.textContent = "Elo + 完整排序 + 赛道权重";
     if (updated) {
-      const stamp = Number(lb.updated_at || 0) * 1000;
+      const stamp = Number(lb.generated_at || 0) * 1000;
       updated.textContent = stamp ? `更新于 ${new Date(stamp).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}` : "刚刚更新";
     }
-    const rows = buildIndexRows(lb);
+    const rows = lb.entries || [];
     box.innerHTML = rows.map((row, i) => {
       const m = metaFor(row.dir);
       const height = Math.max(8, row.score);
@@ -344,7 +314,7 @@
 
   async function refreshHomeRanking() {
     try {
-      renderHomeRanking(await apiFetch("/leaderboard?track=mario", {}, 4500));
+      renderHomeRanking(await apiFetch("/arcade-index", {}, 6000));
     } catch {
       const poolStatus = $("#home-pool-status");
       const source = $("#ranking-source");
@@ -1316,11 +1286,163 @@
     });
   }
 
+  /* ---------- 完整排序票(与 A/B Elo 分开统计) ---------- */
+  const RANKING_DRAFT_KEY = "arcade_mario_complete_ranking_draft_v1";
+  const completeRanking = { order: [], saved: [], totalBallots: 0, loading: true };
+
+  function validCompleteOrder(order) {
+    if (!Array.isArray(order) || order.length !== D.entrants.length) return false;
+    const expected = new Set(D.entrants.map((entrant) => entrant.dir));
+    return new Set(order).size === expected.size && order.every((dir) => expected.has(dir));
+  }
+
+  function shuffledEntrantDirs() {
+    const order = D.entrants.map((entrant) => entrant.dir);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    return order;
+  }
+
+  function saveRankingDraft() {
+    try { localStorage.setItem(RANKING_DRAFT_KEY, JSON.stringify(completeRanking.order)); } catch { /* ignore */ }
+  }
+
+  function renderCompleteRankingEditor() {
+    const list = $("#ranking-sort-list");
+    if (!list) return;
+    list.innerHTML = completeRanking.order.map((dir, index) => {
+      const m = metaFor(dir);
+      const entrantIndex = ranked.findIndex((entrant) => entrant.dir === dir);
+      return `<li class="ranking-sort-item" draggable="true" data-ranking-dir="${esc(dir)}" data-ranking-index="${index}">
+        <span class="ranking-position">${String(index + 1).padStart(2, "0")}</span>
+        <span class="ranking-drag" aria-hidden="true">⠿</span>
+        <span class="ranking-item-identity">${identityHTML(dir, true)}<small>${esc(m.harness)} · ${esc(dir)}</small></span>
+        <span class="ranking-item-actions">
+          <button type="button" class="ranking-play" data-ranking-play="${entrantIndex}" aria-label="试玩 ${esc(m.model)}">试玩</button>
+          <button type="button" data-ranking-move="up" ${index === 0 ? "disabled" : ""} aria-label="将 ${esc(m.model)} 上移">↑</button>
+          <button type="button" data-ranking-move="down" ${index === completeRanking.order.length - 1 ? "disabled" : ""} aria-label="将 ${esc(m.model)} 下移">↓</button>
+        </span>
+      </li>`;
+    }).join("");
+
+    $$("[data-ranking-move]", list).forEach((button) => button.addEventListener("click", () => {
+      const item = button.closest("[data-ranking-index]");
+      const from = Number(item.dataset.rankingIndex);
+      const to = button.dataset.rankingMove === "up" ? from - 1 : from + 1;
+      if (to < 0 || to >= completeRanking.order.length) return;
+      [completeRanking.order[from], completeRanking.order[to]] = [completeRanking.order[to], completeRanking.order[from]];
+      saveRankingDraft();
+      renderCompleteRankingEditor();
+      $(`[data-ranking-index="${to}"] [data-ranking-move="${button.dataset.rankingMove}"]`, list)?.focus();
+      $("#ranking-save-status").textContent = "排序已修改，提交后计入大家的结果。";
+    }));
+    $$("[data-ranking-play]", list).forEach((button) => button.addEventListener("click", () => openModal(Number(button.dataset.rankingPlay), button)));
+    $$(".ranking-sort-item", list).forEach((item) => {
+      item.addEventListener("dragstart", (event) => {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", item.dataset.rankingIndex);
+        item.classList.add("is-dragging");
+      });
+      item.addEventListener("dragend", () => item.classList.remove("is-dragging"));
+      item.addEventListener("dragover", (event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; });
+      item.addEventListener("drop", (event) => {
+        event.preventDefault();
+        const from = Number(event.dataTransfer.getData("text/plain"));
+        const to = Number(item.dataset.rankingIndex);
+        if (!Number.isInteger(from) || from === to) return;
+        const [moved] = completeRanking.order.splice(from, 1);
+        completeRanking.order.splice(to, 0, moved);
+        saveRankingDraft();
+        renderCompleteRankingEditor();
+        $("#ranking-save-status").textContent = "排序已修改，提交后计入大家的结果。";
+      });
+    });
+  }
+
+  function renderCompleteRankingConsensus(payload) {
+    const box = $("#ranking-consensus-list");
+    if (!box) return;
+    const total = Number(payload.total_ballots || 0);
+    completeRanking.totalBallots = total;
+    $("#ranking-ballot-count").textContent = `${total} 份榜单`;
+    if (!total) {
+      box.innerHTML = '<div class="empty-hint">还没有完整排序票。提交第一张榜单后，这里会显示平均名次。</div>';
+      return;
+    }
+    box.innerHTML = payload.entries.map((entry, index) => `<div class="ranking-consensus-row">
+      <span class="ranking-consensus-rank">#${index + 1}</span>
+      <span class="ranking-consensus-identity">${identityHTML(entry.dir, true)}<small>${esc(metaFor(entry.dir).harness)}</small></span>
+      <span class="ranking-average"><b>${Number(entry.average_rank).toFixed(2)}</b><small>平均名次</small></span>
+    </div>`).join("");
+  }
+
+  async function loadCompleteRanking() {
+    const status = $("#ranking-save-status");
+    let draft = null;
+    try { draft = JSON.parse(localStorage.getItem(RANKING_DRAFT_KEY) || "null"); } catch { draft = null; }
+    try {
+      const payload = await apiFetch("/rankings?track=mario", {}, 5000);
+      completeRanking.saved = validCompleteOrder(payload.my_order) ? [...payload.my_order] : [];
+      completeRanking.order = completeRanking.saved.length
+        ? [...completeRanking.saved]
+        : validCompleteOrder(draft) ? [...draft] : shuffledEntrantDirs();
+      renderCompleteRankingConsensus(payload);
+      status.textContent = completeRanking.saved.length ? "已载入你上次提交的榜单，可以修改后再次提交。" : "初始顺序已随机打乱，请从最喜欢排到最不喜欢。";
+    } catch {
+      completeRanking.order = validCompleteOrder(draft) ? [...draft] : shuffledEntrantDirs();
+      status.textContent = "暂时未连接到完整排序票池；你的调整会先保存在这台设备。";
+    }
+    completeRanking.loading = false;
+    saveRankingDraft();
+    renderCompleteRankingEditor();
+  }
+
+  function initCompleteRanking() {
+    const list = $("#ranking-sort-list");
+    if (!list) return;
+    $("#ranking-shuffle").addEventListener("click", () => {
+      completeRanking.order = shuffledEntrantDirs();
+      saveRankingDraft();
+      renderCompleteRankingEditor();
+      $("#ranking-save-status").textContent = "已重新随机打乱，提交后才会计入结果。";
+    });
+    $("#ranking-reset").addEventListener("click", () => {
+      completeRanking.order = completeRanking.saved.length ? [...completeRanking.saved] : shuffledEntrantDirs();
+      saveRankingDraft();
+      renderCompleteRankingEditor();
+      $("#ranking-save-status").textContent = completeRanking.saved.length ? "已恢复到你上次提交的榜单。" : "你还没有提交记录，已生成新的随机顺序。";
+    });
+    $("#ranking-submit").addEventListener("click", async (event) => {
+      if (completeRanking.loading || !validCompleteOrder(completeRanking.order)) return;
+      const button = event.currentTarget;
+      button.disabled = true;
+      $("#ranking-save-status").textContent = "正在提交完整排序…";
+      try {
+        const payload = await apiFetch("/rankings?track=mario", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order: completeRanking.order }),
+        }, 7000);
+        completeRanking.saved = [...completeRanking.order];
+        renderCompleteRankingConsensus(payload);
+        $("#ranking-save-status").textContent = "提交成功。以后重新排序并提交，会覆盖你自己的上一张榜单。";
+      } catch (error) {
+        $("#ranking-save-status").textContent = `提交失败：${error.message}。当前顺序已保存在这台设备。`;
+      } finally {
+        button.disabled = false;
+      }
+    });
+    loadCompleteRanking();
+  }
+
   /* ---------- 赛道页入口 ---------- */
   function initMario() {
     const st = new URLSearchParams(location.search).get("selftest");
     if (st === "online") installFetchMock(); /* 必须在 initBattle 的 health 探测之前装 mock */
     renderEntrants($("#entrants"));
+    initCompleteRanking();
     renderChecklist();
     renderScatter($("#scatter"));
     initBattle();

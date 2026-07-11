@@ -18,6 +18,8 @@ const { CONFIG } = await import("../functions/_lib/config.js");
 const { signPairToken, verifyPairToken, sha256Hex } = await import("../functions/_lib/hmac.js");
 const { pickPair, pairKey } = await import("../functions/_lib/sampling.js");
 const { computeElo, computeBradleyTerry, tallyRecords } = await import("../functions/_lib/rating.js");
+const { validateCompleteRanking, aggregateCompleteRankings } = await import("../functions/_lib/ranking.js");
+const { eloToArcadeScore, averageRankToScore, combineMethodScores } = await import("../functions/_lib/index-score.js");
 const { onRequestPost: submitVote } = await import("../functions/api/vote.js");
 const { onRequestGet: requestPair } = await import("../functions/api/pair.js");
 let passed = 0;
@@ -312,6 +314,48 @@ await test("tally: wins/losses/ties/games are counted per entrant", () => {
   assert.deepEqual(rec.get("a"), { wins: 2, losses: 0, ties: 0, games: 2 });
   assert.deepEqual(rec.get("b"), { wins: 0, losses: 1, ties: 1, games: 2 });
   assert.deepEqual(rec.get("c"), { wins: 0, losses: 1, ties: 1, games: 2 });
+});
+
+await test("complete ranking: requires every active entrant exactly once", () => {
+  const dirs = ["a", "b", "c"];
+  assert.equal(validateCompleteRanking(["c", "a", "b"], dirs), true);
+  assert.equal(validateCompleteRanking(["a", "b"], dirs), false);
+  assert.equal(validateCompleteRanking(["a", "a", "c"], dirs), false);
+  assert.equal(validateCompleteRanking(["a", "b", "x"], dirs), false);
+});
+
+await test("complete ranking: aggregates average positions and ignores invalid ballots", () => {
+  const aggregate = aggregateCompleteRankings([
+    ["a", "b", "c"],
+    ["b", "a", "c"],
+    ["a", "a", "c"],
+  ], ["a", "b", "c"]);
+  assert.equal(aggregate.total_ballots, 2);
+  assert.deepEqual(aggregate.entries.map((entry) => [entry.dir, entry.average_rank]), [
+    ["a", 1.5], ["b", 1.5], ["c", 3],
+  ]);
+});
+
+await test("arcade index: normalizes Elo and average rank to 0-100", () => {
+  assert.equal(eloToArcadeScore(1000), 50);
+  assert.ok(eloToArcadeScore(1200) > 50);
+  assert.equal(averageRankToScore(1, 15), 100);
+  assert.equal(averageRankToScore(15, 15), 0);
+});
+
+await test("arcade index: reweights only methods with real data", () => {
+  let combined = combineMethodScores([
+    { id: "elo", score: 70, weight: 0.6 },
+    { id: "complete_ranking", score: 40, weight: 0.4 },
+  ]);
+  assert.equal(combined.score, 58);
+  assert.equal(combined.effective_weights.elo, 0.6);
+  combined = combineMethodScores([
+    { id: "elo", score: 70, weight: 0.6 },
+    { id: "complete_ranking", score: null, weight: 0.4 },
+  ]);
+  assert.equal(combined.score, 70);
+  assert.equal(combined.effective_weights.elo, 1);
 });
 
 await test("config: thresholds match the agreed contract", () => {

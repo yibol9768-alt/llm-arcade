@@ -5,9 +5,33 @@ window.SOLAR_SYSTEM_DATA = {
   "title_en": "ONE-PROMPT SOLAR SYSTEM",
   "prompt": "帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。",
   "status": "collecting",
-  "blind_voting_enabled": false,
-  "generated_at": "2026-07-11T11:58:25.985Z",
+  "blind_voting_enabled": true,
+  "generated_at": "2026-07-11T13:40:53.025Z",
   "entrants": [
+    {
+      "dir": "gpt5.4mini",
+      "display_name": "GPT-5.4 Mini",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs",
+      "files": 1,
+      "bytes": 38404,
+      "code_lines": 1168,
+      "loads_ok": true,
+      "broken_refs": []
+    },
+    {
+      "dir": "composer2.5",
+      "display_name": "Composer 2.5",
+      "vendor": "Cursor",
+      "harness": "Cursor",
+      "machine": "Mac",
+      "files": 3,
+      "bytes": 33724,
+      "code_lines": 1295,
+      "loads_ok": true,
+      "broken_refs": []
+    },
     {
       "dir": "glm5.2",
       "display_name": "GLM-5.2",
@@ -17,6 +41,54 @@ window.SOLAR_SYSTEM_DATA = {
       "files": 3,
       "bytes": 49562,
       "code_lines": 1157,
+      "loads_ok": true,
+      "broken_refs": []
+    },
+    {
+      "dir": "grok4.5",
+      "display_name": "Grok 4.5",
+      "vendor": "xAI",
+      "harness": "Cursor",
+      "machine": "Mac",
+      "files": 3,
+      "bytes": 33568,
+      "code_lines": 1325,
+      "loads_ok": true,
+      "broken_refs": []
+    },
+    {
+      "dir": "kimi-k2.7code",
+      "display_name": "Kimi K2.7-Code",
+      "vendor": "Moonshot AI",
+      "harness": "Cursor",
+      "machine": "Mac",
+      "files": 1,
+      "bytes": 22721,
+      "code_lines": 559,
+      "loads_ok": true,
+      "broken_refs": []
+    },
+    {
+      "dir": "gemini3.1pro",
+      "display_name": "Gemini 3.1 Pro",
+      "vendor": "Google",
+      "harness": "Cursor",
+      "machine": "Mac",
+      "files": 1,
+      "bytes": 20847,
+      "code_lines": 429,
+      "loads_ok": true,
+      "broken_refs": []
+    },
+    {
+      "dir": "deepseek-v4-pro",
+      "display_name": "DeepSeek V4 Pro",
+      "vendor": "DeepSeek",
+      "harness": "Cursor",
+      "machine": "Mac",
+      "files": 1,
+      "bytes": 31761,
+      "code_lines": 956,
       "loads_ok": true,
       "broken_refs": []
     }

@@ -1,0 +1,46 @@
+name: 新赛道提案
+description: 提议一个人人看得懂、Agent 可以交付真实作品的新赛道
+title: "[赛道提案] "
+body:
+  - type: input
+    id: name
+    attributes:
+      label: 赛道名称
+      placeholder: 一句话……
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: 建议的逐字 Prompt
+      description: 所有参赛组合应该收到完全相同的文字，只允许替换目标目录。
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: 最终作品形式
+      description: 说明访客会看到或玩到什么，以及为什么普通人可以快速判断差异。
+    validations:
+      required: true
+  - type: textarea
+    id: evaluation
+    attributes:
+      label: 评测方式
+      description: 说明适合完整排序、匿名 A/B，还是其他可公开复核的方式。
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: 公平性与风险
+      description: 说明依赖、运行成本、版权、浏览器兼容性和可能造成不公平的因素。
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交确认
+      options:
+        - label: 任务可以由 Agent 交付可直接运行或体验的真实作品
+          required: true
+        - label: 不会使用虚假截图、占位作品或未核实的运行信息
+          required: true

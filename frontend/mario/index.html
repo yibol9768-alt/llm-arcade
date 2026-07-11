@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🎮 一句话马里奥 · 15 个 AI 作品在线试玩 | LLM Arcade</title>
-<meta name="description" content="同一句 prompt「帮我生成一个马里奥小游戏」,15 个真实可玩成品在线展示。支持试玩、匿名盲投和公开检查表，未知运行字段明确标记待确认。">
+<meta name="description" content="同一句 prompt「帮我生成一个马里奥小游戏」,15 个真实可玩成品在线展示。支持试玩、完整排序、匿名盲投和公开检查表。">
 <meta property="og:title" content="一句话马里奥 · 15 个 AI 作品在线试玩 | LLM Arcade">
-<meta property="og:description" content="同一句 prompt,15 个真实可玩作品。上手玩，然后匿名盲投；例外运行记录如实披露。">
+<meta property="og:description" content="同一句 prompt,15 个真实可玩作品。可以给全部作品排顺序，也可以匿名 A/B 盲投。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/llm-arcade-favicon-64.png?v=20260711f">
-<link rel="stylesheet" href="../assets/style.css?v=20260711f">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/llm-arcade-favicon-64.png?v=20260711i">
+<link rel="stylesheet" href="../assets/style.css?v=20260711j">
 </head>
 <body data-page="mario" data-game-base="../games/mario/">
 
@@ -26,6 +26,7 @@
     <a class="logo" href="../"><span class="home-logo-mark"><img src="../assets/brand/llm-arcade-mark-192.png" alt=""></span><span>LLM Arcade</span><span class="logo-zh">大模型街机厅</span></a>
     <nav class="topnav" aria-label="主导航">
       <a href="#entrants-sec">参赛作品</a>
+      <a href="#ranking-ballot-sec">完整排序</a>
       <a href="#battle-sec">对战盲投</a>
       <a href="#checklist-sec">检查表</a>
       <a href="../data/">开放数据</a>
@@ -64,6 +65,30 @@
         <p>15 份作品均来自已核验的真实文件。卡片预览按需加载,同屏最多 3 个;点「▶ 试玩」进入完整操作界面。</p>
       </div>
       <div class="entrants-grid" id="entrants"></div>
+    </div>
+  </section>
+
+  <!-- 完整排序 -->
+  <section class="section" id="ranking-ballot-sec">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Full Ranking</span>
+        <h2>🏁 给全部作品排个名</h2>
+        <p>另一种评测方式：试玩后把 15 个作品从最喜欢排到最不喜欢。拖动卡片，或用上下按钮调整；每位访客保留一张榜单，可随时更新。</p>
+      </div>
+      <div class="ranking-ballot-note"><strong>这不是盲评。</strong><span>初始顺序会随机打乱，避免默认顺序影响判断。完整排序与 A/B Elo 分开统计，不互相换算。</span></div>
+      <div class="ranking-ballot-layout">
+        <div class="ranking-editor card">
+          <div class="ranking-editor-head"><div><span>YOUR BALLOT</span><h3>我的完整排序</h3></div><div><button class="btn btn-secondary btn-sm" id="ranking-shuffle" type="button">随机打乱</button><button class="btn btn-secondary btn-sm" id="ranking-reset" type="button">恢复已提交</button></div></div>
+          <ol class="ranking-sort-list" id="ranking-sort-list" aria-label="我的完整排序"></ol>
+          <div class="ranking-submit-row"><p id="ranking-save-status" aria-live="polite">正在读取你的排序…</p><button class="btn btn-primary" id="ranking-submit" type="button">提交完整排序</button></div>
+        </div>
+        <div class="ranking-consensus card">
+          <div class="ranking-consensus-head"><div><span>COMMUNITY RESULT</span><h3>大家的完整排序</h3></div><b id="ranking-ballot-count">0 份榜单</b></div>
+          <div id="ranking-consensus-list" class="ranking-consensus-list"><div class="empty-hint">还没有完整排序票。提交第一张榜单后，这里会显示平均名次。</div></div>
+          <p class="ranking-method">排序依据：每个作品在所有有效榜单中的平均名次，数值越小越靠前。样本较少时只作为早期参考。</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -136,7 +161,7 @@
         <div class="scatter-wrap" id="scatter"></div>
       </div>
       <div class="footnote">
-        <strong>脚注:</strong>静态检查分仅反映代码静态特征,<strong>不代表好玩程度</strong>;正式排名以全网盲投 Elo 为准。评分公式:<span data-formula></span>
+        <strong>脚注:</strong>静态检查分仅反映代码静态特征,<strong>不代表好玩程度</strong>;社区评价分别展示完整排序平均名次与匿名盲投 Elo，并在综合榜中按权重合成。评分公式:<span data-formula></span>
         「可加载」= index.html 存在且其引用的本地 js/css 文件全部存在;「触屏」= 监听 touchstart / ontouch / pointerdown(pointerdown 同样覆盖触屏)。
       </div>
     </div>
@@ -163,7 +188,7 @@
           <h3>记录与公开范围</h3>
           <ul>
             <li>原始 prompt、已核实身份字段和 15 份原始成品均公开存档;</li>
-            <li>源码特征、试玩入口、匿名对战和社区投票结果均在站内公开,排名随有效投票更新;</li>
+            <li>源码特征、试玩入口、完整排序、匿名对战和社区结果均在站内公开,排名随有效评测更新;</li>
             <li>Claude 系列使用 Claude Code,GPT 系列使用 Codex,其余模型使用 Cursor;上述新增作品的生成时间和运行次数尚待确认;</li>
             <li>DeepSeek V4 Pro 使用 Claude Code + Claude Code Router,human_code_edits=0;共运行两次,首次在产物生成前中断,第二次完成,因此不标记为严格一次生成;</li>
             <li>后续赛道将在开跑前固化 prompt、版本、日期、配置与迭代预算,并随结果一并公开。</li>
@@ -210,8 +235,8 @@
   </div>
 </div>
 
-<script src="../assets/entrants.js?v=20260711f"></script>
-<script src="../assets/data.js?v=20260711f"></script>
-<script src="../assets/app.js?v=20260711f"></script>
+<script src="../assets/entrants.js?v=20260711j"></script>
+<script src="../assets/data.js?v=20260711j"></script>
+<script src="../assets/app.js?v=20260711j"></script>
 </body>
 </html>

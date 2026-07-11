@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>太阳系九大行星 · 立体交互探索</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23ffb347'/%3E%3Ccircle cx='32' cy='32' r='18' fill='%23ffe08a'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene"></canvas>
+
+    <header class="hud-top">
+      <div class="brand">
+        <span class="brand-mark">☉</span>
+        <div>
+          <h1>SOLAR SYSTEM</h1>
+          <p>九大行星立体运行 · 含冥王星</p>
+        </div>
+      </div>
+      <div class="hud-actions">
+        <button id="btn-pause" class="btn" title="暂停/继续">❚❚</button>
+        <button id="btn-reset" class="btn" title="重置视角">⟲</button>
+        <button id="btn-labels" class="btn active" title="显示标签">Aa</button>
+        <button id="btn-orbits" class="btn active" title="显示轨道">◎</button>
+      </div>
+    </header>
+
+    <aside class="hud-left">
+      <label class="control">
+        <span>运行速度</span>
+        <input id="speed" type="range" min="0" max="40" step="0.5" value="8" />
+        <em id="speed-val">8×</em>
+      </label>
+      <label class="control">
+        <span>时间尺度</span>
+        <input id="time-scale" type="range" min="0.1" max="5" step="0.1" value="1" />
+        <em id="time-val">1.0</em>
+      </label>
+      <div class="planet-list" id="planet-list"></div>
+    </aside>
+
+    <aside class="hud-right" id="info-panel">
+      <div class="info-empty" id="info-empty">
+        <p>点击行星查看详情</p>
+        <p class="hint">拖拽旋转 · 滚轮缩放 · 右键平移</p>
+      </div>
+      <div class="info-card hidden" id="info-card">
+        <div class="info-header">
+          <span class="info-swatch" id="info-swatch"></span>
+          <div>
+            <h2 id="info-name">—</h2>
+            <p id="info-name-en">—</p>
+          </div>
+          <button id="btn-focus" class="btn-focus" title="聚焦">聚焦</button>
+        </div>
+        <dl class="info-stats" id="info-stats"></dl>
+        <p class="info-desc" id="info-desc"></p>
+      </div>
+    </aside>
+
+    <footer class="hud-bottom">
+      <div class="legend" id="legend"></div>
+      <div class="status">
+        <span id="status-text">加载中…</span>
+      </div>
+    </footer>
+
+    <div id="tooltip" class="tooltip hidden"></div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

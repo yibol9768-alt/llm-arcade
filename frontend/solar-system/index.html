@@ -11,7 +11,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/llm-arcade-favicon-64.png?v=20260711h">
-<link rel="stylesheet" href="../assets/style.css?v=20260711h">
+<link rel="stylesheet" href="../assets/style.css?v=20260711j">
 </head>
 <body data-page="solar-system" data-game-base="../games/solar-system/">
 
@@ -24,6 +24,7 @@
     <a class="logo" href="../"><span class="home-logo-mark"><img src="../assets/brand/llm-arcade-mark-192.png" alt=""></span><span>LLM Arcade</span><span class="logo-zh">大模型街机厅</span></a>
     <nav class="topnav" aria-label="主导航">
       <a href="#entrants-sec">参赛作品</a>
+      <a href="#ranking-ballot-sec">完整排序</a>
       <a href="#battle-sec">对战盲投</a>
       <a href="#protocol-sec">统一协议</a>
       <a href="#run-plan">运行计划</a>
@@ -65,7 +66,30 @@
     </div>
   </section>
 
-  <section class="section" id="battle-sec">
+  <section class="section" id="ranking-ballot-sec">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Complete Ranking</span>
+        <h2>给全部作品排个名</h2>
+        <p>先逐个探索，再从最喜欢排到最不喜欢。每位访客在本赛道保留一张榜单，重新提交会覆盖自己的上一版。</p>
+      </div>
+      <div class="ranking-ballot-note"><strong>这不是盲评。</strong><span>初始顺序会随机打乱。完整排序与 A/B Elo 分开统计，再按公开权重合成赛道分。</span></div>
+      <div class="ranking-ballot-layout">
+        <div class="ranking-editor card">
+          <div class="ranking-editor-head"><div><span>YOUR BALLOT</span><h3>我的完整排序</h3></div><div><button class="btn btn-secondary btn-sm" id="solar-ranking-shuffle" type="button">随机打乱</button><button class="btn btn-secondary btn-sm" id="solar-ranking-reset" type="button">恢复已提交</button></div></div>
+          <ol class="ranking-sort-list" id="solar-ranking-sort-list" aria-label="我的太阳系作品完整排序"></ol>
+          <div class="ranking-submit-row"><p id="solar-ranking-save-status" aria-live="polite">正在读取你的排序…</p><button class="btn btn-primary" id="solar-ranking-submit" type="button">提交完整排序</button></div>
+        </div>
+        <div class="ranking-consensus card">
+          <div class="ranking-consensus-head"><div><span>COMMUNITY RESULT</span><h3>大家的完整排序</h3></div><b id="solar-ranking-ballot-count">0 份榜单</b></div>
+          <div id="solar-ranking-consensus-list" class="ranking-consensus-list"><div class="empty-hint">还没有完整排序票。提交第一张榜单后，这里会显示平均名次。</div></div>
+          <p class="ranking-method">排序依据：每个作品在所有有效榜单中的平均名次，数值越小越靠前。样本较少时只作为早期参考。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt" id="battle-sec">
     <div class="container">
       <div class="section-head">
         <span class="kicker">Battle</span>
@@ -115,9 +139,9 @@
   <div class="modal-box"><div class="modal-top"><div class="modal-title-group"><span class="modal-eyebrow">NOW EXPLORING <b id="solar-modal-position">01 / 01</b></span><div class="modal-title-row"><span class="code" id="solar-modal-code"></span><span class="tag-internal">内部代号</span><strong id="solar-modal-identity"></strong></div></div><div class="modal-key-hints"><span><kbd>DRAG</kbd> 旋转视角</span><span><kbd>ESC</kbd> 退出试玩</span></div><div class="modal-actions"><button class="btn btn-secondary btn-sm" id="solar-modal-next"><span aria-hidden="true">↻</span> 下一款</button><button class="btn btn-secondary btn-sm modal-close-btn" id="solar-modal-close" aria-label="关闭试玩窗口">✕ <span>关闭</span></button></div></div><div class="modal-stage"><div class="modal-stage-label"><span>LLM ARCADE</span><span>INTERACTIVE OUTPUT / ORIGINAL BUILD</span></div><div class="modal-frame-wrap" id="solar-modal-frame-wrap"></div><div class="modal-stage-foot"><span class="modal-status-dot"></span> LIVE SESSION <b>ORIGINAL BUILD</b></div></div></div>
 </div>
 
-<script src="../assets/entrants.js?v=20260711h"></script>
-<script src="../assets/solar-system-plan.js?v=20260711h"></script>
-<script src="../assets/solar-system-data.js?v=20260711h"></script>
-<script src="../assets/solar-system.js?v=20260711h"></script>
+<script src="../assets/entrants.js?v=20260711j"></script>
+<script src="../assets/solar-system-plan.js?v=20260711j"></script>
+<script src="../assets/solar-system-data.js?v=20260711j"></script>
+<script src="../assets/solar-system.js?v=20260711j"></script>
 </body>
 </html>

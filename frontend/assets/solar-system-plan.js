@@ -85,7 +85,7 @@ window.SOLAR_SYSTEM_RUN_PLAN = {
       "harness": "Codex",
       "machine": "vircs",
       "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt5.4mini/",
-      "status": "not_run"
+      "status": "completed_verified"
     },
     {
       "slug": "composer2.5",
@@ -94,7 +94,7 @@ window.SOLAR_SYSTEM_RUN_PLAN = {
       "harness": "Cursor",
       "machine": "Mac",
       "target_dir": "/Users/liuyibo/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/composer2.5/",
-      "status": "not_run"
+      "status": "completed_verified"
     },
     {
       "slug": "glm5.2",
@@ -112,7 +112,7 @@ window.SOLAR_SYSTEM_RUN_PLAN = {
       "harness": "Cursor",
       "machine": "Mac",
       "target_dir": "/Users/liuyibo/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/grok4.5/",
-      "status": "not_run"
+      "status": "completed_verified"
     },
     {
       "slug": "kimi-k2.7code",
@@ -121,7 +121,7 @@ window.SOLAR_SYSTEM_RUN_PLAN = {
       "harness": "Cursor",
       "machine": "Mac",
       "target_dir": "/Users/liuyibo/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/kimi-k2.7code/",
-      "status": "not_run"
+      "status": "completed_verified"
     },
     {
       "slug": "gemini3.1pro",
@@ -130,7 +130,7 @@ window.SOLAR_SYSTEM_RUN_PLAN = {
       "harness": "Cursor",
       "machine": "Mac",
       "target_dir": "/Users/liuyibo/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gemini3.1pro/",
-      "status": "not_run"
+      "status": "completed_verified"
     },
     {
       "slug": "deepseek-v4-pro",
@@ -139,7 +139,7 @@ window.SOLAR_SYSTEM_RUN_PLAN = {
       "harness": "Cursor",
       "machine": "Mac",
       "target_dir": "/Users/liuyibo/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/deepseek-v4-pro/",
-      "status": "not_run"
+      "status": "completed_verified"
     }
   ]
 };

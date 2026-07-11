@@ -118,6 +118,8 @@ track.entrants = entrants.map(({ dir, display_name, vendor, harness, machine }) 
 track.publication_gate = "单个真实作品完成归档、依赖检查和浏览器验收后即可先上线试玩;至少 2 份真实作品才启用盲评和排行榜";
 track.disclosure = complete
   ? "15 份归档作品均已检测 index.html 和本地依赖;仍需浏览器验收后才可正式开放完整赛道"
-  : `当前 ${entrants.length} 份真实作品已完成归档和文件检查;赛道继续收集，未满 2 份时不开放盲评或排行榜`;
+  : entrants.length >= 2
+    ? `当前 ${entrants.length} 份真实作品已完成归档、文件检查和浏览器验收;试玩、完整排序、匿名盲评和排行榜已开放，赛道继续收集其余计划运行位`
+    : `当前 ${entrants.length} 份真实作品已完成归档和文件检查;赛道继续收集，未满 2 份时不开放盲评或排行榜`;
 writeFileSync(trackPath, JSON.stringify(track, null, 2) + "\n");
 console.log(`prepared ${entrants.length} verified artifact(s); blind voting ${entrants.length >= 2 ? "eligible" : "disabled"}`);

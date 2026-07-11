@@ -9,7 +9,7 @@
   "status_label": "COLLECTING / 已有真实作品",
   "run_plan": "_run_plan.json",
   "planned_runs": 15,
-  "completed_runs": 1,
+  "completed_runs": 7,
   "publication_gate": "单个真实作品完成归档、依赖检查和浏览器验收后即可先上线试玩;至少 2 份真实作品才启用盲评和排行榜",
   "required_bodies": [
     "水星",
@@ -24,12 +24,54 @@
   ],
   "entrants": [
     {
+      "dir": "gpt5.4mini",
+      "display_name": "GPT-5.4 Mini",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs"
+    },
+    {
+      "dir": "composer2.5",
+      "display_name": "Composer 2.5",
+      "vendor": "Cursor",
+      "harness": "Cursor",
+      "machine": "Mac"
+    },
+    {
       "dir": "glm5.2",
       "display_name": "GLM-5.2",
       "vendor": "智谱 AI",
       "harness": "Cursor",
       "machine": "Mac"
+    },
+    {
+      "dir": "grok4.5",
+      "display_name": "Grok 4.5",
+      "vendor": "xAI",
+      "harness": "Cursor",
+      "machine": "Mac"
+    },
+    {
+      "dir": "kimi-k2.7code",
+      "display_name": "Kimi K2.7-Code",
+      "vendor": "Moonshot AI",
+      "harness": "Cursor",
+      "machine": "Mac"
+    },
+    {
+      "dir": "gemini3.1pro",
+      "display_name": "Gemini 3.1 Pro",
+      "vendor": "Google",
+      "harness": "Cursor",
+      "machine": "Mac"
+    },
+    {
+      "dir": "deepseek-v4-pro",
+      "display_name": "DeepSeek V4 Pro",
+      "vendor": "DeepSeek",
+      "harness": "Cursor",
+      "machine": "Mac"
     }
   ],
-  "disclosure": "当前 1 份真实作品已完成归档和文件检查;赛道继续收集，未满 2 份时不开放盲评或排行榜"
+  "disclosure": "当前 7 份真实作品已完成归档、文件检查和浏览器验收;试玩、完整排序、匿名盲评和排行榜已开放，赛道继续收集其余计划运行位"
 }

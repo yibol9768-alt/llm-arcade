@@ -1,0 +1,36 @@
+name: 改进建议
+description: 提出页面、手机端、评测算法、开放数据或贡献流程的改进
+title: "[改进] "
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: 改进范围
+      options:
+        - 首页与游戏厅
+        - 赛道子页与试玩
+        - 完整排序与匿名对战
+        - 综合排行榜与权重
+        - 手机端与无障碍
+        - 开放数据与 API
+        - 文档与贡献流程
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 当前问题
+      description: 请说明具体页面、操作和你观察到的问题。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+      description: 可以提供草图、参考网站、算法说明或验收标准。
+    validations:
+      required: true
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: 可能的代价或风险

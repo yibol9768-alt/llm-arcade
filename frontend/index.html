@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LLM Arcade · Agent 可玩作品评测</title>
-<meta name="description" content="同一句提示词，15 个模型与 Agent 运行环境组合交付可运行作品。在线试玩，匿名盲投，结果进入实时排行榜。">
+<meta name="description" content="马里奥、太阳系等一句话造物赛道。在线试玩、完整排序、匿名盲投，按评测方法与赛道权重汇总综合排行榜。">
 <meta property="og:title" content="LLM Arcade 大模型街机厅">
-<meta property="og:description" content="同一句提示词，15 个可玩作品。在线试玩，匿名盲投，运行记录如实披露。">
+<meta property="og:description" content="多条一句话造物赛道。真实作品在线试玩，社区完整排序与匿名盲投共同形成综合排行榜。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<link rel="icon" type="image/png" sizes="64x64" href="assets/brand/llm-arcade-favicon-64.png?v=20260711f">
-<link rel="stylesheet" href="assets/style.css?v=20260711f">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/brand/llm-arcade-favicon-64.png?v=20260711i">
+<link rel="stylesheet" href="assets/style.css?v=20260711j">
 </head>
 <body data-page="home" data-game-base="games/mario/">
 
 <div class="home-marquee" aria-label="本站特色">
   <div class="home-marquee-track">
-    <span>ONE PROMPT</span><b>✦</b><span>FIFTEEN BUILDS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>FIFTEEN BUILDS</span><b>✦</b><span>PLAY THE OUTPUT</span><b>✦</b><span>VOTE BLIND</span>
+    <span>ONE PROMPT</span><b>✦</b><span>REAL BUILDS</span><b>✦</b><span>MULTI TRACK</span><b>✦</b><span>PLAY & RANK</span><b>✦</b><span>ONE PROMPT</span><b>✦</b><span>REAL BUILDS</span><b>✦</b><span>MULTI TRACK</span><b>✦</b><span>PLAY & RANK</span>
   </div>
 </div>
 
@@ -41,11 +41,11 @@
       <div class="home-hero-copy">
         <div class="home-eyebrow"><span class="live-pulse"></span> SEASON 01 · NOW PLAYING</div>
         <h1 aria-label="LLM Arcade"><span>LLM</span><span class="outline">ARCADE</span></h1>
-        <p class="home-hero-lead">同一句提示词，15 个真实可玩作品。</p>
-        <p class="home-hero-sub">每个「模型 × 运行环境」都交付一个能直接玩的网页游戏。作品原样展示，不补丁、不返工。</p>
+        <p class="home-hero-lead">一句话，做出真的能玩的东西。</p>
+        <p class="home-hero-sub">马里奥、太阳系，以及接下来更多造物赛道。每个「模型 × 运行环境」都交付可直接体验的网页作品。</p>
         <div class="home-actions">
-          <a class="home-btn home-btn-primary" href="mario/">进入游戏厅 <span>↗</span></a>
-          <a class="home-btn home-btn-ghost" href="mario/#battle-sec">进入 Arena 盲评 <span>⚔</span></a>
+          <a class="home-btn home-btn-primary" href="#live-track">进入游戏厅 <span>↘</span></a>
+          <a class="home-btn home-btn-ghost" href="mario/#ranking-ballot-sec">参与社区评测 <span>🏁</span></a>
         </div>
         <div class="home-live-line" aria-live="polite">
           <span class="home-status-dot"></span>
@@ -70,10 +70,10 @@
     </div>
 
     <div class="container home-metrics" aria-label="当前赛季数据">
-      <div><strong class="num" id="stat-entrants">15</strong><span>模型 × 运行环境组合</span></div>
-      <div><strong>1 句话</strong><span>完全相同的 PROMPT</span></div>
+      <div><strong class="num">22</strong><span>已核验真实作品</span></div>
+      <div><strong>2 条</strong><span>公开造物赛道</span></div>
       <div><strong>0 人工</strong><span>成品修改</span></div>
-      <div><strong>100%</strong><span>作品可在线试玩</span></div>
+      <div><strong>2 种</strong><span>社区评测方式</span></div>
     </div>
   </section>
 
@@ -83,7 +83,7 @@
         <div>
           <span class="home-kicker">LLM ARCADE INDEX / SEASON 01</span>
           <h2 id="ranking-title">综合能力排行榜</h2>
-          <p>汇总所有已上线造物赛道。点击任意模型，查看每条赛道的得分、权重和总分计算。</p>
+          <p>每条赛道先合并匿名 Elo 与完整排序，再按赛道权重汇总。点击任意模型查看逐项计算。</p>
         </div>
         <div class="ranking-meta">
           <span class="home-status-dot"></span>
@@ -97,11 +97,10 @@
           <div class="ranking-pending">综合指数正在读取赛道数据…</div>
         </div>
       </div>
-      <p class="index-mobile-hint">← 左右滑动查看全部模型 →</p>
       <div class="ranking-footer">
-        <span><b id="ranking-votes">0</b> 次社区判断 · 当前 <b id="ranking-active-tracks">1</b> 条有效赛道</span>
+        <span><b id="ranking-votes">0</b> 次社区判断 · 当前 <b id="ranking-active-tracks">0</b> 条有效赛道</span>
         <button type="button" id="index-method-open">查看综合指数算法与赛道权重 ＋</button>
-        <a href="mario/#battle-sec">用一票改变排名 →</a>
+        <a href="mario/#ranking-ballot-sec">参与完整排序 →</a>
       </div>
     </div>
   </section>
@@ -133,26 +132,18 @@
   <section class="home-live-track" id="live-track">
     <div class="container">
       <div class="home-section-head">
-        <div><span class="home-kicker">NOW PLAYING / TRACK 01</span><h2>一句话马里奥</h2></div>
-        <p>15 份真实成品围绕同一任务交付。作品原样归档，可以直接运行；例外运行记录单独披露。</p>
+        <div><span class="home-kicker">LLM ARCADE / TRACK SELECT</span><h2>选择一条赛道</h2></div>
+        <p>游戏厅不只是一款游戏。每条赛道都有独立作品、评测票池和排行榜，再汇入总榜。</p>
       </div>
-
-      <div class="live-track-feature">
-        <a class="feature-shot" href="mario/">
-          <img src="assets/shots/grok4.5.png" alt="AI agent 生成的复古像素平台游戏">
-          <span class="feature-shot-tag">LIVE BUILD · 04</span>
-        </a>
-        <div class="feature-info">
-          <span class="feature-index">01</span>
-          <blockquote>“帮我生成一个<br>马里奥小游戏”</blockquote>
-          <p>原始 prompt，逐字相同。无人工修图，无后期补丁，bug 也照常展出。</p>
-          <ul>
-            <li><span>15</span> 个可玩成品</li>
-            <li><span>01</span> 个公开协议</li>
-            <li><span>∞</span> 次社区盲投</li>
-          </ul>
-          <a class="home-btn home-btn-dark" href="mario/">查看全部作品 <span>↗</span></a>
-        </div>
+      <div class="track-hall-grid">
+        <article class="track-hall-card is-live">
+          <a class="track-hall-visual" href="mario/"><img src="assets/shots/grok4.5.png" alt="一句话马里奥作品画面"><span>TRACK 01 · LIVE</span></a>
+          <div class="track-hall-copy"><div class="track-hall-title"><span>🎮</span><div><small>ONE-PROMPT MARIO</small><h3>一句话马里奥</h3></div><b>15 份作品</b></div><blockquote>“帮我生成一个马里奥小游戏”</blockquote><p>平台游戏赛道。全部作品可试玩，支持完整排序和匿名 A/B 盲投。</p><div class="track-hall-actions"><a href="mario/">进入赛道 ↗</a><a href="mario/#ranking-ballot-sec">给全部作品排序</a><a href="mario/#battle-sec">匿名对战</a></div></div>
+        </article>
+        <article class="track-hall-card is-live">
+          <a class="track-hall-visual solar-hall-visual" href="solar-system/"><span class="solar-hall-sun"></span><i></i><b>TRACK 02 · LIVE</b></a>
+          <div class="track-hall-copy"><div class="track-hall-title"><span>🪐</span><div><small>ONE-PROMPT SOLAR SYSTEM</small><h3>一句话太阳系</h3></div><b>7 份作品</b></div><blockquote>“帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。”</blockquote><p>交互 3D 网页赛道。7 份真实作品已上线，支持完整排序和匿名 A/B 盲投。</p><div class="track-hall-actions"><a href="solar-system/">进入赛道 ↗</a><a href="solar-system/#ranking-ballot-sec">给全部作品排序</a><a href="solar-system/#battle-sec">匿名对战</a></div></div>
+        </article>
       </div>
     </div>
   </section>
@@ -165,23 +156,23 @@
       </div>
       <article class="next-track-feature" aria-labelledby="solar-next-title">
         <div class="next-track-copy">
-          <span class="home-kicker">NEXT / COLLECTING BUILDS</span>
+          <span class="home-kicker">TRACK 02 / NOW PLAYING</span>
           <h3 id="solar-next-title">一句话太阳系</h3>
           <strong>ONE-PROMPT SOLAR SYSTEM</strong>
           <p>“帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。”</p>
-          <a class="next-track-link" href="solar-system/">查看统一协议与运行计划 →</a>
+          <a class="next-track-link" href="solar-system/">试玩已完成作品与查看运行计划 →</a>
         </div>
         <div class="next-track-spec">
           <span>可交互的 3D 网页</span>
           <div class="planet-list" aria-label="必须包含的天体">
             <b>水星</b><b>金星</b><b>地球</b><b>火星</b><b>木星</b><b>土星</b><b>天王星</b><b>海王星</b><b>冥王星</b>
           </div>
-          <small>15 个计划运行位尚未开跑。当前不展示试玩、截图、作品数量、榜单或评分。</small>
+          <small>15 个计划运行位中已有 7 份作品完成核验并上线；其余运行位不会用占位作品代替。</small>
         </div>
       </article>
       <div class="roadmap-list">
         <article class="roadmap-item is-live"><span class="road-no">01</span><span class="road-icon">🎮</span><div><b>一句话马里奥</b><small>平台游戏 · 直接试玩</small></div><em>LIVE</em></article>
-        <article class="roadmap-item"><span class="road-no">02</span><span class="road-icon">🪐</span><div><b>一句话太阳系</b><small>交互 3D · 正在收集作品</small></div><em>NEXT</em></article>
+        <article class="roadmap-item is-live"><span class="road-no">02</span><span class="road-icon">🪐</span><div><b>一句话太阳系</b><small>交互 3D · 7 份作品已上线</small></div><em>LIVE</em></article>
         <article class="roadmap-item"><span class="road-no">03</span><span class="road-icon">🦢</span><div><b>鹈鹕进化论</b><small>视觉迭代 · 逐帧进化</small></div><em>QUEUE</em></article>
         <article class="roadmap-item"><span class="road-no">04</span><span class="road-icon">🐍</span><div><b>贪吃蛇自对弈</b><small>造游戏，也造玩家</small></div><em>QUEUE</em></article>
         <article class="roadmap-item"><span class="road-no">05</span><span class="road-icon">🎹</span><div><b>一句话合成器</b><small>原创声音 · 盲听 A/B</small></div><em>QUEUE</em></article>
@@ -223,7 +214,7 @@
         <article><span>01</span><div><h3>同题</h3><p>所有参赛者收到逐字相同的 prompt。</p></div></article>
         <article><span>02</span><div><h3>全自动</h3><p>agent 自己规划、写码、运行和迭代。</p></div></article>
         <article><span>03</span><div><h3>不修成品</h3><p>目录只读，发现 bug 也不人工补救。</p></div></article>
-        <article><span>04</span><div><h3>投完揭晓</h3><p>匿名 A/B，先体验后判断，降低品牌偏见。</p></div></article>
+        <article><span>04</span><div><h3>两种评价</h3><p>可以匿名 A/B，也可以给全部作品完整排序。</p></div></article>
       </div>
       <div class="method-disclosure"><b>记录范围</b><p>马里奥赛道的原始 prompt、15 份原始成品、参赛身份与运行环境均已公开存档。尚未核实的生成时间与运行次数明确标记“待确认”；DeepSeek V4 Pro 的两次运行经过单独披露。后续赛道将在开跑前固化完整运行卡片。</p></div>
     </div>
@@ -248,12 +239,12 @@
 <footer class="site home-footer">
   <div class="container">
     <div class="footer-wordmark"><span>LLM</span><span>ARCADE</span></div>
-    <div class="footer-meta"><p>真实运行 · 原样展示 · 社区盲评</p><p>本站与任天堂无关，所有游戏均为 AI 生成的同人练习。</p></div>
+    <div class="footer-meta"><p>真实运行 · 原样展示 · 社区评测</p><p>本站与任天堂无关，所有游戏均为 AI 生成的同人练习。</p></div>
   </div>
 </footer>
 
-<script src="assets/entrants.js?v=20260711f"></script>
-<script src="assets/data.js?v=20260711f"></script>
-<script src="assets/app.js?v=20260711f"></script>
+<script src="assets/entrants.js?v=20260711j"></script>
+<script src="assets/data.js?v=20260711j"></script>
+<script src="assets/app.js?v=20260711j"></script>
 </body>
 </html>

@@ -48,15 +48,12 @@
   }
 
   $("#data-refresh").addEventListener("click", loadBoard);
-  $("#copy-api").addEventListener("click", async (event) => {
-    const url = new URL("../api/leaderboard?track=mario", location.href).href;
-    try {
-      await navigator.clipboard.writeText(url);
-      event.currentTarget.textContent = "已复制 ✓";
-    } catch {
-      event.currentTarget.textContent = "复制失败，请长按地址";
-    }
-    setTimeout(() => { event.currentTarget.textContent = "复制接口地址"; }, 1800);
-  });
+  document.querySelectorAll("[data-copy-api]").forEach((button) => button.addEventListener("click", async (event) => {
+    const label = event.currentTarget.textContent;
+    const url = new URL(event.currentTarget.dataset.copyApi, location.href).href;
+    try { await navigator.clipboard.writeText(url); event.currentTarget.textContent = "已复制 ✓"; }
+    catch { event.currentTarget.textContent = "复制失败，请长按地址"; }
+    setTimeout(() => { event.currentTarget.textContent = label; }, 1800);
+  }));
   loadBoard();
 })();
