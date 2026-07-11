@@ -73,17 +73,6 @@ export async function getVotesForTrack(db, track) {
   return results;
 }
 
-/** Number of votes by this voter since the given unix timestamp. */
-export async function countVotesSince(db, voterHash, sinceTs) {
-  const row = await db
-    .prepare(
-      "SELECT COUNT(*) AS c FROM votes WHERE voter_hash = ?1 AND created_at >= ?2",
-    )
-    .bind(voterHash, sinceTs)
-    .first();
-  return row ? row.c : 0;
-}
-
 /**
  * Insert a vote. Returns { ok: true } or { ok: false, duplicate: true } when
  * the pair_id was already used (UNIQUE constraint).

@@ -12,8 +12,6 @@
 | 参数 | 值 | 含义 |
 |---|---|---|
 | MAX_PAIR_AGE_SECONDS | 7200 | pair token 有效期(2 小时) |
-| DAILY_VOTE_LIMIT | 60 | 单访客指纹(voter_hash)每 UTC 日防滥用上限 |
-| TRACK_VOTE_LIMIT | 12 | 单访客在一条赛道内的唯一对决上限 |
 | LEADERBOARD_CACHE_SECONDS | 60 | 榜单响应缓存时长(新票最多延迟 60s 上榜) |
 | ELO_K / ELO_INITIAL | 32 / 1000 | Elo 回放参数 |
 | BT_MIN_VOTES | 20 | 赛道总票数低于此值时 bt_score 全部为 null |
@@ -28,12 +26,10 @@
 | 404 | `track_not_found` | 赛道不存在或活跃参赛者不足 2 个 |
 | 409 | `already_voted` | 该 pair_id 已投过票(一 token 一票) |
 | 409 | `matchup_already_voted` | 该访客已经判断过这组对决 |
-| 429 | `track_vote_limit_reached` | 该访客已完成本赛道 12 次判断 |
-| 429 | `rate_limited` | 该访客当日票数已达 60 |
 | 500 | `config_error` | 服务端未配置 PAIR_SECRET/SALT(部署问题) |
 | 500 | `internal` | 其他服务端错误 |
 
-前端处理建议:`pair_expired`/`invalid_pair`/`already_voted` 直接换下一对;`rate_limited` 提示明日再来。
+前端处理建议:`pair_expired`/`invalid_pair`/`already_voted` 直接换下一对。
 
 ---
 
@@ -66,13 +62,13 @@ curl -s "https://<site>/api/pair?track=mario"
   "a": { "slot": "A", "dir": "5.6luna" },
   "b": { "slot": "B", "dir": "grok4.5" },
   "issued_at": 1783738525,
-  "quota": { "limit": 12, "used": 0, "remaining": 12 }
+  "judged_matchups": 0
 }
 ```
 
 盲投提醒:响应里的 `dir` 是给前端加载 iframe 用的(`tracks/mario/<dir>/`),**渲染时不要把 dir 暴露给访客**,页面上只显示 A/B。
 
-错误:400 `bad_request`(缺 track)、404 `track_not_found`、409 `track_complete`、429 `track_vote_limit_reached`。
+错误:400 `bad_request`(缺 track)、404 `track_not_found`、409 `track_complete`(该访客已判断当前全部不同组合)。
 
 ## 3. POST /api/vote
 
@@ -84,15 +80,15 @@ curl -s -X POST https://<site>/api/vote \
 
 Body:`{ "pair_id": string, "winner": "A" | "B" | "tie" }`(winner 严格白名单)。
 
-服务端校验顺序:签名有效 → 距签发 ≤2h → 本赛道未满 12 票 → 该对决未投过 → 当日防滥用上限未超 → pair_id 未用过。服务端不设置最短试玩时长;前端在 A/B 两个作品都被打开过以后解锁投票。访客指纹 `voter_hash = SHA-256(client_ip + user_agent + 服务端盐)`,不存明文 IP。
+服务端校验顺序:签名有效 → 距签发 ≤2h → 该对决未投过 → pair_id 未用过。评测次数和每日票数均不设上限;同一访客仍不能重复评价同一组。服务端不设置最短试玩时长;前端在 A/B 两个作品都被打开过以后解锁投票。访客指纹 `voter_hash = SHA-256(client_ip + user_agent + 服务端盐)`,不存明文 IP。
 
 成功(投完才揭晓身份,契合盲投流程):
 
 ```json
-{ "ok": true, "revealed": { "a_dir": "fable5", "b_dir": "gpt5.5" }, "quota": { "limit": 12, "used": 1, "remaining": 11 } }
+{ "ok": true, "revealed": { "a_dir": "fable5", "b_dir": "gpt5.5" }, "judged_matchups": 1 }
 ```
 
-错误:400 `bad_request` / `invalid_pair` / `pair_expired`,409 `already_voted` / `matchup_already_voted`,429 `track_vote_limit_reached` / `rate_limited`。
+错误:400 `bad_request` / `invalid_pair` / `pair_expired`,409 `already_voted` / `matchup_already_voted`。
 
 ## 4. GET /api/leaderboard?track=mario
 

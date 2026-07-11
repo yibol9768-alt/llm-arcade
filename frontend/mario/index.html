@@ -73,7 +73,7 @@
       <div class="section-head">
         <span class="kicker">Battle</span>
         <h2>⚔ 对战盲投 <span class="badge" id="battle-mode-badge" style="vertical-align:3px"><span class="dot blue"></span>检测中…</span></h2>
-        <p>每位访客最多判断 12 组且不重复。系统优先补齐最缺票的对决；两边都打开过后投票，投完才揭晓身份。</p>
+        <p>评测次数不限，同一组对决不重复。系统优先补齐最缺票的组合；两边都打开过后投票，投完才揭晓身份。</p>
       </div>
       <div class="battle-note" role="note" id="battle-note">
         <strong id="battle-note-title">正在探测投票后端…</strong><span id="battle-note-body"></span>
@@ -84,7 +84,7 @@
       </div>
       <div class="battle-stage" id="battle-stage">
         <div class="battle-fullscreen-bar">
-          <div><span>BLIND BATTLE</span><b>匿名对战 · 每组一次 · 本赛道最多 12 票</b></div>
+          <div><span>BLIND BATTLE</span><b>匿名对战 · 每组一次 · 评测次数不限</b></div>
           <button class="btn btn-secondary btn-sm" id="battle-close" type="button">✕ 退出对战</button>
         </div>
         <div class="battle-grid">
@@ -154,7 +154,7 @@
           <h3>本轮执行方式</h3>
           <ul>
             <li>本赛道使用已存档任务:「帮我生成一个马里奥小游戏」,当前收录 15 份真实成品;</li>
-            <li>已核实的模型、厂商和运行环境照实展示;未核实的 harness、生成时间与运行次数标记“待确认”;</li>
+            <li>模型、厂商与运行环境照实展示;未核实的生成时间与运行次数标记“待确认”;</li>
             <li>提交后的原始作品被冻结保存,不因评分、试玩反馈或发现 bug 而修改源码;</li>
             <li>网站只在作品外层提供触屏操作、展示框架与盲投系统,不改写游戏本体。</li>
           </ul>
@@ -164,7 +164,7 @@
           <ul>
             <li>原始 prompt、已核实身份字段和 15 份原始成品均公开存档;</li>
             <li>源码特征、试玩入口、匿名对战和社区投票结果均在站内公开,排名随有效投票更新;</li>
-            <li>Claude Sonnet、Claude Haiku、Claude Opus、Gemini 3.1 Pro 与 GPT-5.4 Mini 的 harness、生成时间和运行次数尚待确认;</li>
+            <li>Claude 系列使用 Claude Code,GPT 系列使用 Codex,其余模型使用 Cursor;上述新增作品的生成时间和运行次数尚待确认;</li>
             <li>DeepSeek V4 Pro 使用 Claude Code + Claude Code Router,human_code_edits=0;共运行两次,首次在产物生成前中断,第二次完成,因此不标记为严格一次生成;</li>
             <li>后续赛道将在开跑前固化 prompt、版本、日期、配置与迭代预算,并随结果一并公开。</li>
           </ul>

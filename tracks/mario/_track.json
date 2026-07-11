@@ -11,7 +11,7 @@
     "agent_execution": "autonomous",
     "artifact_policy": "original-submissions-frozen; touch controls and evaluation shell are external",
     "archived": "prompt, verified entrant identity fields, original artifacts",
-    "not_archived": "unverified harness fields, exact harness build numbers and full execution logs",
+    "not_archived": "exact harness build numbers, unverified generation timestamps and full execution logs",
     "strict_single_generation": false,
     "strict_single_generation_note": "DeepSeek V4 Pro 共运行两次;第一次在产物生成前中断,第二次完成"
   },
@@ -25,11 +25,11 @@
     { "dir": "gpt5.5",      "display_name": "GPT-5.5", "vendor": "OpenAI", "harness": "Codex" },
     { "dir": "grok4.5",     "display_name": "Grok 4.5", "vendor": "xAI", "harness": "Cursor" },
     { "dir": "k2.7code",    "display_name": "Kimi K2.7-Code", "vendor": "Moonshot AI", "harness": "Cursor" },
-    { "dir": "claude-sonnet", "display_name": "Claude Sonnet", "vendor": "Anthropic", "harness": "待确认", "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认" },
-    { "dir": "claude-haiku", "display_name": "Claude Haiku", "vendor": "Anthropic", "harness": "待确认", "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认" },
-    { "dir": "claude-opus", "display_name": "Claude Opus", "vendor": "Anthropic", "harness": "待确认", "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认" },
-    { "dir": "gemini-3.1-pro", "display_name": "Gemini 3.1 Pro", "vendor": "Google", "harness": "待确认", "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认" },
-    { "dir": "gpt-5.4-mini", "display_name": "GPT-5.4 Mini", "vendor": "OpenAI", "harness": "待确认", "record_status": "模型名称与厂商已确认;运行环境、生成时间和运行次数待确认" },
+    { "dir": "claude-sonnet", "display_name": "Claude Sonnet", "vendor": "Anthropic", "harness": "Claude Code", "record_status": "模型名称、厂商与运行环境已确认;生成时间和运行次数待确认" },
+    { "dir": "claude-haiku", "display_name": "Claude Haiku", "vendor": "Anthropic", "harness": "Claude Code", "record_status": "模型名称、厂商与运行环境已确认;生成时间和运行次数待确认" },
+    { "dir": "claude-opus", "display_name": "Claude Opus", "vendor": "Anthropic", "harness": "Claude Code", "record_status": "模型名称、厂商与运行环境已确认;生成时间和运行次数待确认" },
+    { "dir": "gemini-3.1-pro", "display_name": "Gemini 3.1 Pro", "vendor": "Google", "harness": "Cursor", "record_status": "模型名称、厂商与运行环境已确认;生成时间和运行次数待确认" },
+    { "dir": "gpt-5.4-mini", "display_name": "GPT-5.4 Mini", "vendor": "OpenAI", "harness": "Codex", "record_status": "模型名称、厂商与运行环境已确认;生成时间和运行次数待确认" },
     {
       "dir": "deepseek-v4-pro",
       "display_name": "DeepSeek V4 Pro",
@@ -44,5 +44,5 @@
       }
     }
   ],
-  "entrants_note": "共 15 份真实成品;未核实的运行环境与运行记录明确标记待确认"
+  "entrants_note": "共 15 份真实成品;运行环境已确认,未核实的生成时间与运行次数明确标记待确认"
 }

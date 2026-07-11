@@ -38,23 +38,23 @@ window.ARCADE_ENTRANT_META = {
   },
   "claude-sonnet": {
     vendor: "Anthropic", vendor_mark: "AI", vendor_class: "anthropic", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/anthropic.svg",
-    model: "Claude Sonnet", harness: "待确认", verified: false
+    model: "Claude Sonnet", harness: "Claude Code", verified: true
   },
   "claude-haiku": {
     vendor: "Anthropic", vendor_mark: "AI", vendor_class: "anthropic", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/anthropic.svg",
-    model: "Claude Haiku", harness: "待确认", verified: false
+    model: "Claude Haiku", harness: "Claude Code", verified: true
   },
   "claude-opus": {
     vendor: "Anthropic", vendor_mark: "AI", vendor_class: "anthropic", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/anthropic.svg",
-    model: "Claude Opus", harness: "待确认", verified: false
+    model: "Claude Opus", harness: "Claude Code", verified: true
   },
   "gemini-3.1-pro": {
     vendor: "Google", vendor_mark: "G", vendor_class: "google", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/googlegemini.svg",
-    model: "Gemini 3.1 Pro", harness: "待确认", verified: false
+    model: "Gemini 3.1 Pro", harness: "Cursor", verified: true
   },
   "gpt-5.4-mini": {
     vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
-    model: "GPT-5.4 Mini", harness: "待确认", verified: false
+    model: "GPT-5.4 Mini", harness: "Codex", verified: true
   },
   "deepseek-v4-pro": {
     vendor: "DeepSeek", vendor_mark: "DS", vendor_class: "deepseek", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/deepseek.svg",

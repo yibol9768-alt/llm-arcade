@@ -1,7 +1,6 @@
 // GET /api/pair?track=<track>
 // Serve a signed random pairing, lightly balanced toward least-voted pairs.
 import { jsonResponse, errorResponse } from "../_lib/http.js";
-import { CONFIG } from "../_lib/config.js";
 import { ensureVoterPairClaims, getActiveParticipants, getPairCounts, getVoterPairKeys } from "../_lib/db.js";
 import { pickPair } from "../_lib/sampling.js";
 import { signPairToken } from "../_lib/hmac.js";
@@ -32,14 +31,6 @@ export async function onRequestGet(context) {
 
     const voterHash = await getVoterHash(request, env.SALT);
     const judgedPairs = await getVoterPairKeys(env.DB, voterHash, track);
-    if (judgedPairs.size >= CONFIG.TRACK_VOTE_LIMIT) {
-      return errorResponse(
-        "track_vote_limit_reached",
-        `track vote limit reached (${CONFIG.TRACK_VOTE_LIMIT})`,
-        429,
-      );
-    }
-
     const counts = await getPairCounts(env.DB, track);
     const picked = pickPair(dirs, counts, Math.random, judgedPairs);
     if (!picked) {
@@ -60,11 +51,7 @@ export async function onRequestGet(context) {
       a: { slot: "A", dir: aDir },
       b: { slot: "B", dir: bDir },
       issued_at: issuedAt,
-      quota: {
-        limit: CONFIG.TRACK_VOTE_LIMIT,
-        used: judgedPairs.size,
-        remaining: CONFIG.TRACK_VOTE_LIMIT - judgedPairs.size,
-      },
+      judged_matchups: judgedPairs.size,
     });
   } catch (err) {
     console.error("pair error:", err);

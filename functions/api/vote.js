@@ -4,7 +4,7 @@
 import { CONFIG } from "../_lib/config.js";
 import { jsonResponse, errorResponse, readJsonBody } from "../_lib/http.js";
 import { verifyPairToken } from "../_lib/hmac.js";
-import { countVotesSince, ensureVoterPairClaims, getVoterPairKeys, insertVote } from "../_lib/db.js";
+import { ensureVoterPairClaims, getVoterPairKeys, insertVote } from "../_lib/db.js";
 import { pairKey } from "../_lib/sampling.js";
 import { getVoterHash } from "../_lib/voter.js";
 
@@ -46,24 +46,6 @@ export async function onRequestPost(context) {
     if (judgedPairs.has(pairKey(payload.aDir, payload.bDir))) {
       return errorResponse("matchup_already_voted", "this matchup was already judged", 409);
     }
-    if (judgedPairs.size >= CONFIG.TRACK_VOTE_LIMIT) {
-      return errorResponse(
-        "track_vote_limit_reached",
-        `track vote limit reached (${CONFIG.TRACK_VOTE_LIMIT})`,
-        429,
-      );
-    }
-
-    const utcDayStart = Math.floor(now / 86400) * 86400;
-    const todayCount = await countVotesSince(env.DB, voterHash, utcDayStart);
-    if (todayCount >= CONFIG.DAILY_VOTE_LIMIT) {
-      return errorResponse(
-        "rate_limited",
-        `daily vote limit reached (${CONFIG.DAILY_VOTE_LIMIT} per day)`,
-        429,
-      );
-    }
-
     const inserted = await insertVote(env.DB, {
       track: payload.track,
       aDir: payload.aDir,
@@ -83,11 +65,7 @@ export async function onRequestPost(context) {
     return jsonResponse({
       ok: true,
       revealed: { a_dir: payload.aDir, b_dir: payload.bDir },
-      quota: {
-        limit: CONFIG.TRACK_VOTE_LIMIT,
-        used: judgedPairs.size + 1,
-        remaining: CONFIG.TRACK_VOTE_LIMIT - judgedPairs.size - 1,
-      },
+      judged_matchups: judgedPairs.size + 1,
     });
   } catch (err) {
     console.error("vote error:", err);

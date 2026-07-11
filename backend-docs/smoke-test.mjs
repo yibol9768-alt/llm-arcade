@@ -19,6 +19,7 @@ const { signPairToken, verifyPairToken, sha256Hex } = await import("../functions
 const { pickPair, pairKey } = await import("../functions/_lib/sampling.js");
 const { computeElo, computeBradleyTerry, tallyRecords } = await import("../functions/_lib/rating.js");
 const { onRequestPost: submitVote } = await import("../functions/api/vote.js");
+const { onRequestGet: requestPair } = await import("../functions/api/pair.js");
 let passed = 0;
 async function test(name, fn) {
   try {
@@ -134,9 +135,47 @@ await test("vote: a freshly issued signed pair can be submitted immediately", as
   assert.deepEqual(await response.json(), {
     ok: true,
     revealed: { a_dir: "a", b_dir: "b" },
-    quota: { limit: CONFIG.TRACK_VOTE_LIMIT, used: 1, remaining: CONFIG.TRACK_VOTE_LIMIT - 1 },
+    judged_matchups: 1,
   });
   assert.equal(db.inserted.length, 1);
+});
+
+await test("pair: more than 12 prior judgments does not block a new matchup", async () => {
+  const dirs = ["a", "b", "c", "d", "e", "f"];
+  const allPairs = [];
+  for (let i = 0; i < dirs.length; i++) {
+    for (let j = i + 1; j < dirs.length; j++) allPairs.push(pairKey(dirs[i], dirs[j]));
+  }
+  const judged = allPairs.slice(0, 12);
+  const db = {
+    prepare(sql) {
+      const statement = {
+        bind() { return statement; },
+        async all() {
+          if (sql.includes("FROM participants")) return { results: dirs.map((dir) => ({ dir })) };
+          if (sql.includes("FROM voter_pair_claims")) return { results: judged.map((pair_key) => ({ pair_key })) };
+          if (sql.includes("FROM votes WHERE track")) return { results: [] };
+          throw new Error(`unexpected all query: ${sql}`);
+        },
+        async run() { return {}; },
+      };
+      return statement;
+    },
+    async batch(statements) {
+      for (const statement of statements) await statement.run();
+      return statements.map(() => ({}));
+    },
+  };
+  const response = await requestPair({
+    request: new Request("https://example.test/api/pair?track=mario", {
+      headers: { "CF-Connecting-IP": "203.0.113.2", "User-Agent": "smoke-test-unlimited" },
+    }),
+    env: { PAIR_SECRET: SECRET, SALT: "test-salt", DB: db },
+  });
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.judged_matchups, 12);
+  assert.ok(!judged.includes(pairKey(body.a.dir, body.b.dir)));
 });
 
 await test("sampling: least-voted pairs are preferred", () => {
@@ -277,7 +316,8 @@ await test("tally: wins/losses/ties/games are counted per entrant", () => {
 
 await test("config: thresholds match the agreed contract", () => {
   assert.equal(CONFIG.MAX_PAIR_AGE_SECONDS, 7200);
-  assert.equal(CONFIG.DAILY_VOTE_LIMIT, 60);
+  assert.equal("TRACK_VOTE_LIMIT" in CONFIG, false);
+  assert.equal("DAILY_VOTE_LIMIT" in CONFIG, false);
   assert.equal(CONFIG.LEADERBOARD_CACHE_SECONDS, 60);
   assert.equal(CONFIG.ELO_K, 32);
   assert.equal(CONFIG.ELO_INITIAL, 1000);

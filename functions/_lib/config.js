@@ -4,12 +4,6 @@ export const CONFIG = {
   // A pair token expires after this long.
   MAX_PAIR_AGE_SECONDS: 2 * 60 * 60,
 
-  // Max accepted votes per voter_hash per UTC day.
-  DAILY_VOTE_LIMIT: 60,
-
-  // Max unique matchups one visitor can judge in a single track/season.
-  TRACK_VOTE_LIMIT: 12,
-
   // Leaderboard responses are cached in the Cache API for this long.
   LEADERBOARD_CACHE_SECONDS: 60,
 

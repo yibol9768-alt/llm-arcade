@@ -83,17 +83,15 @@ tracks/ 内容变化后按 1→2→3→4 重跑即可。
   同一时间只保留一个游戏 iframe,切到另一边时自动关闭当前作品;
 - 投票 `POST /api/vote {pair_id, winner: "A"|"B"|"tie"}`,用响应里的
   `revealed` 揭晓身份;
-- 每位访客每条赛道最多 12 票,同一组对决只能判断一次;配对优先补齐全网最缺数据的组合;
-- 错误处理:`already_voted` / `matchup_already_voted` 锁票提示;
-  `track_vote_limit_reached` 显示本赛道额度已完成;`429 rate_limited` 显示「今天投满了
-  (每日 60 票),明天再来」;`pair_expired`/
+- 评测次数与每日票数不限,同一组对决只能判断一次;配对优先补齐全网最缺数据的组合;
+- 错误处理:`already_voted` / `matchup_already_voted` 锁票提示;`pair_expired`/
   `invalid_pair` 一键换下一对;网络错误可把这票落到本机票箱(明确标注不入全网池);
 - 对战区榜单为 `GET /api/leaderboard` 的全网榜(Elo、BT 强度、胜平负、总票数、
   更新时间;总票 <20 时 BT 列为 – 并注明);本机 Elo 榜降级为折叠的「本机记录」小节。
 
 **💻 本机体验版模式**(无后端时):
 
-- 本机同样限制 12 组且不重复,优先平衡各参赛者在这台设备上的出场次数;
+- 本机评测次数不限且同一组不重复,优先平衡各参赛者在这台设备上的出场次数;
 - 票存 `localStorage`,key = `arcade_mario_votes_v1`,格式
   `[{a, b, r: "a"|"b"|"t", t: 时间戳}, ...]`;
 - 本机 Elo:K=32,初始 1000,按投票时间顺序回放全部对局逐场更新
