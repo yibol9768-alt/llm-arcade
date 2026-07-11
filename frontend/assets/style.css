@@ -22,7 +22,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -49,6 +49,7 @@ button { font-family: inherit; }
 
 .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 .num { font-variant-numeric: tabular-nums; }
+[id] { scroll-margin-top: 82px; }
 
 /* ---------- 顶栏 ---------- */
 .topbar {
@@ -1229,6 +1230,101 @@ body[data-page="mario"] #disclosure-sec .disclosure { border-left: 5px solid var
 
 body[data-page="mario"] footer.site { padding: 50px 0; color: rgba(255,250,240,.68); background: var(--home-ink); border: 0; }
 body[data-page="mario"] footer.site strong { color: var(--home-paper); }
+
+/* ---------- 开放数据页 ---------- */
+body[data-page="data"] {
+  --home-ink: #0b1020;
+  --home-ivory: #f4efe2;
+  --home-paper: #fffaf0;
+  --home-orange: #ff6034;
+  --home-blue: #2864ff;
+  --home-yellow: #ffd447;
+  color: var(--home-ink);
+  background: var(--home-ivory);
+  overflow-x: hidden;
+}
+body[data-page="data"] .container { max-width: 1240px; }
+body[data-page="data"] .data-topbar { background: rgba(244,239,226,.95); border-bottom: 2px solid var(--home-ink); }
+body[data-page="data"] .topbar-inner { height: 64px; }
+body[data-page="data"] .topnav a { border-radius: 0; color: var(--home-ink); font: 700 11px/1 var(--mono); text-transform: uppercase; }
+body[data-page="data"] .topnav a:hover { background: var(--home-yellow); }
+.data-main { min-height: 70vh; }
+.data-hero {
+  color: var(--home-paper);
+  background:
+    radial-gradient(circle at 82% 20%, rgba(40,100,255,.26), transparent 30%),
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+    var(--home-ink);
+  background-size: auto, 36px 36px, 36px 36px, auto;
+  border-bottom: 2px solid var(--home-ink);
+}
+.data-breadcrumb { padding-top: 30px; color: rgba(255,250,240,.5); font: 700 9px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.data-breadcrumb a { color: rgba(255,250,240,.75); }
+.data-hero-grid { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(280px,.5fr); gap: 70px; align-items: end; padding: 58px 0 72px; }
+.data-hero h1 { max-width: 780px; margin: 14px 0 20px; font-size: clamp(48px,6.3vw,84px); line-height: .98; letter-spacing: -.065em; }
+.data-hero p { max-width: 700px; margin: 0; color: rgba(255,250,240,.68); font-size: 17px; line-height: 1.8; }
+.data-live-card { padding: 24px; color: var(--home-ink); background: var(--home-yellow); border: 2px solid var(--home-paper); box-shadow: 8px 8px 0 var(--home-blue); }
+.data-live-card > span { display: flex; align-items: center; gap: 9px; font: 900 8px/1 var(--mono); letter-spacing: .12em; }
+.data-live-card .home-status-dot { flex: 0 0 auto; }
+.data-live-card strong { display: block; margin-top: 28px; font: 900 clamp(48px,6vw,72px)/.8 var(--mono); letter-spacing: -.08em; }
+.data-live-card small { display: block; margin-top: 11px; font: 800 10px/1 var(--mono); letter-spacing: .1em; }
+.data-live-card p { margin-top: 24px; padding-top: 15px; color: rgba(11,16,32,.62); border-top: 1px solid rgba(11,16,32,.25); font: 700 9px/1.5 var(--mono); }
+.data-board-section { padding: 76px 0 86px; }
+.data-section-head { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 28px; }
+.data-section-head h2, .data-api-section h2 { margin: 9px 0 0; font-size: clamp(34px,4vw,54px); line-height: 1; letter-spacing: -.055em; }
+.data-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+.data-actions button, .data-actions a, .data-endpoint button {
+  min-height: 42px;
+  padding: 0 15px;
+  color: var(--home-ink);
+  background: var(--home-paper);
+  border: 2px solid var(--home-ink);
+  border-radius: 0;
+  font: 800 9px/1 var(--mono);
+  text-decoration: none;
+  cursor: pointer;
+}
+.data-actions a { display: inline-flex; align-items: center; background: var(--home-orange); }
+.data-actions button:hover, .data-actions a:hover, .data-endpoint button:hover { background: var(--home-yellow); }
+.data-actions button:disabled { opacity: .5; cursor: wait; }
+.data-status { margin-bottom: 13px; padding: 12px 14px; color: var(--home-paper); background: var(--home-ink); border-left: 5px solid var(--home-yellow); font: 700 9px/1.5 var(--mono); }
+.data-status.error { border-left-color: var(--home-orange); }
+.data-table-wrap { overflow-x: auto; background: var(--home-paper); border: 2px solid var(--home-ink); box-shadow: 8px 8px 0 var(--home-blue); -webkit-overflow-scrolling: touch; }
+.data-open-table { width: 100%; min-width: 820px; border-collapse: collapse; }
+.data-open-table th { padding: 12px 14px; color: var(--home-paper); background: var(--home-ink); border-right: 1px solid rgba(255,250,240,.16); font: 800 8px/1 var(--mono); letter-spacing: .08em; text-align: left; text-transform: uppercase; }
+.data-open-table td { padding: 14px; border-right: 1px solid rgba(11,16,32,.1); border-bottom: 1px solid rgba(11,16,32,.14); font: 700 11px/1.2 var(--mono); }
+.data-open-table tbody tr:nth-child(even) { background: rgba(244,239,226,.64); }
+.data-open-table tbody tr:hover { background: rgba(255,212,71,.3); }
+.data-rank { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--home-ink); }
+.data-rank.top-1 { color: var(--home-ink); background: var(--home-yellow); }
+.data-rank.top-2 { color: var(--home-paper); background: var(--home-blue); }
+.data-rank.top-3 { color: var(--home-paper); background: var(--home-orange); }
+.data-model { display: flex; align-items: center; gap: 10px; min-width: 220px; }
+.data-model .vendor-mark { flex: 0 0 34px; width: 34px; height: 34px; }
+.data-model > span { min-width: 0; }
+.data-model b, .data-model small { display: block; }
+.data-model b { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.data-model small { margin-top: 4px; color: rgba(11,16,32,.52); font-size: 8px; }
+.data-elo { color: var(--home-blue); font-size: 16px; }
+.data-pending { color: rgba(11,16,32,.45); font-size: 8px; }
+.data-empty { height: 160px; color: rgba(11,16,32,.5); text-align: center; }
+.data-swipe-hint { display: none; }
+.data-notes { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 38px; }
+.data-notes article { display: grid; grid-template-columns: 36px 1fr; gap: 14px; padding: 21px; background: var(--home-paper); border: 2px solid var(--home-ink); }
+.data-notes article > span { color: var(--home-orange); font: 900 13px/1 var(--mono); }
+.data-notes h3 { margin: 0 0 9px; font-size: 16px; }
+.data-notes p { margin: 0; color: rgba(11,16,32,.62); font-size: 12px; line-height: 1.7; }
+.data-api-section { padding: 76px 0; color: var(--home-paper); background: var(--home-blue); border-block: 2px solid var(--home-ink); }
+.data-api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
+.data-api-section .home-kicker { color: var(--home-yellow); }
+.data-api-section p { max-width: 560px; color: rgba(255,250,240,.72); }
+.data-endpoint { display: flex; min-width: 0; padding: 12px; background: var(--home-ink); border: 2px solid var(--home-paper); box-shadow: 8px 8px 0 var(--home-orange); }
+.data-endpoint code { flex: 1; overflow: hidden; padding: 12px; color: var(--home-yellow); font: 700 11px/1.4 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+.data-endpoint button { flex: 0 0 auto; }
+body[data-page="data"] .data-footer { border-top: 0; }
+body[data-page="data"] .data-footer a { color: var(--home-yellow); }
+
 body[data-page="mario"] .modal { background: rgba(11,16,32,.8); }
 body[data-page="mario"] .modal-box { background: var(--home-ink); }
 body[data-page="mario"] .modal-top { color: var(--home-ink); background: var(--home-orange); border-bottom: 3px solid var(--home-ink); }
@@ -1370,6 +1466,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   body[data-page="mario"] .modal-frame-wrap.has-handheld {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 0;
     padding: 12px 12px 0;
     background: #c8c3b3;
@@ -1377,10 +1474,12 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   body[data-page="mario"] .modal-frame-wrap.has-handheld > iframe {
     position: relative;
     inset: auto;
-    flex: 1 1 auto;
-    width: 100%;
+    flex: 0 0 auto;
+    align-self: center;
+    width: min(100%, calc((100svh - 310px) * 4 / 3));
     min-height: 0;
     height: auto;
+    aspect-ratio: 4 / 3;
     background: #171a22;
     border: 8px solid #383a3d;
     border-bottom-width: 12px;
@@ -1392,7 +1491,7 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
     display: grid;
     grid-template-columns: 112px 1fr 126px;
     align-items: center;
-    flex: 0 0 205px;
+    flex: 0 0 240px;
     min-height: 168px;
     padding: 13px 7px 20px;
     color: #34343a;
@@ -1422,6 +1521,10 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   .handheld-actions label { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #55416d; font: 900 8px/1 var(--mono); }
   .handheld-actions button { width: 50px; height: 50px; border: 0; border-radius: 50%; color: rgba(255,255,255,.72); background: #93465f; box-shadow: inset 0 -4px 0 #6d3044, 0 5px 0 #777568; font: 900 17px/1 var(--mono); touch-action: none; }
   .handheld-actions button.pressed { box-shadow: inset 0 -1px 0 #6d3044, 0 2px 0 #777568; transform: translateY(3px); }
+  body[data-page="mario"] .modal-frame-wrap.has-handheld .handheld-controls {
+    align-self: center;
+    width: min(100%, calc((100svh - 310px) * 4 / 3));
+  }
 
   body[data-page="mario"] .battle-panel .handheld-controls {
     grid-template-columns: 95px 1fr 108px;
@@ -1461,8 +1564,12 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   body[data-page="mario"] .battle-vote .gate-hint, body[data-page="mario"] .battle-result { flex: 0 0 100%; line-height: 1.6; }
   body[data-page="mario"] .battle-vote .btn[data-vote] { flex: 1 1 100%; min-height: 44px; justify-content: center; }
   body[data-page="mario"] #battle-next { width: 100%; justify-content: center; }
-  body[data-page="mario"] .modal-top { flex-wrap: wrap; }
-  body[data-page="mario"] .modal-top .hint { width: 100%; order: 3; }
+  body[data-page="mario"] .modal-top { flex-wrap: nowrap; gap: 7px; min-height: 54px; }
+  body[data-page="mario"] .modal-title-group { flex: 1 1 auto; overflow: hidden; }
+  body[data-page="mario"] .modal-title-row { gap: 6px; }
+  body[data-page="mario"] .modal-title-row .code { overflow: hidden; max-width: 92px; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+  body[data-page="mario"] .modal-actions { flex: 0 0 auto; gap: 6px; }
+  body[data-page="mario"] .modal-actions .btn { min-height: 38px; padding: 7px 10px; white-space: nowrap; }
   body[data-page="mario"] .table-wrap::before {
     content: "← 左右滑动查看完整数据 →";
     position: sticky;
@@ -1495,7 +1602,8 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
 
 @media (max-width: 680px) {
   body[data-page="home"] .topbar-inner,
-  body[data-page="mario"] .topbar-inner {
+  body[data-page="mario"] .topbar-inner,
+  body[data-page="data"] .topbar-inner {
     position: relative;
     height: auto;
     min-height: 0;
@@ -1529,9 +1637,11 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
     right: 16px;
     margin: 0;
   }
+  [id] { scroll-margin-top: 112px; }
 }
 
 @media (max-width: 430px) {
+  body[data-page="mario"] .modal-title-row .tag-internal { display: none; }
   body[data-page="mario"] .battle-stage.on { padding-inline: 9px; }
   body[data-page="mario"] .battle-stage.on .battle-fullscreen-bar { margin-inline: -9px; padding: 9px; }
   .battle-fullscreen-bar > div { min-width: 0; }
@@ -1553,11 +1663,39 @@ body[data-page="mario"] .modal-top .tag-internal { border-color: var(--home-ink)
   body[data-page="mario"] .modal-frame-wrap.has-handheld > iframe { border-width: 6px; border-bottom-width: 9px; }
   .modal-frame-wrap .handheld-controls {
     grid-template-columns: 92px minmax(58px,1fr) 102px;
-    flex-basis: 180px;
+    flex-basis: 220px;
+    align-self: center;
+    width: min(100%, calc((100svh - 310px) * 4 / 3));
     min-height: 158px;
     padding: 7px 3px 14px;
   }
   .modal-frame-wrap .handheld-dpad { transform: scale(.82); }
   .modal-frame-wrap .handheld-actions { gap: 6px; transform: rotate(-10deg) scale(.84); }
   .modal-frame-wrap .handheld-center { padding-top: 31px; transform: scale(.82) skew(-7deg); }
+}
+
+@media (max-width: 900px) {
+  .data-hero-grid { grid-template-columns: 1fr; gap: 34px; padding-block: 45px 58px; }
+  .data-live-card { max-width: 420px; }
+  .data-section-head { align-items: flex-start; flex-direction: column; }
+  .data-notes { grid-template-columns: 1fr; }
+  .data-api-grid { grid-template-columns: 1fr; gap: 36px; }
+}
+
+@media (max-width: 680px) {
+  body[data-page="data"] .home-marquee { display: block; }
+  body[data-page="data"] .container { padding-inline: 16px; }
+  .data-breadcrumb { padding-top: 22px; }
+  .data-hero h1 { font-size: clamp(44px,15vw,64px); }
+  .data-hero p { font-size: 15px; }
+  .data-live-card { width: calc(100% - 8px); padding: 20px; }
+  .data-board-section, .data-api-section { padding-block: 58px; }
+  .data-actions { width: 100%; }
+  .data-actions button, .data-actions a { flex: 1 1 calc(50% - 5px); justify-content: center; text-align: center; }
+  .data-table-wrap { box-shadow: 5px 5px 0 var(--home-blue); }
+  .data-swipe-hint { display: block; margin: 14px 0 0; color: rgba(11,16,32,.55); font: 800 8px/1 var(--mono); text-align: center; }
+  .data-notes article { padding: 18px 15px; }
+  .data-endpoint { display: block; box-shadow: 5px 5px 0 var(--home-orange); }
+  .data-endpoint code { display: block; width: 100%; white-space: normal; overflow-wrap: anywhere; }
+  .data-endpoint button { width: 100%; }
 }

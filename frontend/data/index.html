@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>开放排行榜与数据 | LLM Arcade</title>
+<meta name="description" content="查看 LLM Arcade 各赛道的实时 Elo、胜负记录、社区票数与开放 JSON 数据。">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/brand/llm-arcade-favicon-64.png?v=20260711d">
+<link rel="stylesheet" href="../assets/style.css?v=20260711d">
+</head>
+<body data-page="data">
+<div class="home-marquee" aria-label="本站特色">
+  <div class="home-marquee-track">
+    <span>OPEN RESULTS</span><b>✦</b><span>LIVE ELO</span><b>✦</b><span>RAW JSON</span><b>✦</b><span>REPRODUCIBLE</span><b>✦</b><span>OPEN RESULTS</span><b>✦</b><span>LIVE ELO</span><b>✦</b><span>RAW JSON</span><b>✦</b><span>REPRODUCIBLE</span>
+  </div>
+</div>
+
+<header class="topbar arcade-topbar data-topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="../"><span class="home-logo-mark"><img src="../assets/brand/llm-arcade-mark-192.png?v=20260711d" alt=""></span><span>LLM Arcade</span><span class="logo-zh">大模型街机厅</span></a>
+    <nav class="topnav" aria-label="主导航">
+      <a href="../#live-ranking">综合榜</a>
+      <a href="../mario/">马里奥赛道</a>
+      <a href="../mario/#battle-sec">参与盲投</a>
+      <a class="nav-github" href="https://github.com/yibol9768-alt/llm-arcade" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main class="data-main">
+  <section class="data-hero">
+    <div class="container">
+      <nav class="breadcrumb data-breadcrumb" aria-label="面包屑"><a href="../">首页</a> / 开放数据</nav>
+      <div class="data-hero-grid">
+        <div>
+          <span class="home-kicker">OPEN DATA / LIVE RESULTS</span>
+          <h1>排行榜不是黑箱。</h1>
+          <p>这里展示社区盲投产生的实时 Elo、胜负记录和原始票数。页面数据与开放 API 来自同一份全网投票池。</p>
+        </div>
+        <div class="data-live-card" aria-live="polite">
+          <span><i class="home-status-dot"></i> MARIO / TRACK 01</span>
+          <strong id="data-total-votes">…</strong>
+          <small>次社区判断</small>
+          <p id="data-updated">正在读取最新数据</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="data-board-section" id="data-board">
+    <div class="container">
+      <div class="data-section-head">
+        <div><span class="home-kicker">CURRENT STANDINGS</span><h2>一句话马里奥 · 全网 Elo</h2></div>
+        <div class="data-actions">
+          <button type="button" id="data-refresh">↻ 刷新数据</button>
+          <a href="../api/leaderboard?track=mario" download="llm-arcade-mario-leaderboard.json">下载原始 JSON ↓</a>
+        </div>
+      </div>
+      <div class="data-status" id="data-status" role="status">正在连接全网投票池…</div>
+      <div class="data-table-wrap">
+        <table class="data-open-table">
+          <thead><tr><th>排名</th><th>模型 × 运行环境</th><th>Elo</th><th>胜</th><th>平</th><th>负</th><th>场次</th><th>BT 强度</th></tr></thead>
+          <tbody id="data-board-body"></tbody>
+        </table>
+      </div>
+      <p class="data-swipe-hint">← 左右滑动查看完整数据 →</p>
+      <div class="data-notes">
+        <article><span>01</span><div><h3>Elo 如何更新</h3><p>所有模型从 1000 分开始，每张有效选票按时间顺序回放，K=32。胜者升分、败者降分，平局按双方当前分差更新。</p></div></article>
+        <article><span>02</span><div><h3>BT 何时显示</h3><p>总票数达到 20 后才展示 Bradley-Terry 相对强度。票数不足时显示“待解锁”，避免用稀疏数据制造虚假精度。</p></div></article>
+        <article><span>03</span><div><h3>数据如何复用</h3><p>原始 JSON 可以直接下载或由程序读取。字段包含内部代号、Elo、胜平负、场次、总票数和更新时间。</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="data-api-section">
+    <div class="container data-api-grid">
+      <div><span class="home-kicker">API ENDPOINT</span><h2>给人看，也给程序读。</h2><p>接口无需登录，返回当前马里奥赛道的实时排行榜。页面展示不会改变原始字段。</p></div>
+      <div class="data-endpoint"><code>GET /api/leaderboard?track=mario</code><button type="button" id="copy-api">复制接口地址</button></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site home-footer data-footer">
+  <div class="container">
+    <div class="footer-wordmark"><span>LLM</span><span>ARCADE</span></div>
+    <div class="footer-meta"><p>开放结果 · 可复核 · 持续更新</p><p><a href="../mario/#battle-sec">参与下一张有效选票 →</a></p></div>
+  </div>
+</footer>
+
+<script src="../assets/entrants.js?v=20260711d"></script>
+<script src="../assets/data-page.js?v=20260711d"></script>
+</body>
+</html>

@@ -16,6 +16,14 @@
   const fmtKB = (b) => (b / 1024).toFixed(1) + " KB";
   const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  function restoreHashPosition() {
+    if (!location.hash) return;
+    const id = decodeURIComponent(location.hash.slice(1));
+    const target = document.getElementById(id);
+    if (!target) return;
+    requestAnimationFrame(() => requestAnimationFrame(() => target.scrollIntoView({ block: "start" })));
+  }
+
   const GAME_BASE = document.body.dataset.gameBase || "games/mario/";
   const gameURL = (dir) => GAME_BASE + encodeURIComponent(dir) + "/index.html";
   const SANDBOX = "allow-scripts allow-same-origin allow-pointer-lock";
@@ -1186,6 +1194,7 @@
       applyMode();
       renderBattleStats();
       if (battle.mode === "online") await refreshNetBoard();
+      restoreHashPosition();
       return battle.mode;
     })();
   }
@@ -1297,6 +1306,7 @@
       if (ev.target === ev.currentTarget) closeModal();
     });
     $$("[data-formula]").forEach((n) => (n.textContent = D.score_formula_zh));
+    restoreHashPosition();
     if (st !== null) setTimeout(runSelfTest, 60);
   }
 
