@@ -6,6 +6,7 @@
   "use strict";
   const D = window.ARCADE_DATA;
   if (!D) return;
+  const ENTRANT_META = window.ARCADE_ENTRANT_META || {};
 
   /* ---------- 工具 ---------- */
   const $ = (sel, root) => (root || document).querySelector(sel);
@@ -18,6 +19,16 @@
   const GAME_BASE = document.body.dataset.gameBase || "games/mario/";
   const gameURL = (dir) => GAME_BASE + encodeURIComponent(dir) + "/index.html";
   const SANDBOX = "allow-scripts allow-same-origin allow-pointer-lock";
+  const metaFor = (dir) => ENTRANT_META[dir] || {
+    vendor: "厂商待确认", vendor_mark: "?", vendor_class: "unknown",
+    model: dir, harness: "Harness 待确认", verified: false,
+  };
+  function identityHTML(dir, compact = false) {
+    const m = metaFor(dir);
+    return `<span class="vendor-mark vendor-${esc(m.vendor_class)}">${esc(m.vendor_mark)}</span>
+      <span class="identity-copy"><b>${esc(m.vendor)}</b><strong>${esc(m.model)}${compact ? "" : ` × ${esc(m.harness)}`}</strong>
+      ${compact ? "" : `<small>内部代号 ${esc(dir)}${m.verified ? "" : " · 待核对"}</small>`}</span>`;
+  }
 
   /* 按静态分降序的名次表(并列同分按代号字典序) */
   const ranked = [...D.entrants].sort((a, b) => b.score - a.score || a.dir.localeCompare(b.dir));
@@ -180,6 +191,121 @@
     return v ? '<span class="check">✓</span>' : '<span class="cross">–</span>';
   }
 
+  let homeRankingTimer = null;
+  function renderHomeRanking(lb) {
+    const box = $("#home-ranking-list");
+    if (!box) return;
+    const total = Number(lb && lb.total_votes || 0);
+    const sv = $("#stat-votes");
+    const rv = $("#ranking-votes");
+    const poolStatus = $("#home-pool-status");
+    const source = $("#ranking-source");
+    const updated = $("#ranking-updated");
+    if (sv) sv.textContent = total.toLocaleString("zh-CN");
+    if (rv) rv.textContent = total.toLocaleString("zh-CN");
+    if (poolStatus) poolStatus.textContent = "全网票池在线";
+
+    if (!total || !lb.entries || !lb.entries.some((e) => e.games > 0)) {
+      if (source) source.textContent = "初始榜筹备中";
+      if (updated) updated.textContent = "等待 Agent 初评或社区有效盲投";
+      box.innerHTML = '<div class="ranking-pending">初始榜筹备中。5.6sol Agent 初评尚未录入，社区产生有效盲投后将自动显示实时 Elo。</div>';
+      return;
+    }
+
+    if (source) source.textContent = "社区实时 Elo";
+    if (updated) {
+      const stamp = Number(lb.updated_at || 0) * 1000;
+      updated.textContent = stamp ? `更新于 ${new Date(stamp).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}` : "刚刚更新";
+    }
+    box.innerHTML = lb.entries.map((e, i) => {
+      const m = metaFor(e.dir);
+      return `<article class="ranking-entry${i === 0 ? " is-top" : ""}">
+      <span class="rank">#${String(i + 1).padStart(2, "0")}${i === 0 ? "<i></i>" : ""}</span>
+      <span class="ranking-brand">${identityHTML(e.dir, true)}</span>
+      <strong class="name">${esc(m.model)}</strong>
+      <b class="rating num">${e.elo}</b>
+      <small class="games num">${e.games} 场 · ${e.wins}胜 ${e.ties}平 ${e.losses}负</small>
+    </article>`;
+    }).join("");
+  }
+
+  async function refreshHomeRanking() {
+    try {
+      renderHomeRanking(await apiFetch("/leaderboard?track=mario", {}, 4500));
+    } catch {
+      const poolStatus = $("#home-pool-status");
+      const source = $("#ranking-source");
+      if (poolStatus) poolStatus.textContent = "票池暂时离线";
+      if (source) source.textContent = "连接中断，稍后重试";
+    }
+  }
+
+  function initCabinetCarousel() {
+    const shell = $(".hero-cabinet");
+    const main = $("#cabinet-main-shot");
+    const identity = $("#cabinet-identity");
+    const count = $("#cabinet-count");
+    const thumbs = $("#cabinet-thumbs");
+    const prev = $("#cabinet-prev");
+    const next = $("#cabinet-next");
+    const toggle = $("#cabinet-toggle");
+    if (!shell || !main || !identity || !thumbs) return;
+
+    const rows = D.entrants.filter((e) => e.shot);
+    let idx = 0;
+    let timer = null;
+    let paused = REDUCED;
+    thumbs.innerHTML = rows.map((e, i) => {
+      const m = metaFor(e.dir);
+      return `<button type="button" data-slide="${i}" aria-label="查看 ${esc(m.vendor)} ${esc(m.model)}"${i === 0 ? ' class="active" aria-current="true"' : ""}>
+        <img src="${esc(e.shot)}" alt="" loading="eager"><span>${esc(m.vendor_mark)}</span>
+      </button>`;
+    }).join("");
+
+    function schedule() {
+      clearInterval(timer);
+      if (!paused && rows.length > 1) timer = setInterval(() => show(idx + 1), 3600);
+    }
+    function show(nextIdx, manual = false) {
+      idx = (nextIdx + rows.length) % rows.length;
+      const e = rows[idx];
+      const m = metaFor(e.dir);
+      main.classList.remove("slide-in");
+      main.classList.add("slide-out");
+      setTimeout(() => {
+        main.src = e.shot;
+        main.alt = `${m.vendor} ${m.model} 生成的游戏首屏`;
+        identity.innerHTML = identityHTML(e.dir);
+        count.textContent = `${String(idx + 1).padStart(2, "0")} / ${String(rows.length).padStart(2, "0")}`;
+        $$("button[data-slide]", thumbs).forEach((button, i) => {
+          button.classList.toggle("active", i === idx);
+          if (i === idx) button.setAttribute("aria-current", "true");
+          else button.removeAttribute("aria-current");
+        });
+        const active = $(`button[data-slide="${idx}"]`, thumbs);
+        active?.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "nearest", inline: "center" });
+        main.classList.remove("slide-out");
+        main.classList.add("slide-in");
+      }, REDUCED ? 0 : 170);
+      if (manual) schedule();
+    }
+    function setPaused(value) {
+      paused = value;
+      toggle.textContent = paused ? "▶" : "Ⅱ";
+      toggle.setAttribute("aria-label", paused ? "继续自动轮播" : "暂停自动轮播");
+      schedule();
+    }
+    $$("button[data-slide]", thumbs).forEach((button) => button.addEventListener("click", () => show(+button.dataset.slide, true)));
+    prev?.addEventListener("click", () => show(idx - 1, true));
+    next?.addEventListener("click", () => show(idx + 1, true));
+    toggle?.addEventListener("click", () => setPaused(!paused));
+    shell.addEventListener("mouseenter", () => { clearInterval(timer); });
+    shell.addEventListener("mouseleave", schedule);
+    shell.addEventListener("focusin", () => { clearInterval(timer); });
+    shell.addEventListener("focusout", schedule);
+    schedule();
+  }
+
   function initHome() {
     const se = $("#stat-entrants");
     if (se) se.textContent = D.entrants.length;
@@ -211,7 +337,7 @@
           const rank1 = e.score === topScore;
           return `<tr>
             <td class="num${rank1 ? " rank-1" : ""}">${i + 1}${rank1 ? ' <span class="medal">●</span>' : ""}</td>
-            <td class="mono">${esc(e.dir)} <span class="tag-internal">内部代号</span></td>
+            <td><span class="table-identity">${identityHTML(e.dir, true)}</span><small class="table-harness">${esc(metaFor(e.dir).harness)} · ${esc(e.dir)}</small></td>
             <td class="num${rank1 ? " best" : ""}">${e.score}</td>
             <td>${boolCell(e.has_audio)}</td>
             <td>${boolCell(e.has_touch)}</td>
@@ -223,20 +349,10 @@
         .join("");
     }
 
-    const votes = loadVotes();
-    const sv = $("#stat-votes");
-    const poolStatus = $("#home-pool-status");
-    if (sv) {
-      apiFetch("/leaderboard?track=mario", {}, 4500)
-        .then((lb) => {
-          sv.textContent = Number(lb.total_votes || 0).toLocaleString("zh-CN");
-          if (poolStatus) poolStatus.textContent = "全网票池在线";
-        })
-        .catch(() => {
-          sv.textContent = votes.length ? votes.length.toLocaleString("zh-CN") : "0";
-          if (poolStatus) poolStatus.textContent = votes.length ? "显示本机票箱" : "票池暂时离线";
-        });
-    }
+    refreshHomeRanking();
+    initCabinetCarousel();
+    clearInterval(homeRankingTimer);
+    homeRankingTimer = setInterval(refreshHomeRanking, 15000);
     $$("[data-formula]").forEach((n) => (n.textContent = D.score_formula_zh));
   }
 
@@ -260,6 +376,72 @@
   function fitFrame(iframe, box) {
     const s = box.clientWidth / 960;
     iframe.style.transform = `scale(${s})`;
+  }
+
+  const HANDHELD_KEYS = {
+    ArrowLeft: "ArrowLeft", ArrowRight: "ArrowRight", ArrowUp: "ArrowUp", ArrowDown: "ArrowDown",
+    Space: " ", KeyX: "x", Enter: "Enter",
+  };
+  function sendGameKey(frame, code, type) {
+    try {
+      const w = frame.contentWindow;
+      const target = frame.contentDocument || w;
+      const event = new w.KeyboardEvent(type, {
+        code,
+        key: HANDHELD_KEYS[code] || code,
+        bubbles: true,
+        cancelable: true,
+      });
+      target.dispatchEvent(event);
+      if (type === "keydown") frame.focus();
+    } catch {
+      /* iframe 未完成加载时忽略本次按键 */
+    }
+  }
+  function mountHandheldControls(host, frame, compact = false) {
+    $$(".handheld-controls", host).forEach((n) => n.remove());
+    host.classList.add("has-handheld");
+    const deck = document.createElement("div");
+    deck.className = "handheld-controls" + (compact ? " compact" : "");
+    deck.setAttribute("aria-label", "复古掌机触屏操作");
+    deck.innerHTML = `<div class="handheld-speaker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="handheld-dpad" aria-label="方向键">
+        <button data-code="ArrowUp" class="d-up" aria-label="向上">▲</button>
+        <button data-code="ArrowLeft" class="d-left" aria-label="向左">◀</button>
+        <span aria-hidden="true"></span>
+        <button data-code="ArrowRight" class="d-right" aria-label="向右">▶</button>
+        <button data-code="ArrowDown" class="d-down" aria-label="向下">▼</button>
+      </div>
+      <div class="handheld-center"><b>LLM ARCADE</b><small>TOUCH DECK</small><button data-code="Enter" class="start-key">START</button></div>
+      <div class="handheld-actions">
+        <label><button data-code="KeyX" aria-label="B 冲刺">B</button><small>RUN</small></label>
+        <label><button data-code="Space" aria-label="A 跳跃">A</button><small>JUMP</small></label>
+      </div>`;
+    host.appendChild(deck);
+    $$("button[data-code]", deck).forEach((button) => {
+      const code = button.dataset.code;
+      let down = false;
+      const press = (event) => {
+        event.preventDefault();
+        if (down) return;
+        down = true;
+        button.classList.add("pressed");
+        button.setPointerCapture?.(event.pointerId);
+        sendGameKey(frame, code, "keydown");
+      };
+      const release = (event) => {
+        event.preventDefault();
+        if (!down) return;
+        down = false;
+        button.classList.remove("pressed");
+        sendGameKey(frame, code, "keyup");
+      };
+      button.addEventListener("pointerdown", press);
+      button.addEventListener("pointerup", release);
+      button.addEventListener("pointercancel", release);
+      button.addEventListener("lostpointercapture", release);
+      button.addEventListener("contextmenu", (event) => event.preventDefault());
+    });
   }
   window.addEventListener("resize", () => {
     for (const it of liveFrames) fitFrame(it.frame, it.box);
@@ -344,10 +526,8 @@
             <span class="live-dot">LIVE</span>
           </div>
           <div class="entrant-body">
-            <div class="entrant-name">
-              <span class="code">${esc(e.dir)}</span>
-              <span class="tag-internal">内部代号</span>
-            </div>
+            <div class="entrant-identity">${identityHTML(e.dir)}</div>
+            <div class="entrant-name"><span class="code">${esc(e.dir)}</span><span class="tag-internal">内部代号</span></div>
             <div class="feat-badges">${featBadges(e)}</div>
             <div class="entrant-meta num">
               <span>${e.files} 个文件</span><span>${fmtKB(e.bytes)}</span><span>${e.code_lines} 行</span>
@@ -393,6 +573,7 @@
     f.src = gameURL(e.dir);
     f.addEventListener("load", () => f.focus());
     wrap.appendChild(f);
+    mountHandheldControls(wrap, f);
     modal.classList.add("open");
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onModalKey);
@@ -442,18 +623,15 @@
   }
 
   /* ---------- 对战盲投(在线=全网票池 / 离线=本机体验版) ---------- */
-  /* 可调常量用 let,便于 ?selftest=online 的 mock 加速流程 */
-  let MIN_PLAY_MS = 45000;        /* 与后端 MIN_PLAY_SECONDS 双保险 */
-  let TOO_EARLY_RETRY_MS = 5000;  /* 服务器仍判 too_early(时钟偏差)时的重试等待 */
   const battle = {
     mode: "local",                /* "online" | "local" */
     ready: null,                  /* initBattle 的探测 promise,selftest 等它 */
     pair: null,                   /* {a:{dir}, b:{dir}}(本地模式下是完整参赛对象) */
     pairId: null,
-    pairReceivedAt: 0,            /* 本地毫秒时钟,倒计时基准(避免依赖服务器时钟) */
     played: { a: false, b: false },
     voted: false,
-    countdownTimer: null,
+    frames: { a: null, b: null },
+    activeSide: null,
   };
   let netTotalVotes = null;       /* 最近一次全网榜的 total_votes */
 
@@ -463,6 +641,33 @@
     let j = Math.floor(Math.random() * (n - 1));
     if (j >= i) j++;
     return { a: ranked[i], b: ranked[j] };
+  }
+
+  function unmountBattleSide(side) {
+    const rec = battle.frames[side];
+    if (rec) {
+      rec.frame.remove();
+      liveFrames.delete(rec.fitRecord);
+      battle.frames[side] = null;
+    }
+    const box = $(`#battle-${side}`);
+    if (!box) return;
+    $$(".handheld-controls", box).forEach((n) => n.remove());
+    box.classList.remove("is-playing");
+    const cover = $(".battle-cover", box);
+    if (cover) {
+      cover.style.display = "flex";
+      const label = $(".battle-cover-label", cover);
+      if (label && battle.played[side]) label.firstChild.textContent = `继续试玩 ${side.toUpperCase()}`;
+    }
+    if (battle.activeSide === side) battle.activeSide = null;
+  }
+
+  function closeBattleStage() {
+    unmountBattleSide("a");
+    unmountBattleSide("b");
+    $("#battle-stage").classList.remove("on");
+    document.body.style.overflow = "";
   }
 
   function buildPanel(side) {
@@ -475,14 +680,16 @@
       <div class="battle-frame">
         <button class="battle-cover">
           <span class="big">▶</span>
-          <span>点击开始试玩 ${side.toUpperCase()}<br><small style="font-weight:400;color:var(--ink-3)">键盘直接操作,点击游戏区获得焦点</small></span>
+          <span class="battle-cover-label">点击开始试玩 ${side.toUpperCase()}<br><small style="font-weight:400;color:var(--ink-3)">切换作品时，另一边会自动关闭</small></span>
         </button>
       </div>`;
     const frameBox = $(".battle-frame", box);
     const cover = $(".battle-cover", box);
     const reloadBtn = $(".reload-btn", box);
     function mount() {
-      $$("iframe", frameBox).forEach((f) => f.remove());
+      const other = side === "a" ? "b" : "a";
+      unmountBattleSide(other);
+      unmountBattleSide(side);
       const f = document.createElement("iframe");
       f.setAttribute("sandbox", SANDBOX);
       f.setAttribute("title", `匿名作品 ${side.toUpperCase()}`);
@@ -490,10 +697,15 @@
       f.addEventListener("load", () => f.focus());
       frameBox.appendChild(f);
       fitFrame(f, frameBox);
-      liveFrames.add({ frame: f, box: frameBox });
+      const fitRecord = { frame: f, box: frameBox };
+      liveFrames.add(fitRecord);
+      battle.frames[side] = { frame: f, fitRecord };
+      battle.activeSide = side;
+      box.classList.add("is-playing");
+      cover.style.display = "none";
+      mountHandheldControls(box, f, true);
     }
     cover.addEventListener("click", () => {
-      cover.style.display = "none";
       mount();
       battle.played[side] = true;
       reloadBtn.disabled = false;
@@ -502,42 +714,29 @@
     reloadBtn.addEventListener("click", mount);
   }
 
-  function remainingSecs() {
-    if (battle.mode !== "online" || !battle.pairReceivedAt) return 0;
-    return Math.max(0, Math.ceil((battle.pairReceivedAt + MIN_PLAY_MS - Date.now()) / 1000));
-  }
-  function startCountdown() {
-    clearInterval(battle.countdownTimer);
-    battle.countdownTimer = setInterval(() => {
-      updateVoteGate();
-      if (remainingSecs() === 0) clearInterval(battle.countdownTimer);
-    }, 500);
-  }
-
   function setGate(text) {
     $("#battle-gate").textContent = text;
   }
 
   function updateVoteGate() {
     const both = battle.played.a && battle.played.b;
-    const remain = remainingSecs();
-    const unlocked = !!battle.pair && both && remain === 0 && !battle.voted;
+    const unlocked = !!battle.pair && both && !battle.voted;
     $$("#battle-vote button[data-vote]").forEach((b) => (b.disabled = !unlocked));
     if (battle.voted) setGate("已投票,点「下一对」继续");
     else if (!battle.pair) return; /* 领取配对失败等场景,setGate 已给出具体文案 */
-    else if (!both) setGate("防呆:A、B 都至少打开试玩一次,才能投票");
-    else if (remain > 0) setGate(`再玩 ${remain} 秒解锁投票(全网票池要求至少试玩 45 秒)`);
+    else if (!both) setGate("A、B 都打开试玩一次后即可投票");
     else setGate("两边都试过了?选出你心中更好的一款");
   }
 
   async function startBattle() {
-    clearInterval(battle.countdownTimer);
+    unmountBattleSide("a");
+    unmountBattleSide("b");
     battle.played = { a: false, b: false };
     battle.voted = false;
     battle.pair = null;
     battle.pairId = null;
-    battle.pairReceivedAt = 0;
     $("#battle-stage").classList.add("on");
+    document.body.style.overflow = "hidden";
     $("#battle-result").innerHTML = "";
     $("#battle-next").style.display = "none";
     $("#battle-start").textContent = "⚔ 换一对(不投票)";
@@ -548,12 +747,10 @@
         const p = await apiFetch("/pair?track=mario");
         battle.pair = { a: { dir: p.a.dir }, b: { dir: p.b.dir } };
         battle.pairId = p.pair_id;
-        battle.pairReceivedAt = Date.now(); /* 用本地时钟起倒计时,服务器时钟只做兜底 */
       } catch (e) {
         setGate(`领取配对失败(${e.message}),点「开始/换一对」重试`);
         return;
       }
-      startCountdown();
     } else {
       battle.pair = pickPair();
     }
@@ -563,8 +760,9 @@
   }
 
   function reveal(aDir, bDir) {
-    $("#battle-a .revealed").textContent = "= " + aDir;
-    $("#battle-b .revealed").textContent = "= " + bDir;
+    const a = metaFor(aDir), b = metaFor(bDir);
+    $("#battle-a .revealed").textContent = `= ${a.vendor} ${a.model} × ${a.harness} [${aDir}]`;
+    $("#battle-b .revealed").textContent = `= ${b.vendor} ${b.model} × ${b.harness} [${bDir}]`;
   }
   function voteMsg(r, aDir, bDir) {
     return r === "t"
@@ -593,14 +791,6 @@
   function handleVoteError(e, r) {
     const result = $("#battle-result");
     switch (e.code) {
-      case "too_early": {
-        /* 本地倒计时已挡过一轮,走到这里说明本地与服务器时钟有偏差:压短重试窗口再等一次 */
-        battle.pairReceivedAt = Date.now() - MIN_PLAY_MS + TOO_EARLY_RETRY_MS;
-        startCountdown();
-        updateVoteGate();
-        result.innerHTML = `服务器判定试玩时长还不够(too_early),约 ${Math.ceil(TOO_EARLY_RETRY_MS / 1000)} 秒后自动解锁,请再试一次。`;
-        break;
-      }
       case "already_voted":
         finishReveal(r, battle.pair.a.dir, battle.pair.b.dir, "这一对已经投过票了(一 token 一票),这次没有重复计票。");
         break;
@@ -641,8 +831,6 @@
       return;
     }
 
-    /* 在线:前端倒计时与服务器 too_early 双保险 */
-    if (remainingSecs() > 0) { updateVoteGate(); return; }
     const winner = r === "a" ? "A" : r === "b" ? "B" : "tie";
     $$("#battle-vote button[data-vote]").forEach((b) => (b.disabled = true));
     setGate("正在提交到全网票池…");
@@ -693,7 +881,7 @@
           .map(
             (e, i) => `<tr>
               <td class="num">${i + 1}</td>
-              <td class="mono">${esc(e.dir)}</td>
+              <td><span class="table-identity">${identityHTML(e.dir, true)}</span><small class="table-harness">${esc(metaFor(e.dir).harness)} · ${esc(e.dir)}</small></td>
               <td class="num${i === 0 && e.games > 0 ? " best" : ""}">${e.elo}</td>
               <td class="num">${e.bt_score == null ? '<span class="cross">–</span>' : e.bt_score.toFixed(3)}</td>
               <td class="num">${e.wins}</td><td class="num">${e.ties}</td><td class="num">${e.losses}</td>
@@ -716,7 +904,7 @@
       badge.innerHTML = '<span class="dot"></span>🌐 全网票池';
       title.textContent = "全网票池:";
       body.textContent =
-        "你的投票会进入全网 Elo / Bradley-Terry 统计。规则:同一配对 A、B 都要试玩,且距领取满 45 秒才能投;单设备每日上限 60 票;投完即时揭晓身份。";
+        "你的投票会进入全网 Elo / Bradley-Terry 统计。规则:A、B 都打开试玩过即可投票;单设备每日上限 60 票;投完即时揭晓身份。切换作品时另一边自动关闭。";
       $("#net-board").hidden = false;
       $("#local-board").removeAttribute("open"); /* 本机记录降级为折叠小节 */
     } else {
@@ -743,7 +931,7 @@
         .map(
           (r, i) => `<tr>
             <td class="num">${i + 1}</td>
-            <td class="mono">${esc(r.dir)}</td>
+            <td><span class="table-identity">${identityHTML(r.dir, true)}</span><small class="table-harness">${esc(metaFor(r.dir).harness)} · ${esc(r.dir)}</small></td>
             <td class="num${i === 0 && r.games > 0 ? " best" : ""}">${Math.round(r.elo)}</td>
             <td class="num">${r.w}</td><td class="num">${r.t}</td><td class="num">${r.l}</td>
             <td class="num">${r.games}</td>
@@ -755,6 +943,10 @@
   function initBattle() {
     $("#battle-start").addEventListener("click", startBattle);
     $("#battle-next").addEventListener("click", startBattle);
+    $("#battle-close").addEventListener("click", closeBattleStage);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && $("#battle-stage").classList.contains("on") && !$("#play-modal").classList.contains("open")) closeBattleStage();
+    });
     $$("#battle-vote button[data-vote]").forEach((b) =>
       b.addEventListener("click", () => castVote(b.dataset.vote))
     );
@@ -829,7 +1021,7 @@
           COLS.map((c) => {
             const v = e[c.key];
             if (c.type === "bool") return `<td>${boolCell(v)}</td>`;
-            if (c.key === "dir") return `<td class="mono">${esc(v)}</td>`;
+            if (c.key === "dir") return `<td><span class="table-identity">${identityHTML(e.dir, true)}</span><small class="table-harness">${esc(metaFor(e.dir).harness)} · ${esc(e.dir)}</small></td>`;
             const isBest = c.best && Number(v) === bests[c.key];
             return `<td class="num${isBest ? " best" : ""}">${c.fmt ? c.fmt(v) : v}</td>`;
           }).join("") +
@@ -900,9 +1092,7 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   function installFetchMock() {
-    MIN_PLAY_MS = 1200;       /* 压短闸门,让套件秒级跑完 */
-    TOO_EARLY_RETRY_MS = 700;
-    const voteQueue = ["too_early", "ok", "already_voted", "network", "rate_limited", "pair_expired"];
+    const voteQueue = ["ok", "already_voted", "network", "rate_limited", "pair_expired"];
     let votes = 0;
     const J = (status, data) => Promise.resolve({ ok: status < 400, status, json: async () => data });
     window.fetch = (url) => {
@@ -930,7 +1120,6 @@
         if (k === "ok") { votes++; return J(200, { ok: true, revealed: { a_dir: ranked[0].dir, b_dir: ranked[1].dir } }); }
         if (k === "network") return Promise.reject(new TypeError("Failed to fetch"));
         const map = {
-          too_early: [400, "vote rejected: play at least 45s before voting"],
           already_voted: [409, "this pair_id has already been used"],
           rate_limited: [429, "daily vote limit reached (60 per day)"],
           pair_expired: [400, "pair_id has expired, request a new pair"],
@@ -964,10 +1153,11 @@
     localStorage.removeItem(VOTES_KEY);
     /* 2) 对战流程:开战 -> 未玩不可投 -> 双开后可投 -> 投票入库并揭晓 -> 投后锁票 */
     await startBattle();
+    ok("battle_fullscreen_open", $("#battle-stage").classList.contains("on") && document.body.style.overflow === "hidden");
     ok("gate_locked_before_play", $$("#battle-vote button[data-vote]").every((b) => b.disabled));
     $$(".battle-cover").forEach((c) => c.click());
     ok("gate_open_after_both_played", $$("#battle-vote button[data-vote]").every((b) => !b.disabled));
-    ok("two_battle_iframes", $$(".battle-frame iframe").length === 2);
+    ok("one_battle_iframe_only", $$(".battle-frame iframe").length === 1);
     await castVote("a");
     ok("vote_stored", loadVotes().length === 1);
     ok("codenames_revealed", $("#battle-result").textContent.includes("揭晓"));
@@ -977,6 +1167,7 @@
     /* 3) modal 生命周期:打开 -> 换一个 -> Esc 关闭并卸载 iframe */
     openModal(0);
     ok("modal_open_with_iframe", $("#play-modal").classList.contains("open") && !!$("#modal-frame-wrap iframe"));
+    ok("handheld_controls_mounted", $$("#modal-frame-wrap .handheld-controls button[data-code]").length === 7);
     nextGame();
     ok("modal_next_switches", $("#modal-code").textContent === ranked[1].dir);
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
@@ -1001,15 +1192,8 @@
     ok("gate_locked_before_play", $$("#battle-vote button[data-vote]").every((b) => b.disabled));
     $$(".battle-cover").forEach((c) => c.click());
     updateVoteGate();
-    ok("countdown_visible", /再玩 \d+ 秒/.test($("#battle-gate").textContent));
-    ok("gate_locked_during_countdown", $$("#battle-vote button[data-vote]").every((b) => b.disabled));
-    await sleep(MIN_PLAY_MS + 500);
-    ok("gate_open_after_countdown", $$("#battle-vote button[data-vote]").every((b) => !b.disabled));
-    /* 错误路径 1:too_early -> 压短窗口重试 */
-    await castVote("a");
-    ok("too_early_message", $("#battle-result").textContent.includes("too_early"));
-    ok("too_early_relocks_countdown", remainingSecs() > 0);
-    await sleep(TOO_EARLY_RETRY_MS + 500);
+    ok("gate_open_after_both_played", $$("#battle-vote button[data-vote]").every((b) => !b.disabled));
+    ok("exclusive_single_iframe", $$(".battle-frame iframe").length === 1);
     /* 成功票:服务端 revealed 揭晓,不落本机票箱 */
     await castVote("a");
     ok("vote_success_net_pool", $("#battle-result").textContent.includes("全网票池"));
@@ -1049,19 +1233,10 @@
     ok("live_pair_id_signed", typeof battle.pairId === "string" && battle.pairId.includes("."));
     $$(".battle-cover").forEach((c) => c.click());
     updateVoteGate();
-    ok("live_countdown_text", /再玩 \d+ 秒/.test($("#battle-gate").textContent));
-    /* 真实错误路径:未满 45s 直接打 API 应得 too_early */
-    let code = null;
-    try {
-      await apiFetch("/vote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pair_id: battle.pairId, winner: "A" }),
-      });
-    } catch (e) { code = e.code; }
-    ok("live_vote_too_early", code === "too_early");
+    ok("live_gate_open_after_both", $$("#battle-vote button[data-vote]").every((b) => !b.disabled));
+    ok("live_exclusive_single_iframe", $$(".battle-frame iframe").length === 1);
     /* 伪造 token 应得 invalid_pair */
-    code = null;
+    let code = null;
     try {
       await apiFetch("/vote", {
         method: "POST",

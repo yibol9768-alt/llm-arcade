@@ -11,7 +11,6 @@
 
 | 参数 | 值 | 含义 |
 |---|---|---|
-| MIN_PLAY_SECONDS | 45 | 领取配对到投票的最短间隔(最短游玩时长) |
 | MAX_PAIR_AGE_SECONDS | 7200 | pair token 有效期(2 小时) |
 | DAILY_VOTE_LIMIT | 60 | 单访客指纹(voter_hash)每 UTC 日上限 |
 | LEADERBOARD_CACHE_SECONDS | 60 | 榜单响应缓存时长(新票最多延迟 60s 上榜) |
@@ -24,7 +23,6 @@
 |---|---|---|
 | 400 | `bad_request` | 缺参/参数非法/body 不是 JSON 对象/winner 不在白名单 |
 | 400 | `invalid_pair` | pair_id 签名校验失败(伪造或被篡改) |
-| 400 | `too_early` | 领取配对后不足 45 秒就投票 |
 | 400 | `pair_expired` | pair_id 已超过 2 小时有效期 |
 | 404 | `track_not_found` | 赛道不存在或活跃参赛者不足 2 个 |
 | 409 | `already_voted` | 该 pair_id 已投过票(一 token 一票) |
@@ -32,7 +30,7 @@
 | 500 | `config_error` | 服务端未配置 PAIR_SECRET/SALT(部署问题) |
 | 500 | `internal` | 其他服务端错误 |
 
-前端处理建议:`too_early` 提示"再玩一会儿";`pair_expired`/`invalid_pair`/`already_voted` 直接换下一对;`rate_limited` 提示明日再来。
+前端处理建议:`pair_expired`/`invalid_pair`/`already_voted` 直接换下一对;`rate_limited` 提示明日再来。
 
 ---
 
@@ -82,7 +80,7 @@ curl -s -X POST https://<site>/api/vote \
 
 Body:`{ "pair_id": string, "winner": "A" | "B" | "tie" }`(winner 严格白名单)。
 
-服务端校验顺序:签名有效 → 距签发 ≥45s 且 ≤2h → 当日票数未超限 → pair_id 未用过。访客指纹 `voter_hash = SHA-256(client_ip + user_agent + 服务端盐)`,不存明文 IP。
+服务端校验顺序:签名有效 → 距签发 ≤2h → 当日票数未超限 → pair_id 未用过。服务端不再设置最短试玩时长;前端应在 A/B 两个作品都被打开过以后才解锁投票。访客指纹 `voter_hash = SHA-256(client_ip + user_agent + 服务端盐)`,不存明文 IP。
 
 成功(投完才揭晓身份,契合盲投流程):
 
@@ -90,7 +88,7 @@ Body:`{ "pair_id": string, "winner": "A" | "B" | "tie" }`(winner 严格白名单
 { "ok": true, "revealed": { "a_dir": "fable5", "b_dir": "gpt5.5" } }
 ```
 
-错误:400 `bad_request` / `invalid_pair` / `too_early` / `pair_expired`,409 `already_voted`,429 `rate_limited`。
+错误:400 `bad_request` / `invalid_pair` / `pair_expired`,409 `already_voted`,429 `rate_limited`。
 
 ## 4. GET /api/leaderboard?track=mario
 
@@ -143,8 +141,8 @@ curl -s https://<site>/api/stats
 
 ## 前端对战盲投的推荐时序
 
-1. 页面进入对战模式 → `GET /api/pair?track=mario`,保存 `pair_id`,用 `a.dir`/`b.dir` 加载两个 sandbox iframe,界面上只标 A/B。
-2. 访客试玩;投票按钮建议前端也做 45s 倒计时禁用(与服务端 `too_early` 双保险)。
+1. 页面进入对战模式 → `GET /api/pair?track=mario`,保存 `pair_id`,界面上只标 A/B。前端一次只加载一边的 sandbox iframe,切换作品时卸载另一边。
+2. 访客分别打开 A/B 两个作品;两边都打开过后,前端解锁投票。没有最短试玩时长要求。
 3. 访客选择 → `POST /api/vote` → 用 `revealed` 揭晓两侧真身,展示"下一对"按钮。
 4. 探测后端是否存在:`GET /api/health` 200 即切真实票池,否则回落本地体验版。
 

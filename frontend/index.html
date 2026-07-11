@@ -24,6 +24,7 @@
   <div class="container topbar-inner">
     <a class="logo" href="./"><span class="home-logo-mark">LA</span><span>LLM Arcade</span><span class="logo-zh">大模型街机厅</span></a>
     <nav class="topnav" aria-label="主导航">
+      <a href="#live-ranking">排行榜</a>
       <a href="#live-track">本期作品</a>
       <a href="#battle-callout">盲投对战</a>
       <a href="#roadmap">赛道计划</a>
@@ -33,6 +34,30 @@
 </header>
 
 <main>
+  <section class="home-live-ranking" id="live-ranking" aria-labelledby="ranking-title">
+    <div class="container">
+      <div class="ranking-topline">
+        <div>
+          <span class="home-kicker">LIVE RANKING / SEASON 01</span>
+          <h2 id="ranking-title">一句话马里奥排行榜</h2>
+        </div>
+        <div class="ranking-meta">
+          <span class="home-status-dot"></span>
+          <b id="ranking-source">正在读取全网票池</b>
+          <small id="ranking-updated">自动刷新</small>
+        </div>
+      </div>
+      <div class="ranking-board" id="home-ranking-list" aria-live="polite">
+        <div class="ranking-pending">初始榜筹备中。5.6sol Agent 初评尚未录入，社区产生有效盲投后将自动显示实时 Elo。</div>
+      </div>
+      <div class="ranking-footer">
+        <span><b id="ranking-votes">0</b> COMMUNITY VOTES</span>
+        <span>每 15 秒自动刷新</span>
+        <a href="mario/#battle-sec">用一票改变排名 →</a>
+      </div>
+    </div>
+  </section>
+
   <section class="home-hero">
     <div class="container home-hero-grid">
       <div class="home-hero-copy">
@@ -53,19 +78,16 @@
       </div>
 
       <div class="hero-cabinet" aria-label="本期游戏画面预览">
-        <div class="cabinet-topline"><span>PLAYER SELECT</span><span>01 / 09</span></div>
+        <div class="cabinet-topline"><span>PLAYER SELECT</span><span id="cabinet-count">01 / 09</span></div>
         <a class="cabinet-screen" href="mario/" aria-label="查看一句话马里奥全部作品">
-          <img src="assets/shots/5.6luna.png" alt="AI agent 生成的 Mushroom Run 游戏首屏">
+          <img id="cabinet-main-shot" src="assets/shots/5.6luna.png" alt="5.6luna 生成的游戏首屏">
           <span class="screen-scanlines" aria-hidden="true"></span>
+          <span class="cabinet-identity" id="cabinet-identity"><i>OA</i><span><b>OPENAI</b><strong>GPT-5.6 LUNA × CODEX</strong><small>内部代号 5.6luna</small></span></span>
           <span class="screen-play">PLAY ALL 09 <b>▶</b></span>
         </a>
-        <div class="cabinet-strip" aria-hidden="true">
-          <img src="assets/shots/fable5.png" alt="">
-          <img src="assets/shots/grok4.5.png" alt="">
-          <img src="assets/shots/k2.7code.png" alt="">
-          <span>+ 5 MORE</span>
+        <div class="cabinet-strip" id="cabinet-thumbs" aria-label="选择参赛作品">
         </div>
-        <div class="cabinet-controls" aria-hidden="true"><i></i><span></span><span></span><small>INSERT CURIOSITY</small></div>
+        <div class="cabinet-controls"><i aria-hidden="true"></i><button id="cabinet-prev" type="button" aria-label="上一个作品">◀</button><button id="cabinet-next" type="button" aria-label="下一个作品">▶</button><button id="cabinet-toggle" class="cabinet-toggle" type="button" aria-label="暂停自动轮播">Ⅱ</button><small>INSERT CURIOSITY</small></div>
       </div>
     </div>
 
@@ -82,12 +104,12 @@
       <div class="battle-callout-copy">
         <span class="home-kicker">THE MAIN EVENT / 01</span>
         <h2>别看名字。<br>先玩，再站队。</h2>
-        <p>系统随机发两款匿名作品。A、B 都试玩且满 45 秒后投票，投完才揭晓身份。每一票进入全网 Elo 排名。</p>
+        <p>系统随机发两款匿名作品。A、B 都打开试玩过即可投票，投完才揭晓身份。每一票进入全网 Elo 排名。</p>
         <a class="home-text-link" href="mario/#battle-sec">开始一场匿名对战 <span>→</span></a>
       </div>
       <a class="versus-card" href="mario/#battle-sec" aria-label="开始匿名 A B 对战">
         <div class="versus-side side-a"><span>作品</span><b>A</b><small>IDENTITY HIDDEN</small></div>
-        <div class="versus-mid"><span>VS</span><i>45 SEC</i></div>
+        <div class="versus-mid"><span>VS</span><i>PLAY BOTH</i></div>
         <div class="versus-side side-b"><span>作品</span><b>B</b><small>IDENTITY HIDDEN</small></div>
         <div class="versus-footer"><span>PLAY BOTH</span><span>VOTE ONE</span><span>REVEAL</span></div>
       </a>
@@ -185,6 +207,7 @@
   </div>
 </footer>
 
+<script src="assets/entrants.js"></script>
 <script src="assets/data.js"></script>
 <script src="assets/app.js"></script>
 </body>

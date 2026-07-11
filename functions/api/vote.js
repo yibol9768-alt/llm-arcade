@@ -33,13 +33,6 @@ export async function onRequestPost(context) {
 
   const now = Math.floor(Date.now() / 1000);
   const age = now - payload.issuedAt;
-  if (age < CONFIG.MIN_PLAY_SECONDS) {
-    return errorResponse(
-      "too_early",
-      `vote rejected: play at least ${CONFIG.MIN_PLAY_SECONDS}s before voting`,
-      400,
-    );
-  }
   if (age > CONFIG.MAX_PAIR_AGE_SECONDS) {
     return errorResponse("pair_expired", "pair_id has expired, request a new pair", 400);
   }

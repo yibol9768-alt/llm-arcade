@@ -1,10 +1,6 @@
 // Central knobs for anti-abuse and scoring. Every threshold lives here so it
 // can be tuned in one place. All time values are in seconds unless noted.
 export const CONFIG = {
-  // A vote is rejected if it arrives sooner than this after the pair was
-  // issued (minimum play time, blocks instant voting).
-  MIN_PLAY_SECONDS: 45,
-
   // A pair token expires after this long.
   MAX_PAIR_AGE_SECONDS: 2 * 60 * 60,
 

@@ -80,6 +80,10 @@
         <span id="battle-stats" class="num" style="font-size:13px;color:var(--ink-2)"></span>
       </div>
       <div class="battle-stage" id="battle-stage">
+        <div class="battle-fullscreen-bar">
+          <div><span>BLIND BATTLE</span><b>匿名对战 · 两边都打开过即可投票</b></div>
+          <button class="btn btn-secondary btn-sm" id="battle-close" type="button">✕ 退出对战</button>
+        </div>
         <div class="battle-grid">
           <div class="card battle-panel" id="battle-a"></div>
           <div class="card battle-panel" id="battle-b"></div>
@@ -186,6 +190,7 @@
   </div>
 </div>
 
+<script src="../assets/entrants.js"></script>
 <script src="../assets/data.js"></script>
 <script src="../assets/app.js"></script>
 </body>

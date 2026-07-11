@@ -18,6 +18,7 @@ const { CONFIG } = await import("../functions/_lib/config.js");
 const { signPairToken, verifyPairToken, sha256Hex } = await import("../functions/_lib/hmac.js");
 const { pickPair, pairKey } = await import("../functions/_lib/sampling.js");
 const { computeElo, computeBradleyTerry, tallyRecords } = await import("../functions/_lib/rating.js");
+const { onRequestPost: submitVote } = await import("../functions/api/vote.js");
 let passed = 0;
 async function test(name, fn) {
   try {
@@ -74,6 +75,58 @@ await test("hmac: sha256Hex matches known vector", async () => {
     await sha256Hex("abc"),
     "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
   );
+});
+
+function mockVoteDb() {
+  const inserted = [];
+  return {
+    inserted,
+    prepare(sql) {
+      return {
+        bind(...values) {
+          return {
+            async first() {
+              assert.match(sql, /SELECT COUNT\(\*\)/);
+              return { c: 0 };
+            },
+            async run() {
+              assert.match(sql, /INSERT INTO votes/);
+              inserted.push(values);
+              return {};
+            },
+          };
+        },
+      };
+    },
+  };
+}
+
+await test("vote: a freshly issued signed pair can be submitted immediately", async () => {
+  const now = Math.floor(Date.now() / 1000);
+  const pairId = await signPairToken(SECRET, {
+    track: "mario", aDir: "a", bDir: "b", issuedAt: now,
+  });
+  const db = mockVoteDb();
+  const request = new Request("https://example.test/api/vote", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "CF-Connecting-IP": "203.0.113.1",
+      "User-Agent": "smoke-test",
+    },
+    body: JSON.stringify({ pair_id: pairId, winner: "A" }),
+  });
+
+  const response = await submitVote({
+    request,
+    env: { PAIR_SECRET: SECRET, SALT: "test-salt", DB: db },
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    ok: true,
+    revealed: { a_dir: "a", b_dir: "b" },
+  });
+  assert.equal(db.inserted.length, 1);
 });
 
 await test("sampling: least-voted pairs are preferred", () => {
@@ -190,7 +243,6 @@ await test("tally: wins/losses/ties/games are counted per entrant", () => {
 });
 
 await test("config: thresholds match the agreed contract", () => {
-  assert.equal(CONFIG.MIN_PLAY_SECONDS, 45);
   assert.equal(CONFIG.MAX_PAIR_AGE_SECONDS, 7200);
   assert.equal(CONFIG.DAILY_VOTE_LIMIT, 60);
   assert.equal(CONFIG.LEADERBOARD_CACHE_SECONDS, 60);

@@ -79,19 +79,19 @@ tracks/ 内容变化后按 1→2→3→4 重跑即可。
 
 - 「开始一场对战」→ `GET /api/pair?track=mario`,拿服务端签名的 `pair_id`,
   界面只显示匿名 A / B(dir 仅用于加载 iframe,不渲染);
-- 解锁投票需要:A、B 都点开试玩过 + 距领取满 45 秒(前端可见倒计时
-  「再玩 XX 秒解锁投票」,与服务端 too_early 双保险);
+- 解锁投票只需要 A、B 都点开试玩过;没有倒计时。对战为全屏界面,
+  同一时间只保留一个游戏 iframe,切到另一边时自动关闭当前作品;
 - 投票 `POST /api/vote {pair_id, winner: "A"|"B"|"tie"}`,用响应里的
   `revealed` 揭晓身份;
-- 错误处理:`too_early` 显示剩余秒数后自动解锁重试;`already_voted` 锁票提示;
-  `429 rate_limited` 显示「今天投满了(每日 60 票),明天再来」;`pair_expired`/
+- 错误处理:`already_voted` 锁票提示;`429 rate_limited` 显示「今天投满了
+  (每日 60 票),明天再来」;`pair_expired`/
   `invalid_pair` 一键换下一对;网络错误可把这票落到本机票箱(明确标注不入全网池);
 - 对战区榜单为 `GET /api/leaderboard` 的全网榜(Elo、BT 强度、胜平负、总票数、
   更新时间;总票 <20 时 BT 列为 – 并注明);本机 Elo 榜降级为折叠的「本机记录」小节。
 
 **💻 本机体验版模式**(无后端时,行为与集成前完全一致):
 
-- 前端随机抽两位参赛者;防呆:A、B 都点开试玩过一次,投票按钮才解锁(无 45s 门槛);
+- 前端随机抽两位参赛者;防呆:A、B 都点开试玩过一次,投票按钮才解锁;
 - 票存 `localStorage`,key = `arcade_mario_votes_v1`,格式
   `[{a, b, r: "a"|"b"|"t", t: 时间戳}, ...]`;
 - 本机 Elo:K=32,初始 1000,按投票时间顺序回放全部对局逐场更新
@@ -99,13 +99,14 @@ tracks/ 内容变化后按 1→2→3→4 重跑即可。
 - 清空:赛道页「清空本机投票」按钮,或 DevTools 里
   `localStorage.removeItem("arcade_mario_votes_v1")`。
 
-首页不接全网榜(静态检查榜维持现状),等真实票量起来再上首页。
+首页顶部接全网榜并每 15 秒刷新。零票且 Agent 初评尚未录入时显示「初始榜筹备中」;
+产生有效盲投后自动显示实时 Elo。
 
 ## 自测钩子(headless 验收用)
 
 - `mario/?selftest=1`:本机体验版套件(离线环境跑);
 - `mario/?selftest=online`:mock fetch 的在线全流程套件(不依赖后端,覆盖
-  too_early/already_voted/网络回落/429/pair_expired 五条错误路径);
+  双边打开即投票、单 iframe、already_voted、网络回落、429、pair_expired);
 - `mario/?selftest=live`:直连同域真实 `/api` 的只读 + 错误路径套件
   (wrangler pages dev 下跑,不产生真实票);
 - 结果写进页面里的隐藏节点 `#selftest-result`,headless `--dump-dom` 后 grep 即可。

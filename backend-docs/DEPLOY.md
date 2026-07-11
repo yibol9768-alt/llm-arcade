@@ -20,17 +20,8 @@ npm run dev                 # = wrangler pages dev,默认 http://127.0.0.1:8788
 - 本地密钥在根目录 `.dev.vars`(已提供 dev-only 值,**严禁用于生产**;若项目日后 git 化,把 `.dev.vars` 加进 .gitignore)。
 - 本地 D1 数据在 `.wrangler/state/` 下,想重置就删掉该目录再跑 migration,或:
   `npx wrangler d1 execute llm-arcade-votes --local --command "DELETE FROM votes;"`
-- 纯逻辑单测(不需要 wrangler):`npm run smoke`(backend-docs/smoke-test.mjs,14 项断言)。
-- 联调技巧:45s 最短游玩时长会拖慢手工测试。用 `.dev.vars` 里的 dev secret 铸造一个"已过 45s"的 token 直接测投票:
-
-```bash
-node --input-type=module -e '
-globalThis.crypto ??= (await import("node:crypto")).webcrypto;
-const { signPairToken } = await import("./functions/_lib/hmac.js");
-console.log(await signPairToken("dev-only-pair-secret-not-for-prod",
-  { track: "mario", aDir: "fable5", bDir: "gpt5.5",
-    issuedAt: Math.floor(Date.now()/1000) - 60 }));'
-```
+- 纯逻辑单测(不需要 wrangler):`npm run smoke`(backend-docs/smoke-test.mjs,15 项断言)。
+- 投票不再设置最短试玩时长。拿到有效 `pair_id` 后,前端只需确认 A、B 都打开过即可提交。
 
 ## 二、生产部署(逐条命令)
 
