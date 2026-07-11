@@ -2,15 +2,15 @@
 window.ARCADE_ENTRANT_META = {
   "5.6luna": {
     vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
-    model: "GPT-5.6 Luna", harness: "Codex CLI", verified: true
+    model: "GPT-5.6 Luna", harness: "Codex", verified: true
   },
   "5.6sol": {
     vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
-    model: "GPT-5.6 Sol", harness: "Codex CLI", verified: true
+    model: "GPT-5.6 Sol", harness: "Codex", verified: true
   },
   "5.6terra": {
     vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
-    model: "GPT-5.6 Terra", harness: "Codex CLI", verified: true
+    model: "GPT-5.6 Terra", harness: "Codex", verified: true
   },
   "composer2.5": {
     vendor: "Cursor", vendor_mark: "C", vendor_class: "cursor", vendor_logo: "https://cdn.simpleicons.org/cursor",
@@ -22,18 +22,18 @@ window.ARCADE_ENTRANT_META = {
   },
   "glm5.2": {
     vendor: "智谱 AI", vendor_mark: "智", vendor_class: "zhipu", vendor_logo: "https://static.bigmodel.cn/wd-paas-front/static/images/favicon.png",
-    model: "GLM-5.2", harness: "ZCode", verified: true
+    model: "GLM-5.2", harness: "Cursor", verified: true
   },
   "gpt5.5": {
     vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
-    model: "GPT-5.5", harness: "运行环境待核对", verified: false
+    model: "GPT-5.5", harness: "Codex", verified: true
   },
   "grok4.5": {
     vendor: "xAI", vendor_mark: "xAI", vendor_class: "xai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/x.svg",
-    model: "Grok 4.5", harness: "Grok Build", verified: true
+    model: "Grok 4.5", harness: "Cursor", verified: true
   },
   "k2.7code": {
     vendor: "Moonshot AI", vendor_mark: "K", vendor_class: "moonshot", vendor_logo: "https://www.kimi.com/favicon.ico",
-    model: "Kimi K2.7-Code", harness: "Kimi Code", verified: true
+    model: "Kimi K2.7-Code", harness: "Cursor", verified: true
   }
 };
