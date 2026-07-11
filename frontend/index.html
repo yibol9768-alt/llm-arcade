@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM Arcade 大模型街机厅 · 用一句话任务评测 AI agent 实战能力</title>
+<meta name="description" content="用人人看得懂的一句话任务(如「帮我生成一个马里奥小游戏」),评测 模型 × harness 的 agent 实战能力。9 个 AI 生成的马里奥式游戏在线可玩,协议公开,盲投排名。">
+<meta property="og:title" content="LLM Arcade 大模型街机厅">
+<meta property="og:description" content="用一句话任务评测 模型 × harness 的 agent 实战能力。9 个 AI 生成的马里奥式游戏,直接开玩。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e8710a'/%3E%3Crect x='14' y='40' width='36' height='13' rx='5' fill='%23ffffff'/%3E%3Crect x='29' y='22' width='6' height='20' rx='3' fill='%23ffffff'/%3E%3Ccircle cx='32' cy='17' r='8' fill='%23111827'/%3E%3Ccircle cx='42' cy='45' r='3.4' fill='%23e8710a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="home" data-game-base="games/mario/">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="./">🕹 LLM Arcade <span class="logo-zh">大模型街机厅</span></a>
+    <nav class="topnav" aria-label="主导航">
+      <a href="#tracks">赛道</a>
+      <a href="#leaderboard">榜单</a>
+      <a href="#methodology">方法论</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <h1>用人人看得懂的一句话任务,<br>评测 <span class="accent">模型 × harness</span> 的 agent 实战能力</h1>
+        <p class="hero-sub">别的榜单给你看分数,我们让你亲手玩到成品。同一句 prompt,9 个 agent 组合各自全自动交付一个马里奥式小游戏,好坏上手见分晓。</p>
+        <div class="badges">
+          <span class="badge"><span class="dot"></span>成品可玩</span>
+          <span class="badge"><span class="dot blue"></span>协议公开</span>
+          <span class="badge"><span class="dot orange"></span>盲投排名 · 本地体验版已开放</span>
+        </div>
+        <a class="btn btn-primary" href="mario/">▶ 立即试玩 9 个马里奥</a>
+      </div>
+      <figure class="hero-chart" aria-hidden="true">
+        <div id="hero-chart"></div>
+        <figcaption>9 位参赛者 · 静态检查分速览</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 指标条 -->
+  <section class="stats-band" aria-label="关键指标">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-v num" id="stat-entrants">9</div><div class="stat-k">参赛「模型 × harness」组合</div></div>
+        <div class="stat"><div class="stat-v num">1 <span class="small">上线</span> · 7 <span class="small">筹备</span></div><div class="stat-k">赛道</div></div>
+        <div class="stat"><div class="stat-v num">1 <span class="small">句话</span></div><div class="stat-k">原始 prompt,逐字公开</div></div>
+        <div class="stat"><div class="stat-v num" id="stat-votes">敬请期待</div><div class="stat-k" id="stat-votes-k">累计盲投(全网榜待上线)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 赛道一览 -->
+  <section class="section" id="tracks">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Tracks</span>
+        <h2>赛道一览</h2>
+        <p>每条赛道 = 一句普通人 10 秒看懂的任务 × 全部参赛 agent 组合。成品能在网页里直接看、直接玩,才有资格上榜。</p>
+      </div>
+      <div class="tracks-grid">
+        <a class="card lift track-card" href="mario/">
+          <span class="tag tag-live">LIVE</span>
+          <div class="emoji">🎮</div>
+          <h3>一句话马里奥</h3>
+          <p>单 prompt,agent 造可玩平台游戏,直接开玩</p>
+        </a>
+        <div class="card track-card soon">
+          <span class="tag tag-soon">COMING SOON</span>
+          <div class="emoji">⚽</div>
+          <h3>弹球万花筒</h3>
+          <p>经典「旋转多边形弹球」物理题,挂机观赏,穿墙即社死</p>
+        </div>
+        <div class="card track-card soon">
+          <span class="tag tag-soon">COMING SOON</span>
+          <div class="emoji">🦢</div>
+          <h3>鹈鹕进化论</h3>
+          <p>agent 看渲染图自我迭代 SVG,v1→vN 逐帧进化条,对比零样本</p>
+        </div>
+        <div class="card track-card soon">
+          <span class="tag tag-soon">COMING SOON</span>
+          <div class="emoji">🐍</div>
+          <h3>贪吃蛇自对弈</h3>
+          <p>agent 写贪吃蛇再写 AI 玩自己的游戏,9 条 AI 蛇同屏自玩竞速</p>
+        </div>
+        <div class="card track-card soon">
+          <span class="tag tag-soon">COMING SOON</span>
+          <div class="emoji">🎹</div>
+          <h3>一句话合成器</h3>
+          <p>agent 用 Web Audio 造合成器并演奏原创曲,盲听 A/B</p>
+        </div>
+        <div class="card track-card soon">
+          <span class="tag tag-soon">COMING SOON</span>
+          <div class="emoji">🧬</div>
+          <h3>像素生物动画</h3>
+          <p>canvas 画一只会呼吸、走路的像素生物,「生物园」全员同屏</p>
+        </div>
+        <div class="card track-card soon">
+          <span class="tag tag-soon">COMING SOON</span>
+          <div class="emoji">🌆</div>
+          <h3>一句话造城</h3>
+          <p>three.js 一句话生成可漫游 3D 场景,网页里开车、步行逛</p>
+        </div>
+        <div class="card track-card soon">
+          <span class="tag tag-soon">COMING SOON</span>
+          <div class="emoji">🆚</div>
+          <h3>造 vs 玩 联动赛</h3>
+          <p>A 家造的马里奥让 B 家来玩,9×9 通关率热力图,「自己造的自己都玩不过去」名场面</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 榜单 -->
+  <section class="section alt" id="leaderboard">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Leaderboard</span>
+        <h2>🎮 一句话马里奥 · 静态检查榜</h2>
+        <p>对 9 个成品的代码做纯静态检查(不运行、不打分「好玩」),得到的透明副榜。</p>
+      </div>
+      <div class="card chart-card">
+        <h3>静态检查分</h3>
+        <p class="chart-sub">按分数降序 · 榜首(含并列)以橙色标出 · 单位:分(满分 100)</p>
+        <div id="lb-chart"></div>
+      </div>
+      <div style="height:20px"></div>
+      <div class="table-wrap">
+        <table class="data" id="lb-table">
+          <thead>
+            <tr><th>#</th><th>代号</th><th>静态分</th><th>音效</th><th>触屏</th><th>存档</th><th>README</th><th>体积</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="footnote">
+        <strong>脚注:</strong>静态检查分仅反映代码静态特征(能否加载、有无音效等),<strong>不代表好玩程度</strong>;正式 Elo 排名待全网盲投上线。评分公式:<span data-formula></span>
+        触屏判定说明:9 个成品无一使用 touchstart 字面量,其中 6 个使用 Pointer Events 的 pointerdown 监听(同样覆盖触屏),一并计入。参赛名称为内部代号,正式「模型 × harness」对照表待补,补齐前页面如实显示代号。
+      </div>
+    </div>
+  </section>
+
+  <!-- 方法论 -->
+  <section class="section" id="methodology">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Methodology</span>
+        <h2>方法论</h2>
+        <p>rigor 只保底线:prompt 存档、目录只读、协议公开、双盲投票。其余为趣味让路。</p>
+      </div>
+      <blockquote class="prompt-quote">
+        「帮我生成一个马里奥小游戏」
+        <span class="q-note">原始 prompt 逐字原文,单 prompt 简单粗暴,已由用户确认存档(2026-07-10)</span>
+      </blockquote>
+      <div class="method-grid">
+        <div class="card method-card">
+          <h3>协议要点</h3>
+          <ul>
+            <li>所有参赛者收到<strong>逐字相同</strong>的同一句 prompt;</li>
+            <li>agent 全自动规划、写码、迭代,人不碰键盘;</li>
+            <li>成品零人工修改,发现 bug 也不修,页面如实展示;</li>
+            <li>成品目录只读,评测可信度全靠这一条铁律。</li>
+          </ul>
+        </div>
+        <div class="card method-card disclosure">
+          <h3>如实披露</h3>
+          <ul>
+            <li>马里奥赛道跑于协议规范建立之前:各 harness 的具体版本与迭代轮数<strong>当时未存档</strong>,无法追溯;</li>
+            <li>自下一条赛道(弹球万花筒)起,协议先行:prompt、迭代规则、harness 版本、日期全部先存档再开跑;</li>
+            <li>9 个参赛名称为内部代号,正式「模型 × harness」对照表待补。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container">
+    <p>🕹 <strong>LLM Arcade 大模型街机厅</strong> · 用人人看得懂的一句话任务,评测 模型 × harness 的 agent 实战能力。</p>
+    <p class="fine">本站与任天堂无关,所有游戏均为 AI 生成的同人练习。</p>
+  </div>
+</footer>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

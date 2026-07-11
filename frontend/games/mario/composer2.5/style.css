@@ -1,0 +1,241 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: radial-gradient(ellipse 120% 80% at 50% 20%, #2a1f3d 0%, #0d0a14 50%, #050308 100%);
+  font-family: "Press Start 2P", monospace;
+  color: #fff;
+  overflow: hidden;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  padding: 12px;
+}
+
+.cabinet {
+  width: min(860px, 98vw);
+  background: linear-gradient(180deg, #3a3a48 0%, #1e1e28 8%, #12121a 92%, #0a0a10 100%);
+  border-radius: 12px 12px 6px 6px;
+  padding: 14px 18px 16px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cabinet-top {
+  text-align: center;
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #6a6a7a;
+  margin-bottom: 10px;
+}
+
+.screen-bezel {
+  position: relative;
+  background: #0a0a0e;
+  border: 6px solid #2a2a34;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.8),
+    0 0 0 2px #111;
+  overflow: hidden;
+}
+
+.hud-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  padding: 10px 14px 6px;
+  background: #000;
+  font-size: 11px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 7px;
+  color: #8aa4ff;
+  margin-bottom: 5px;
+}
+
+.viewport {
+  position: relative;
+  aspect-ratio: 5 / 3;
+  background: #5c94fc;
+}
+
+#screen {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: crosshair;
+}
+
+.scanlines {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  top: 42px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.07) 2px,
+    rgba(0, 0, 0, 0.07) 4px
+  );
+  z-index: 3;
+}
+
+.menu-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 5;
+  text-align: center;
+  padding: 20px;
+  transition: opacity 0.3s ease;
+}
+
+.menu-layer.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.logo {
+  font-size: clamp(18px, 4vw, 28px);
+  line-height: 1.4;
+  color: #e52521;
+  text-shadow:
+    3px 3px 0 #000,
+    0 0 20px rgba(229, 37, 33, 0.4);
+  margin-bottom: 12px;
+}
+
+.world-tag {
+  font-size: 12px;
+  color: #fbd000;
+  margin-bottom: 28px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.press-start {
+  font-size: 9px;
+  margin-bottom: 24px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.help-text {
+  font-size: 7px;
+  line-height: 2.2;
+  color: #9eb0e0;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.blink {
+  animation: pulse 0.9s step-end infinite;
+}
+
+@keyframes pulse {
+  50% { opacity: 0; }
+}
+
+.sound-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 2px solid #fff;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-family: inherit;
+  font-size: 7px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.sound-btn:hover {
+  background: rgba(30, 50, 100, 0.85);
+}
+
+.sound-btn.muted {
+  border-color: #666;
+  color: #999;
+}
+
+.sound-btn .icon-off {
+  display: none;
+}
+
+.sound-btn.muted .icon-on {
+  display: none;
+}
+
+.sound-btn.muted .icon-off {
+  display: block;
+}
+
+.cabinet-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.power-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3030;
+  box-shadow: 0 0 8px #ff3030;
+  animation: led 2s ease-in-out infinite;
+}
+
+@keyframes led {
+  50% { opacity: 0.5; }
+}
+
+.brand {
+  font-size: 6px;
+  color: #555;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+  .hud-bar {
+    grid-template-columns: repeat(3, 1fr);
+    font-size: 9px;
+  }
+
+  .stat:nth-child(4),
+  .stat:nth-child(5) {
+    display: none;
+  }
+
+  #sound-label {
+    display: none;
+  }
+}

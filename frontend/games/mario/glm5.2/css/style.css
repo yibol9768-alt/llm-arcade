@@ -1,0 +1,169 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    user-select: none;
+}
+
+#game-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ---- Title Screen ---- */
+#title-screen {
+    text-align: center;
+    padding: 40px;
+    color: #fff;
+}
+
+.title-logo {
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.title-super {
+    display: block;
+    font-size: 28px;
+    color: #fff;
+    letter-spacing: 8px;
+    font-weight: bold;
+}
+
+.title-mario {
+    display: block;
+    font-size: 64px;
+    color: #E52521;
+    letter-spacing: 4px;
+    font-weight: bold;
+    text-shadow: 3px 3px 0 #6D2604, 6px 6px 0 rgba(0,0,0,0.3);
+    font-style: italic;
+}
+
+.title-bros {
+    display: block;
+    font-size: 32px;
+    color: #FBC02D;
+    letter-spacing: 6px;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #6D2604;
+}
+
+.title-subtitle {
+    font-size: 16px;
+    color: #4A6ACE;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+}
+
+.title-instructions {
+    margin-bottom: 30px;
+}
+
+.title-instructions p,
+#game-over-screen p,
+#win-screen p {
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.title-controls {
+    font-size: 14px;
+    color: #888;
+    line-height: 2;
+    letter-spacing: 1px;
+}
+
+/* ---- Game Screen ---- */
+#game-screen {
+    position: relative;
+}
+
+#game-canvas {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: 768px;
+    height: 720px;
+    border: 2px solid #333;
+    background: #5C94FC;
+    box-shadow: 0 0 40px rgba(92, 148, 252, 0.3);
+}
+
+@media (max-width: 800px) {
+    #game-canvas {
+        width: 95vw;
+        height: auto;
+        aspect-ratio: 256 / 240;
+    }
+}
+
+#mute-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    display: none;
+    pointer-events: none;
+}
+
+#mute-indicator::after {
+    content: '🔇';
+    font-size: 20px;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
+}
+
+/* ---- Game Over Screen ---- */
+#game-over-screen,
+#win-screen {
+    text-align: center;
+    padding: 40px;
+    color: #fff;
+}
+
+.game-over-text {
+    font-size: 48px;
+    color: #E52521;
+    font-weight: bold;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+    text-shadow: 3px 3px 0 #6D2604;
+}
+
+.win-text {
+    font-size: 36px;
+    color: #FBC02D;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 #6D2604;
+}
+
+.win-score {
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 30px;
+}
+
+/* ---- Blink Animation ---- */
+.blink {
+    animation: blink 1s steps(2) infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}

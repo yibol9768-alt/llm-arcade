@@ -1,0 +1,26 @@
+{
+  "track": "mario",
+  "title_zh": "一句话马里奥",
+  "title_en": "One-Prompt Mario",
+  "prompt": "帮我生成一个马里奥小游戏",
+  "prompt_note": "逐字原文,简单粗暴,由用户 2026-07-10 确认",
+  "date_run": "2026-07-10",
+  "protocol": {
+    "mode": "single-prompt",
+    "human_edits": "none-claimed",
+    "archived": "partial",
+    "disclosure": "各参赛 harness 的具体版本、轮数细节当时未存档,页面需如实披露"
+  },
+  "entrants": [
+    { "dir": "5.6luna",     "display_name": null, "harness": null },
+    { "dir": "5.6sol",      "display_name": null, "harness": null },
+    { "dir": "5.6terra",    "display_name": null, "harness": null },
+    { "dir": "composer2.5", "display_name": null, "harness": null },
+    { "dir": "fable5",      "display_name": null, "harness": null },
+    { "dir": "glm5.2",      "display_name": null, "harness": null },
+    { "dir": "gpt5.5",      "display_name": null, "harness": null },
+    { "dir": "grok4.5",     "display_name": null, "harness": null },
+    { "dir": "k2.7code",    "display_name": null, "harness": null }
+  ],
+  "entrants_note": "display_name/harness 等用户给对照表后补齐"
+}

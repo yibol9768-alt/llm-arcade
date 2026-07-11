@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#090f2b" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23091434'/%3E%3Cpath d='M10 34C10 18 20 9 32 9s22 9 22 25H10Z' fill='%23ef3340' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M17 35h30v14c0 5-7 7-15 7s-15-2-15-7V35Z' fill='%23f6c98f' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='23' cy='28' r='6' fill='%23fff'/%3E%3Ccircle cx='42' cy='28' r='6' fill='%23fff'/%3E%3C/svg%3E"
+    />
+    <meta
+      name="description"
+      content="一个无需安装、可直接在浏览器游玩的精致复古横版平台游戏。"
+    />
+    <title>SUPER MARIO · 5.6 SOL</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section id="gameShell" class="game-shell" aria-label="Super Mario 5.6 SOL 游戏区域">
+        <canvas id="game" width="1280" height="720" aria-label="横版平台游戏画面"></canvas>
+
+        <div class="top-actions" aria-label="游戏快捷操作">
+          <button id="pauseButton" class="icon-button" type="button" aria-label="暂停游戏" title="暂停 / 继续 (P)">
+            <span aria-hidden="true">Ⅱ</span>
+          </button>
+          <button id="soundButton" class="icon-button sound-button" type="button" aria-label="关闭声音" title="声音开关 (M)">
+            <span id="soundIcon" aria-hidden="true">♪</span>
+            <span id="soundLabel">声音</span>
+          </button>
+        </div>
+
+        <div id="hud" class="hud" aria-live="polite">
+          <div class="hud-item">
+            <span class="hud-label">MARIO</span>
+            <strong id="scoreText">000000</strong>
+          </div>
+          <div class="hud-item hud-coins">
+            <span class="coin-glyph" aria-hidden="true"></span>
+            <strong>×<span id="coinText">00</span></strong>
+          </div>
+          <div class="hud-item hud-world">
+            <span class="hud-label">WORLD</span>
+            <strong>5.6–1</strong>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">TIME</span>
+            <strong id="timeText">300</strong>
+          </div>
+          <div class="hud-item hud-lives">
+            <span class="hud-label">LIVES</span>
+            <strong>×<span id="lifeText">03</span></strong>
+          </div>
+        </div>
+
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+        <section id="startScreen" class="overlay start-screen is-visible" aria-labelledby="gameTitle">
+          <div class="overlay-card hero-card">
+            <div class="edition-pill"><span></span> 5.6 SOL EDITION</div>
+            <div class="title-lockup" id="gameTitle" aria-label="Super Mario 5.6 SOL">
+              <span class="title-super">SUPER</span>
+              <span class="title-mario">
+                <i class="c-red">M</i><i class="c-yellow">A</i><i class="c-blue">R</i><i class="c-green">I</i><i class="c-yellow">O</i>
+              </span>
+            </div>
+            <p class="tagline">一场为浏览器重新打造的像素冒险</p>
+            <button id="startButton" class="primary-button" type="button">
+              <span class="button-shine"></span>
+              <span class="play-triangle" aria-hidden="true"></span>
+              开始冒险
+            </button>
+            <div class="quick-controls" aria-label="基本操作说明">
+              <div><kbd>A</kbd><kbd>D</kbd><span>移动</span></div>
+              <div><kbd>SPACE</kbd><span>跳跃</span></div>
+              <div><kbd>X</kbd><span>火球</span></div>
+              <div><kbd>M</kbd><span>静音</span></div>
+            </div>
+            <p class="start-hint">踩扁敌人，收集金币，穿过旗杆抵达城堡</p>
+          </div>
+        </section>
+
+        <section id="pauseScreen" class="overlay" aria-labelledby="pauseTitle">
+          <div class="overlay-card compact-card">
+            <div class="mini-mushroom" aria-hidden="true"></div>
+            <h2 id="pauseTitle">游戏暂停</h2>
+            <p>冒险会在这里等你。</p>
+            <button id="resumeButton" class="primary-button small" type="button">继续游戏</button>
+            <button id="restartFromPauseButton" class="secondary-button" type="button">重新开始</button>
+          </div>
+        </section>
+
+        <section id="endScreen" class="overlay" aria-labelledby="endTitle">
+          <div class="overlay-card compact-card end-card">
+            <div id="endBadge" class="end-badge" aria-hidden="true">★</div>
+            <p id="endEyebrow" class="end-eyebrow">COURSE CLEAR!</p>
+            <h2 id="endTitle">漂亮通关！</h2>
+            <div class="result-grid">
+              <div><span>得分</span><strong id="finalScore">000000</strong></div>
+              <div><span>金币</span><strong id="finalCoins">00</strong></div>
+              <div><span>最高分</span><strong id="highScore">000000</strong></div>
+            </div>
+            <button id="restartButton" class="primary-button small" type="button">再玩一次</button>
+          </div>
+        </section>
+
+        <div id="touchControls" class="touch-controls" aria-label="触屏操作">
+          <div class="touch-left">
+            <button type="button" data-key="ArrowLeft" aria-label="向左">◀</button>
+            <button type="button" data-key="ArrowRight" aria-label="向右">▶</button>
+          </div>
+          <div class="touch-right">
+            <button type="button" data-key="KeyX" aria-label="发射火球">X</button>
+            <button class="touch-jump" type="button" data-key="Space" aria-label="跳跃">A</button>
+          </div>
+        </div>
+
+        <div class="scanlines" aria-hidden="true"></div>
+      </section>
+      <p class="desktop-note">方向键 / A D 移动 · 空格 / W / Z 跳跃 · X / J 火球 · P 暂停 · M 静音</p>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>

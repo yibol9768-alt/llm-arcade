@@ -1,0 +1,17 @@
+# Cloudflare Pages project config.
+# The static site in frontend/ is the publish root; everything under
+# functions/ is auto-mounted on the same domain at /api/*.
+#
+# Secrets (NOT stored here, set via `wrangler pages secret put`):
+#   PAIR_SECRET  HMAC key for signing pair tokens
+#   SALT         server-side salt for voter_hash
+# For local dev put both in .dev.vars (see backend-docs/DEPLOY.md).
+
+name = "llm-arcade"
+compatibility_date = "2026-07-01"
+pages_build_output_dir = "frontend"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "llm-arcade-votes"
+database_id = "TO_BE_FILLED"

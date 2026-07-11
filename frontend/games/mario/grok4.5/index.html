@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Mario Bros. — World 1-1</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <header class="hud">
+      <div class="hud-block">
+        <div class="label">MARIO</div>
+        <div id="score">000000</div>
+      </div>
+      <div class="hud-block">
+        <div class="label">COINS</div>
+        <div id="coins">×00</div>
+      </div>
+      <div class="hud-block">
+        <div class="label">WORLD</div>
+        <div id="world">1-1</div>
+      </div>
+      <div class="hud-block">
+        <div class="label">TIME</div>
+        <div id="time">400</div>
+      </div>
+      <div class="hud-block">
+        <div class="label">LIVES</div>
+        <div id="lives">×3</div>
+      </div>
+    </header>
+
+    <div class="stage-wrap">
+      <canvas id="game" width="768" height="432"></canvas>
+
+      <div id="overlay" class="overlay">
+        <div class="overlay-inner">
+          <h1 class="title">SUPER<br />MARIO BROS.</h1>
+          <p class="subtitle">World 1-1</p>
+          <p class="hint">按 <kbd>Enter</kbd> 或点击开始</p>
+          <p class="controls">
+            ← → 移动 · Z / Space 跳跃 · X 冲刺<br />
+            M 静音 · R 重新开始
+          </p>
+        </div>
+      </div>
+
+      <button id="muteBtn" class="mute-btn" type="button" title="静音 / 取消静音 (M)" aria-label="Mute">
+        <span class="mute-icon" aria-hidden="true">🔊</span>
+        <span class="mute-text">SOUND ON</span>
+      </button>
+    </div>
+
+    <footer class="footer">
+      <span>像素风致敬原作 · 仅供娱乐学习</span>
+    </footer>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

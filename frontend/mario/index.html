@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎮 一句话马里奥 · 9 个 AI agent 的可玩成品 | LLM Arcade</title>
+<meta name="description" content="同一句 prompt「帮我生成一个马里奥小游戏」,9 个 模型 × harness 组合各自全自动交付一个可玩的马里奥式游戏。在线试玩、对战盲投、静态检查表全公开。">
+<meta property="og:title" content="一句话马里奥 · 9 个 AI agent 的可玩成品 | LLM Arcade">
+<meta property="og:description" content="同一句 prompt,9 个 agent 组合交付 9 个可玩的马里奥式游戏。上手玩,然后盲投。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e8710a'/%3E%3Crect x='14' y='40' width='36' height='13' rx='5' fill='%23ffffff'/%3E%3Crect x='29' y='22' width='6' height='20' rx='3' fill='%23ffffff'/%3E%3Ccircle cx='32' cy='17' r='8' fill='%23111827'/%3E%3Ccircle cx='42' cy='45' r='3.4' fill='%23e8710a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="mario" data-game-base="../games/mario/">
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="logo" href="../">🕹 LLM Arcade <span class="logo-zh">大模型街机厅</span></a>
+    <nav class="topnav" aria-label="主导航">
+      <a href="#entrants-sec">参赛作品</a>
+      <a href="#battle-sec">对战盲投</a>
+      <a href="#checklist-sec">检查表</a>
+      <a href="#disclosure-sec">披露</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="面包屑"><a href="../">首页</a> / <a href="../#tracks">赛道</a> / 一句话马里奥</nav>
+    <header class="page-head">
+      <div class="page-head-row">
+        <h1>🎮 一句话马里奥 <span style="font-size:15px;font-weight:500;color:var(--ink-2)">One-Prompt Mario</span></h1>
+        <button class="btn btn-secondary btn-sm" id="copy-link">🔗 复制链接</button>
+      </div>
+      <blockquote class="prompt-quote">
+        「帮我生成一个马里奥小游戏」
+        <span class="q-note">原始 prompt 逐字原文 · 所有参赛者收到完全相同的这一句 · 已确认存档(2026-07-10)</span>
+      </blockquote>
+      <div class="meta-line num">
+        <span>9 个「模型 × harness」组合参赛</span>
+        <span>成品零人工修改</span>
+        <span>目录只读,bug 也不修</span>
+      </div>
+    </header>
+  </div>
+
+  <!-- 参赛网格 -->
+  <section class="section alt" id="entrants-sec" style="padding-top:44px">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Entrants</span>
+        <h2>参赛作品 · 直接开玩</h2>
+        <p>卡片预览是实时运行的游戏画面(滚动到哪里加载到哪里,同屏最多 3 个)。点「▶ 试玩」全屏上手,键盘直接操作。</p>
+      </div>
+      <div class="entrants-grid" id="entrants"></div>
+    </div>
+  </section>
+
+  <!-- 对战盲投 -->
+  <section class="section" id="battle-sec">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Battle</span>
+        <h2>⚔ 对战盲投 <span class="badge" id="battle-mode-badge" style="vertical-align:3px"><span class="dot blue"></span>检测中…</span></h2>
+        <p>随机抽两位匿名参赛者,都上手玩过后投一票,投完才揭晓双方代号。</p>
+      </div>
+      <div class="battle-note" role="note" id="battle-note">
+        <strong id="battle-note-title">正在探测投票后端…</strong><span id="battle-note-body"></span>
+      </div>
+      <div class="battle-controls">
+        <button class="btn btn-primary" id="battle-start">⚔ 开始一场对战</button>
+        <span id="battle-stats" class="num" style="font-size:13px;color:var(--ink-2)"></span>
+      </div>
+      <div class="battle-stage" id="battle-stage">
+        <div class="battle-grid">
+          <div class="card battle-panel" id="battle-a"></div>
+          <div class="card battle-panel" id="battle-b"></div>
+        </div>
+        <div class="battle-vote" id="battle-vote">
+          <p class="gate-hint" id="battle-gate"></p>
+          <button class="btn btn-secondary" data-vote="a" disabled>🅰 A 更好</button>
+          <button class="btn btn-secondary" data-vote="t" disabled>不相上下</button>
+          <button class="btn btn-secondary" data-vote="b" disabled>🅱 B 更好</button>
+          <div class="battle-result" id="battle-result" aria-live="polite"></div>
+          <button class="btn btn-primary" id="battle-next" style="display:none">下一对 →</button>
+        </div>
+      </div>
+      <div id="net-board" hidden>
+        <div class="elo-head">
+          <h3>全网 Elo 榜 <span style="font-size:12px;font-weight:500;color:var(--ink-3)">K=32 · 初始 1000 · 全网票按时间序回放 · 新票最多延迟 60 秒上榜</span></h3>
+          <span id="net-meta" class="num" style="font-size:12.5px;color:var(--ink-2)"></span>
+        </div>
+        <div id="net-table-box"></div>
+        <p id="net-bt-note" class="num" style="font-size:12.5px;color:var(--ink-3);margin:10px 2px 0" hidden></p>
+      </div>
+      <details id="local-board" open>
+        <summary class="local-summary elo-head">
+          <h3>本机 Elo 榜 <span style="font-size:12px;font-weight:500;color:var(--ink-3)">K=32 · 初始 1000 · 按投票顺序回放 · 仅这台设备</span></h3>
+        </summary>
+        <div style="text-align:right;margin:-4px 0 10px"><button class="link-btn" id="battle-clear">清空本机投票</button></div>
+        <div id="elo-table-box"></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 检查表 -->
+  <section class="section alt" id="checklist-sec">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Checklist</span>
+        <h2>静态检查表 · 全员对比</h2>
+        <p>点击表头可排序。橙色为该列极值(分数列取最大;文件数、体积、代码行取最小,仅标注极值,不代表优劣)。</p>
+      </div>
+      <div class="table-wrap">
+        <table class="data" id="checklist"><thead></thead><tbody></tbody></table>
+      </div>
+      <div style="height:28px"></div>
+      <div class="card chart-card">
+        <h3>体积 vs 静态分</h3>
+        <p class="chart-sub">横轴:成品总体积(KB) · 纵轴:静态检查分 · 悬停查看代号</p>
+        <div class="scatter-wrap" id="scatter"></div>
+      </div>
+      <div class="footnote">
+        <strong>脚注:</strong>静态检查分仅反映代码静态特征,<strong>不代表好玩程度</strong>;正式排名待全网盲投上线。评分公式:<span data-formula></span>
+        「可加载」= index.html 存在且其引用的本地 js/css 文件全部存在;「触屏」= 监听 touchstart / pointerdown(后者同样覆盖触屏,本批 6 家用它)。
+      </div>
+    </div>
+  </section>
+
+  <!-- 披露 -->
+  <section class="section" id="disclosure-sec">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Disclosure</span>
+        <h2>协议与披露</h2>
+      </div>
+      <div class="method-grid">
+        <div class="card method-card">
+          <h3>本赛道协议</h3>
+          <ul>
+            <li>所有参赛者收到<strong>逐字相同</strong>的一句 prompt:「帮我生成一个马里奥小游戏」;</li>
+            <li>agent 全自动规划、写码、迭代,人不碰键盘;</li>
+            <li>成品零人工修改,发现 bug 也不修;</li>
+            <li>成品目录只读,本页游戏为其逐字节副本。</li>
+          </ul>
+        </div>
+        <div class="card method-card disclosure">
+          <h3>如实披露</h3>
+          <ul>
+            <li>本赛道跑于协议规范建立之前:各 harness 具体版本与迭代轮数<strong>当时未存档</strong>,无法追溯;</li>
+            <li>自下一条赛道起协议先行,全部要素先存档再开跑;</li>
+            <li>参赛名称为内部代号,正式「模型 × harness」对照表待补,补齐前如实显示代号。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container">
+    <p>🕹 <strong>LLM Arcade 大模型街机厅</strong> · 用人人看得懂的一句话任务,评测 模型 × harness 的 agent 实战能力。</p>
+    <p class="fine">本站与任天堂无关,所有游戏均为 AI 生成的同人练习。</p>
+  </div>
+</footer>
+
+<!-- 试玩 Modal -->
+<div class="modal" id="play-modal" role="dialog" aria-modal="true" aria-label="全屏试玩">
+  <div class="modal-box">
+    <div class="modal-top">
+      <span class="code" id="modal-code"></span>
+      <span class="tag-internal">内部代号</span>
+      <span class="hint">键盘直接操作,点击游戏区获得焦点 · Esc 关闭</span>
+      <button class="btn btn-secondary btn-sm" id="modal-next">🔀 换一个游戏</button>
+      <button class="btn btn-secondary btn-sm" id="modal-close" aria-label="关闭试玩窗口">✕ 关闭</button>
+    </div>
+    <div class="modal-frame-wrap" id="modal-frame-wrap"></div>
+  </div>
+</div>
+
+<script src="../assets/data.js"></script>
+<script src="../assets/app.js"></script>
+</body>
+</html>
