@@ -30,7 +30,6 @@
   /* 作品源码保持不变。网站外层用统一虚拟画布缩放，避免小 iframe 触发各作品差异巨大的窄屏布局。 */
   const fittedFrames = new Set();
   let modalFrameRecord = null;
-  let modalZoom = 1;
   const virtualSize = (kind) => {
     if (kind === "modal") return window.innerWidth <= 820 ? { width: 720, height: 1280 } : { width: 1280, height: 800 };
     if (kind === "preview") return { width: 800, height: 500 };
@@ -39,8 +38,7 @@
   const fitSolarFrame = (record) => {
     if (!record?.iframe?.isConnected || !record?.box?.isConnected) return;
     const size = virtualSize(record.kind);
-    const zoom = record.kind === "modal" ? modalZoom : 1;
-    const scale = Math.min(record.box.clientWidth / size.width, record.box.clientHeight / size.height) * zoom;
+    const scale = Math.min(record.box.clientWidth / size.width, record.box.clientHeight / size.height);
     const renderedWidth = size.width * scale;
     const renderedHeight = size.height * scale;
     record.iframe.style.width = `${size.width}px`;
@@ -49,10 +47,6 @@
     record.iframe.style.top = `${(record.box.clientHeight - renderedHeight) / 2}px`;
     record.iframe.style.transform = `scale(${scale})`;
     record.iframe.style.transformOrigin = "top left";
-    if (record.kind === "modal") {
-      const label = $("#solar-modal-zoom-value");
-      if (label) label.textContent = `${Math.round(modalZoom * 100)}%`;
-    }
   };
   const registerFittedFrame = (iframe, box, kind) => {
     const record = { iframe, box, kind };
@@ -88,7 +82,6 @@
     const wrap = $("#solar-modal-frame-wrap");
     removeFittedFrame(modalFrameRecord);
     wrap.innerHTML = `<iframe sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen; autoplay" title="${esc(entrant.display_name)} 的太阳系作品" src="${esc(gameURL(entrant.dir))}"></iframe>`;
-    modalZoom = 1;
     modalFrameRecord = registerFittedFrame($("iframe", wrap), wrap, "modal");
     $("#solar-play-modal").classList.add("open");
     document.body.style.overflow = "hidden";
@@ -121,9 +114,6 @@
   }
   $("#solar-modal-close").addEventListener("click", closeModal);
   $("#solar-modal-next").addEventListener("click", () => openModal(modalIndex + 1));
-  $("#solar-modal-zoom-out").addEventListener("click", () => { modalZoom = Math.max(.7, modalZoom - .1); fitSolarFrame(modalFrameRecord); });
-  $("#solar-modal-zoom-reset").addEventListener("click", () => { modalZoom = 1; fitSolarFrame(modalFrameRecord); });
-  $("#solar-modal-zoom-in").addEventListener("click", () => { modalZoom = Math.min(1.5, modalZoom + .1); fitSolarFrame(modalFrameRecord); });
   $("#solar-play-modal").addEventListener("click", (event) => { if (event.target === event.currentTarget) closeModal(); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && $("#solar-play-modal").classList.contains("open")) closeModal(); });
   $("#copy-link").addEventListener("click", async (event) => {
