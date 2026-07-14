@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>九大行星立体运行图</title>
+  <style>
+    :root {
+      --bg-1: #040814;
+      --bg-2: #07152b;
+      --bg-3: #130a21;
+      --panel: rgba(6, 15, 31, 0.72);
+      --panel-border: rgba(168, 214, 255, 0.24);
+      --text: #eef7ff;
+      --muted: #b1c7dc;
+      --accent: #8ddcff;
+      --accent-2: #ffdb85;
+      --danger: #ff8c82;
+      --shadow: rgba(0, 0, 0, 0.32);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(81, 153, 255, 0.12), transparent 24%),
+        radial-gradient(circle at 82% 10%, rgba(255, 156, 61, 0.12), transparent 22%),
+        radial-gradient(circle at 48% 85%, rgba(161, 73, 255, 0.08), transparent 30%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2) 56%, var(--bg-3));
+      color: var(--text);
+      font-family: "STSong", "Noto Serif SC", "Source Han Serif SC", "PingFang SC", serif;
+      touch-action: none;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, transparent 0 50%, rgba(0, 0, 0, 0.45) 100%),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.015) 0 1px,
+          transparent 1px 160px
+        );
+      mix-blend-mode: screen;
+      opacity: 0.45;
+    }
+
+    #scene {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #scene.dragging {
+      cursor: grabbing;
+    }
+
+    .hud {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .panel {
+      pointer-events: auto;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(16px) saturate(125%);
+      box-shadow: 0 16px 48px var(--shadow);
+      border-radius: 22px;
+    }
+
+    .title-panel {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      width: min(420px, calc(100vw - 36px));
+      padding: 18px 18px 16px;
+    }
+
+    .title-panel h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: #f8fbff;
+    }
+
+    .title-panel p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .controls {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      width: min(420px, calc(100vw - 36px));
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-row span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background:
+        linear-gradient(180deg, rgba(148, 224, 255, 0.16), rgba(18, 48, 75, 0.42));
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      min-height: 42px;
+      font: inherit;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(173, 228, 255, 0.42);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.secondary {
+      background:
+        linear-gradient(180deg, rgba(255, 208, 132, 0.14), rgba(68, 38, 16, 0.36));
+    }
+
+    .speed-wrap {
+      display: grid;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .speed-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .info-panel {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: min(360px, calc(100vw - 36px));
+      min-height: 260px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .info-kicker {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .info-panel h2 {
+      margin: 0;
+      font-size: clamp(24px, 2.8vw, 30px);
+      color: #fffaf2;
+      letter-spacing: 0.06em;
+    }
+
+    .info-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .fact {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+
+    .fact strong {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-2);
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .fact span {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .guide {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      width: min(360px, calc(100vw - 36px));
+      padding: 14px 16px;
+    }
+
+    .guide p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(141, 220, 255, 0.12);
+      border: 1px solid rgba(141, 220, 255, 0.18);
+      color: #f8fdff;
+      margin-right: 8px;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .info-panel {
+        top: auto;
+        bottom: 158px;
+        right: 18px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .title-panel,
+      .controls,
+      .info-panel,
+      .guide {
+        width: calc(100vw - 24px);
+      }
+
+      .title-panel,
+      .controls,
+      .info-panel,
+      .guide {
+        left: 12px;
+        right: 12px;
+      }
+
+      .title-panel {
+        top: 12px;
+      }
+
+      .info-panel {
+        top: auto;
+        bottom: 186px;
+      }
+
+      .controls {
+        bottom: 12px;
+      }
+
+      .guide {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-label="可交互探索的九大行星立体运行图"></canvas>
+
+  <div class="hud">
+    <section class="panel title-panel">
+      <h1>太阳系九大行星</h1>
+      <p>以压缩后的固定尺度构建有限可探索场景。拖拽旋转视角、缩放远近、点击行星聚焦，并在右侧查看中文信息。</p>
+      <div>
+        <span class="pill">中心恒星：太阳</span>
+        <span class="pill">含冥王星</span>
+        <span class="pill">支持鼠标与触控</span>
+      </div>
+    </section>
+
+    <section class="panel info-panel" id="infoPanel">
+      <div class="info-kicker">当前聚焦</div>
+      <h2 id="infoName">太阳</h2>
+      <p id="infoDesc">太阳位于场景中心，九大行星在压缩后的轨道上持续公转。你可以点击任意行星，让镜头跟随并查看它的基本信息。</p>
+      <div class="facts">
+        <div class="fact"><strong>类型</strong><span id="factType">G 型恒星</span></div>
+        <div class="fact"><strong>轨道位置</strong><span id="factOrder">中心</span></div>
+        <div class="fact"><strong>公转演示</strong><span id="factOrbit">九轨同场</span></div>
+        <div class="fact"><strong>观察提示</strong><span id="factNote">拖拽与点选</span></div>
+      </div>
+    </section>
+
+    <section class="panel controls">
+      <div class="control-row">
+        <button id="toggleMotion">暂停公转</button>
+        <button id="backToSun" class="secondary">返回太阳</button>
+        <button id="resetView">重置视角</button>
+      </div>
+      <div class="speed-wrap">
+        <div class="speed-head">
+          <span>运行速度</span>
+          <span id="speedValue">1.00x</span>
+        </div>
+        <input id="speedRange" type="range" min="0.2" max="3" value="1" step="0.05" aria-label="运行速度">
+      </div>
+      <div class="control-row">
+        <span>相机缩放已限制在安全范围内，所有轨道始终留在场景中。</span>
+      </div>
+    </section>
+
+    <section class="panel guide">
+      <p>操作指南：鼠标左键或单指拖拽旋转视角；滚轮或双指捏合缩放；点击行星查看信息并跟随；点击“返回太阳”回到总览，“暂停公转”可静止观察。</p>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const TAU = Math.PI * 2;
+      const DEG = Math.PI / 180;
+      const canvas = document.getElementById("scene");
+      const ctx = canvas.getContext("2d");
+
+      const infoName = document.getElementById("infoName");
+      const infoDesc = document.getElementById("infoDesc");
+      const factType = document.getElementById("factType");
+      const factOrder = document.getElementById("factOrder");
+      const factOrbit = document.getElementById("factOrbit");
+      const factNote = document.getElementById("factNote");
+      const toggleMotionBtn = document.getElementById("toggleMotion");
+      const backToSunBtn = document.getElementById("backToSun");
+      const resetViewBtn = document.getElementById("resetView");
+      const speedRange = document.getElementById("speedRange");
+      const speedValue = document.getElementById("speedValue");
+
+      const starSeed = Array.from({ length: 320 }, () => ({
+        x: Math.random(),
+        y: Math.random(),
+        r: Math.random() * 1.8 + 0.2,
+        alpha: Math.random() * 0.8 + 0.2,
+        twinkle: Math.random() * 0.9 + 0.3,
+      }));
+
+      const sunInfo = {
+        name: "太阳",
+        type: "G 型恒星",
+        order: "中心",
+        orbit: "九轨同场",
+        note: "拖拽与点选",
+        desc: "太阳位于场景中心，九大行星在压缩后的轨道上持续公转。这个演示刻意压缩了真实比例，让所有轨道始终保持在有限、可探索的视野内。",
+      };
+
+      const planets = [
+        {
+          name: "水星",
+          radius: 3.4,
+          orbitRadius: 30,
+          orbitSpeed: 1.8,
+          inclination: 7,
+          node: 0.4,
+          angle: 0.2,
+          colors: ["#f3d7b0", "#ae9271", "#5b4632"],
+          type: "岩质行星",
+          order: "第 1 颗",
+          orbit: "最快公转",
+          note: "日照剧烈",
+          desc: "水星紧贴太阳运行，在九大行星中公转速度最快。它体积小、表面崎岖，昼夜温差非常极端。",
+        },
+        {
+          name: "金星",
+          radius: 5.2,
+          orbitRadius: 44,
+          orbitSpeed: 1.35,
+          inclination: 3.4,
+          node: 1.5,
+          angle: 1.15,
+          colors: ["#f6d4a1", "#d6a25f", "#7c5433"],
+          type: "岩质行星",
+          order: "第 2 颗",
+          orbit: "厚云包裹",
+          note: "逆向自转著名",
+          desc: "金星拥有浓厚大气和高反照率，看上去明亮温润，但真实环境炽热且压强极高，被厚厚云层长期包裹。",
+        },
+        {
+          name: "地球",
+          radius: 5.8,
+          orbitRadius: 60,
+          orbitSpeed: 1.12,
+          inclination: 0,
+          node: 0.2,
+          angle: 2.15,
+          colors: ["#8ad4ff", "#2a79d5", "#144168"],
+          type: "岩质行星",
+          order: "第 3 颗",
+          orbit: "宜居带",
+          note: "液态水丰富",
+          desc: "地球拥有液态水、适中的温度与稳定大气层，是目前已知唯一孕育生命的行星，也是观察太阳系的家园视角。",
+        },
+        {
+          name: "火星",
+          radius: 4.4,
+          orbitRadius: 78,
+          orbitSpeed: 0.92,
+          inclination: 1.85,
+          node: 2.2,
+          angle: 3.25,
+          colors: ["#f0a182", "#b54c29", "#61291d"],
+          type: "岩质行星",
+          order: "第 4 颗",
+          orbit: "红色荒原",
+          note: "极冠明显",
+          desc: "火星表面富含氧化铁，因此呈现醒目的红色。它拥有峡谷、火山与极冠，是未来深空探测的重要目标。",
+        },
+        {
+          name: "木星",
+          radius: 12,
+          orbitRadius: 112,
+          orbitSpeed: 0.52,
+          inclination: 1.3,
+          node: 0.9,
+          angle: 4.35,
+          colors: ["#f7d7a8", "#d9a96d", "#8c6037"],
+          type: "气态巨行星",
+          order: "第 5 颗",
+          orbit: "最大行星",
+          note: "风暴极强",
+          desc: "木星是太阳系体积最大的行星，拥有层层云带和长期存在的大红斑。它强大的引力会影响周边许多天体。",
+        },
+        {
+          name: "土星",
+          radius: 10.5,
+          orbitRadius: 150,
+          orbitSpeed: 0.34,
+          inclination: 2.5,
+          node: 2.7,
+          angle: 5.2,
+          colors: ["#f7dfaf", "#d2b06a", "#7c5f2d"],
+          type: "气态巨行星",
+          order: "第 6 颗",
+          orbit: "壮观光环",
+          note: "环系最醒目",
+          desc: "土星最具辨识度的特征是宽阔明亮的环系。虽然密度很低，但它依然是庞大的气态巨行星。",
+          ring: {
+            inner: 15.5,
+            outer: 23,
+            tilt: 28,
+          },
+        },
+        {
+          name: "天王星",
+          radius: 8.5,
+          orbitRadius: 186,
+          orbitSpeed: 0.22,
+          inclination: 0.8,
+          node: 1.8,
+          angle: 0.65,
+          colors: ["#b9fbff", "#6fbecf", "#2f5f76"],
+          type: "冰巨行星",
+          order: "第 7 颗",
+          orbit: "偏冷外层",
+          note: "自转轴倾斜很大",
+          desc: "天王星呈现冷青色调，是典型的冰巨行星。它的自转轴倾角极大，仿佛侧躺着绕太阳运行。",
+        },
+        {
+          name: "海王星",
+          radius: 8,
+          orbitRadius: 218,
+          orbitSpeed: 0.17,
+          inclination: 1.8,
+          node: 0.25,
+          angle: 1.95,
+          colors: ["#80afff", "#3466d1", "#192d66"],
+          type: "冰巨行星",
+          order: "第 8 颗",
+          orbit: "深蓝强风",
+          note: "远日疾风",
+          desc: "海王星距离太阳很远，外观呈深蓝色。它拥有太阳系中极为猛烈的高空风暴和强劲大气活动。",
+        },
+        {
+          name: "冥王星",
+          radius: 3.1,
+          orbitRadius: 246,
+          orbitSpeed: 0.12,
+          inclination: 17,
+          node: 2.95,
+          angle: 4.6,
+          colors: ["#efd2c2", "#a88a7c", "#5f4d46"],
+          type: "矮行星 / 传统第九大行星",
+          order: "第 9 颗",
+          orbit: "高倾角外轨",
+          note: "远离太阳",
+          desc: "冥王星位于外层高倾角轨道上。在现代分类中它属于矮行星，但在传统九大行星叙述里依然占据特殊位置。",
+        },
+      ];
+
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: Math.min(window.devicePixelRatio || 1, 2),
+        centerX: 0,
+        centerY: 0,
+        scale: 1,
+        lastTime: 0,
+        paused: false,
+        speed: 1,
+        yaw: -0.85,
+        pitch: -0.38,
+        desiredYaw: -0.85,
+        desiredPitch: -0.38,
+        distance: 286,
+        desiredDistance: 286,
+        minDistance: 110,
+        maxDistance: 420,
+        currentFocus: { x: 0, y: 0, z: 0 },
+        selected: null,
+        pointer: {
+          down: false,
+          moved: false,
+          x: 0,
+          y: 0,
+          startX: 0,
+          startY: 0,
+          mode: "none",
+          pinchDistance: 0,
+        },
+        hitTargets: [],
+      };
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function vec3(x = 0, y = 0, z = 0) {
+        return { x, y, z };
+      }
+
+      function normalize(v) {
+        const length = Math.hypot(v.x, v.y, v.z) || 1;
+        return { x: v.x / length, y: v.y / length, z: v.z / length };
+      }
+
+      function subtract(a, b) {
+        return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+      }
+
+      function add(a, b) {
+        return { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z };
+      }
+
+      function scale(v, s) {
+        return { x: v.x * s, y: v.y * s, z: v.z * s };
+      }
+
+      function dot(a, b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+      }
+
+      function cross(a, b) {
+        return {
+          x: a.y * b.z - a.z * b.y,
+          y: a.z * b.x - a.x * b.z,
+          z: a.x * b.y - a.y * b.x,
+        };
+      }
+
+      function orbitalPosition(body, angle = body.angle) {
+        const inc = body.inclination * DEG;
+        const node = body.node;
+        const baseX = Math.cos(angle) * body.orbitRadius;
+        const baseZ = Math.sin(angle) * body.orbitRadius;
+        const y1 = baseZ * Math.sin(inc);
+        const z1 = baseZ * Math.cos(inc);
+        const cosNode = Math.cos(node);
+        const sinNode = Math.sin(node);
+        return {
+          x: baseX * cosNode - z1 * sinNode,
+          y: y1,
+          z: baseX * sinNode + z1 * cosNode,
+        };
+      }
+
+      function updateInfoPanel(target) {
+        const body = target || sunInfo;
+        infoName.textContent = body.name;
+        infoDesc.textContent = body.desc;
+        factType.textContent = body.type;
+        factOrder.textContent = body.order;
+        factOrbit.textContent = body.orbit;
+        factNote.textContent = body.note;
+      }
+
+      function setSelection(body) {
+        state.selected = body;
+        updateInfoPanel(body || sunInfo);
+        if (body) {
+          state.desiredDistance = clamp(body.orbitRadius * 0.86 + 54, 130, 320);
+        } else {
+          state.desiredDistance = 286;
+        }
+      }
+
+      function resetView() {
+        state.desiredYaw = -0.85;
+        state.desiredPitch = -0.38;
+        state.desiredDistance = 286;
+      }
+
+      function resize() {
+        state.width = window.innerWidth;
+        state.height = window.innerHeight;
+        state.centerX = state.width * 0.5;
+        state.centerY = state.height * 0.5;
+        state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(state.width * state.dpr);
+        canvas.height = Math.floor(state.height * state.dpr);
+        canvas.style.width = state.width + "px";
+        canvas.style.height = state.height + "px";
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+      }
+
+      function getCamera() {
+        const target = state.currentFocus;
+        const yaw = state.yaw;
+        const pitch = state.pitch;
+        const distance = state.distance;
+        const cameraPos = {
+          x: target.x + distance * Math.cos(pitch) * Math.sin(yaw),
+          y: target.y + distance * Math.sin(pitch),
+          z: target.z + distance * Math.cos(pitch) * Math.cos(yaw),
+        };
+        const forward = normalize(subtract(target, cameraPos));
+        let right = normalize(cross({ x: 0, y: 1, z: 0 }, forward));
+        if (Math.hypot(right.x, right.y, right.z) < 0.001) {
+          right = { x: 1, y: 0, z: 0 };
+        }
+        const up = normalize(cross(forward, right));
+        const focalLength = Math.min(state.width, state.height) * 0.92;
+        return { target, cameraPos, forward, right, up, focalLength };
+      }
+
+      function project(point, camera) {
+        const relative = subtract(point, camera.cameraPos);
+        const camX = dot(relative, camera.right);
+        const camY = dot(relative, camera.up);
+        const camZ = dot(relative, camera.forward);
+        if (camZ <= 0.1) {
+          return null;
+        }
+        const perspective = camera.focalLength / camZ;
+        return {
+          x: state.centerX + camX * perspective,
+          y: state.centerY - camY * perspective,
+          z: camZ,
+          perspective,
+        };
+      }
+
+      function drawBackground(time) {
+        const gradient = ctx.createLinearGradient(0, 0, state.width, state.height);
+        gradient.addColorStop(0, "#03070f");
+        gradient.addColorStop(0.45, "#09172e");
+        gradient.addColorStop(1, "#140a24");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, state.width, state.height);
+
+        const glow1 = ctx.createRadialGradient(
+          state.width * 0.22,
+          state.height * 0.18,
+          0,
+          state.width * 0.22,
+          state.height * 0.18,
+          state.width * 0.38
+        );
+        glow1.addColorStop(0, "rgba(73, 149, 255, 0.16)");
+        glow1.addColorStop(1, "rgba(73, 149, 255, 0)");
+        ctx.fillStyle = glow1;
+        ctx.fillRect(0, 0, state.width, state.height);
+
+        const glow2 = ctx.createRadialGradient(
+          state.width * 0.8,
+          state.height * 0.1,
+          0,
+          state.width * 0.8,
+          state.height * 0.1,
+          state.width * 0.25
+        );
+        glow2.addColorStop(0, "rgba(255, 166, 85, 0.13)");
+        glow2.addColorStop(1, "rgba(255, 166, 85, 0)");
+        ctx.fillStyle = glow2;
+        ctx.fillRect(0, 0, state.width, state.height);
+
+        for (const star of starSeed) {
+          const alpha = star.alpha * (0.65 + 0.35 * Math.sin(time * star.twinkle + star.x * 17));
+          ctx.fillStyle = "rgba(255,255,255," + alpha.toFixed(3) + ")";
+          ctx.beginPath();
+          ctx.arc(star.x * state.width, star.y * state.height, star.r, 0, TAU);
+          ctx.fill();
+        }
+      }
+
+      function strokeOrbit(body, camera, highlight) {
+        const steps = 180;
+        const points = [];
+        for (let i = 0; i <= steps; i += 1) {
+          const angle = (i / steps) * TAU;
+          const projected = project(orbitalPosition(body, angle), camera);
+          points.push(projected);
+        }
+        ctx.beginPath();
+        let started = false;
+        for (const point of points) {
+          if (!point) {
+            started = false;
+            continue;
+          }
+          if (!started) {
+            ctx.moveTo(point.x, point.y);
+            started = true;
+          } else {
+            ctx.lineTo(point.x, point.y);
+          }
+        }
+        ctx.strokeStyle = highlight
+          ? "rgba(164, 224, 255, 0.72)"
+          : "rgba(170, 196, 232, 0.22)";
+        ctx.lineWidth = highlight ? 1.8 : 1.1;
+        ctx.stroke();
+      }
+
+      function drawSun(projected) {
+        const radius = Math.max(14, 18 * projected.perspective);
+        const glowRadius = radius * 3.4;
+        const glow = ctx.createRadialGradient(projected.x, projected.y, 0, projected.x, projected.y, glowRadius);
+        glow.addColorStop(0, "rgba(255, 248, 214, 0.95)");
+        glow.addColorStop(0.18, "rgba(255, 212, 98, 0.85)");
+        glow.addColorStop(0.45, "rgba(255, 163, 44, 0.3)");
+        glow.addColorStop(1, "rgba(255, 163, 44, 0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(projected.x, projected.y, glowRadius, 0, TAU);
+        ctx.fill();
+
+        const sphere = ctx.createRadialGradient(
+          projected.x - radius * 0.35,
+          projected.y - radius * 0.4,
+          radius * 0.16,
+          projected.x,
+          projected.y,
+          radius
+        );
+        sphere.addColorStop(0, "#fffbe9");
+        sphere.addColorStop(0.5, "#ffd063");
+        sphere.addColorStop(1, "#ff8f2a");
+        ctx.fillStyle = sphere;
+        ctx.beginPath();
+        ctx.arc(projected.x, projected.y, radius, 0, TAU);
+        ctx.fill();
+      }
+
+      function drawPlanetBody(item) {
+        const { body, projected, radiusPx } = item;
+        const gradient = ctx.createRadialGradient(
+          projected.x - radiusPx * 0.42,
+          projected.y - radiusPx * 0.45,
+          Math.max(1, radiusPx * 0.18),
+          projected.x,
+          projected.y,
+          radiusPx
+        );
+        gradient.addColorStop(0, body.colors[0]);
+        gradient.addColorStop(0.58, body.colors[1]);
+        gradient.addColorStop(1, body.colors[2]);
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(projected.x, projected.y, radiusPx, 0, TAU);
+        ctx.fill();
+
+        if (body.name === "木星" || body.name === "土星") {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(projected.x, projected.y, radiusPx, 0, TAU);
+          ctx.clip();
+          for (let i = -3; i <= 3; i += 1) {
+            ctx.strokeStyle = "rgba(255,255,255," + (0.08 + (3 - Math.abs(i)) * 0.03).toFixed(2) + ")";
+            ctx.lineWidth = Math.max(1, radiusPx * 0.13);
+            ctx.beginPath();
+            ctx.moveTo(projected.x - radiusPx * 1.2, projected.y + i * radiusPx * 0.22);
+            ctx.lineTo(projected.x + radiusPx * 1.2, projected.y + i * radiusPx * 0.22);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        if (body.name === "地球") {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(projected.x, projected.y, radiusPx, 0, TAU);
+          ctx.clip();
+          ctx.fillStyle = "rgba(125, 211, 128, 0.75)";
+          ctx.beginPath();
+          ctx.ellipse(projected.x - radiusPx * 0.25, projected.y - radiusPx * 0.05, radiusPx * 0.28, radiusPx * 0.16, -0.6, 0, TAU);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(projected.x + radiusPx * 0.14, projected.y + radiusPx * 0.16, radiusPx * 0.22, radiusPx * 0.12, 0.4, 0, TAU);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        if (body.name === "火星") {
+          ctx.strokeStyle = "rgba(255, 240, 230, 0.35)";
+          ctx.lineWidth = Math.max(1, radiusPx * 0.08);
+          ctx.beginPath();
+          ctx.arc(projected.x, projected.y - radiusPx * 0.72, radiusPx * 0.18, 0, TAU);
+          ctx.stroke();
+        }
+
+        if (state.selected === body) {
+          ctx.strokeStyle = "rgba(163, 232, 255, 0.95)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(projected.x, projected.y, radiusPx + 6, 0, TAU);
+          ctx.stroke();
+        }
+      }
+
+      function drawSaturnRing(item, camera) {
+        const ring = item.body.ring;
+        if (!ring) {
+          return;
+        }
+        const segments = 180;
+        const backSegments = [];
+        const frontSegments = [];
+        const tilt = ring.tilt * DEG;
+        const sinTilt = Math.sin(tilt);
+        const cosTilt = Math.cos(tilt);
+
+        function pointAt(angle, radius) {
+          const x = Math.cos(angle) * radius;
+          const z = Math.sin(angle) * radius;
+          const local = {
+            x,
+            y: z * sinTilt,
+            z: z * cosTilt,
+          };
+          return {
+            x: item.position.x + local.x,
+            y: item.position.y + local.y,
+            z: item.position.z + local.z,
+          };
+        }
+
+        for (let i = 0; i < segments; i += 1) {
+          const a0 = (i / segments) * TAU;
+          const a1 = ((i + 1) / segments) * TAU;
+          const outer0 = project(pointAt(a0, ring.outer), camera);
+          const outer1 = project(pointAt(a1, ring.outer), camera);
+          const inner0 = project(pointAt(a0, ring.inner), camera);
+          const inner1 = project(pointAt(a1, ring.inner), camera);
+          if (!outer0 || !outer1 || !inner0 || !inner1) {
+            continue;
+          }
+          const avgDepth = (outer0.z + outer1.z + inner0.z + inner1.z) * 0.25;
+          const segment = { outer0, outer1, inner0, inner1 };
+          if (avgDepth >= item.projected.z) {
+            backSegments.push(segment);
+          } else {
+            frontSegments.push(segment);
+          }
+        }
+
+        const drawRingGroup = (segmentsList, alphaBase) => {
+          for (const seg of segmentsList) {
+            ctx.beginPath();
+            ctx.moveTo(seg.outer0.x, seg.outer0.y);
+            ctx.lineTo(seg.outer1.x, seg.outer1.y);
+            ctx.lineTo(seg.inner1.x, seg.inner1.y);
+            ctx.lineTo(seg.inner0.x, seg.inner0.y);
+            ctx.closePath();
+            const shade = ctx.createLinearGradient(seg.outer0.x, seg.outer0.y, seg.inner0.x, seg.inner0.y);
+            shade.addColorStop(0, "rgba(248, 226, 170," + (alphaBase * 0.95).toFixed(3) + ")");
+            shade.addColorStop(1, "rgba(173, 141, 97," + (alphaBase * 0.55).toFixed(3) + ")");
+            ctx.fillStyle = shade;
+            ctx.fill();
+          }
+        };
+
+        drawRingGroup(backSegments, 0.26);
+        drawPlanetBody(item);
+        drawRingGroup(frontSegments, 0.58);
+      }
+
+      function drawLabel(item) {
+        const label = item.body.name;
+        ctx.font = "13px STSong, Noto Serif SC, Source Han Serif SC, serif";
+        const textWidth = ctx.measureText(label).width;
+        const padX = 8;
+        const labelWidth = textWidth + padX * 2;
+        const labelHeight = 24;
+        const x = clamp(item.projected.x - labelWidth / 2, 8, state.width - labelWidth - 8);
+        const y = clamp(item.projected.y - item.radiusPx - 30, 8, state.height - labelHeight - 8);
+        ctx.fillStyle = item.body === state.selected ? "rgba(141, 220, 255, 0.2)" : "rgba(4, 16, 30, 0.62)";
+        ctx.strokeStyle = item.body === state.selected ? "rgba(141, 220, 255, 0.75)" : "rgba(255,255,255,0.14)";
+        ctx.lineWidth = 1;
+        roundRect(x, y, labelWidth, labelHeight, 12);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#f7fbff";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, x + padX, y + labelHeight / 2 + 0.5);
+      }
+
+      function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      function drawSystem(time) {
+        const camera = getCamera();
+        const sunProjected = project({ x: 0, y: 0, z: 0 }, camera);
+        if (!sunProjected) {
+          return;
+        }
+
+        for (const body of planets) {
+          strokeOrbit(body, camera, state.selected === body);
+        }
+
+        const renderables = [];
+        state.hitTargets = [];
+
+        for (const body of planets) {
+          const position = orbitalPosition(body);
+          body.position = position;
+          const projected = project(position, camera);
+          if (!projected) {
+            continue;
+          }
+          const radiusPx = Math.max(2.5, body.radius * projected.perspective);
+          const distanceToCamera = Math.hypot(
+            position.x - camera.cameraPos.x,
+            position.y - camera.cameraPos.y,
+            position.z - camera.cameraPos.z
+          );
+          const item = { body, position, projected, radiusPx, distanceToCamera };
+          renderables.push(item);
+          state.hitTargets.push(item);
+        }
+
+        drawSun(sunProjected);
+
+        renderables.sort((a, b) => b.distanceToCamera - a.distanceToCamera);
+        for (const item of renderables) {
+          if (item.body.ring) {
+            drawSaturnRing(item, camera);
+          } else {
+            drawPlanetBody(item);
+          }
+        }
+
+        renderables
+          .slice()
+          .sort((a, b) => a.projected.y - b.projected.y)
+          .forEach(drawLabel);
+
+        ctx.strokeStyle = "rgba(255, 224, 146, 0.85)";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(sunProjected.x, sunProjected.y, Math.max(24, 18 * sunProjected.perspective + 8), 0, TAU);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(255, 240, 211, 0.9)";
+        ctx.font = "13px STSong, Noto Serif SC, Source Han Serif SC, serif";
+        const sunLabel = "太阳";
+        const sunWidth = ctx.measureText(sunLabel).width + 16;
+        roundRect(sunProjected.x - sunWidth / 2, sunProjected.y + 24, sunWidth, 24, 12);
+        ctx.fillStyle = "rgba(32, 18, 6, 0.66)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, 214, 134, 0.54)";
+        ctx.stroke();
+        ctx.fillStyle = "rgba(255, 245, 225, 0.95)";
+        ctx.fillText(sunLabel, sunProjected.x - sunWidth / 2 + 8, sunProjected.y + 40.5);
+      }
+
+      function update(dt) {
+        if (!state.paused) {
+          for (const body of planets) {
+            body.angle += dt * body.orbitSpeed * 0.42 * state.speed;
+          }
+        }
+
+        const focusTarget = state.selected && state.selected.position ? state.selected.position : vec3(0, 0, 0);
+        const smooth = 1 - Math.pow(0.0001, dt);
+        state.currentFocus.x = lerp(state.currentFocus.x, focusTarget.x, smooth);
+        state.currentFocus.y = lerp(state.currentFocus.y, focusTarget.y, smooth);
+        state.currentFocus.z = lerp(state.currentFocus.z, focusTarget.z, smooth);
+        state.yaw = lerp(state.yaw, state.desiredYaw, 1 - Math.pow(0.0004, dt));
+        state.pitch = lerp(state.pitch, state.desiredPitch, 1 - Math.pow(0.0004, dt));
+        state.distance = lerp(state.distance, state.desiredDistance, 1 - Math.pow(0.0002, dt));
+      }
+
+      function animate(timestamp) {
+        if (!state.lastTime) {
+          state.lastTime = timestamp;
+        }
+        const dt = Math.min(0.033, (timestamp - state.lastTime) / 1000);
+        state.lastTime = timestamp;
+        update(dt);
+        drawBackground(timestamp * 0.001);
+        drawSystem(timestamp * 0.001);
+        requestAnimationFrame(animate);
+      }
+
+      function screenPoint(event) {
+        if (event.touches && event.touches.length > 0) {
+          return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+        }
+        return { x: event.clientX, y: event.clientY };
+      }
+
+      function distanceBetweenTouches(touches) {
+        if (!touches || touches.length < 2) {
+          return 0;
+        }
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.hypot(dx, dy);
+      }
+
+      function beginPointer(x, y) {
+        state.pointer.down = true;
+        state.pointer.moved = false;
+        state.pointer.x = x;
+        state.pointer.y = y;
+        state.pointer.startX = x;
+        state.pointer.startY = y;
+        canvas.classList.add("dragging");
+      }
+
+      function endPointer(x, y) {
+        canvas.classList.remove("dragging");
+        const wasTap = !state.pointer.moved && Math.hypot(x - state.pointer.startX, y - state.pointer.startY) < 8;
+        state.pointer.down = false;
+        state.pointer.mode = "none";
+        if (wasTap) {
+          pickBody(x, y);
+        }
+      }
+
+      function pickBody(x, y) {
+        const candidates = state.hitTargets
+          .slice()
+          .sort((a, b) => a.distanceToCamera - b.distanceToCamera);
+
+        for (const item of candidates) {
+          const dx = x - item.projected.x;
+          const dy = y - item.projected.y;
+          const hitRadius = Math.max(12, item.radiusPx + 6);
+          if (dx * dx + dy * dy <= hitRadius * hitRadius) {
+            setSelection(item.body);
+            return;
+          }
+        }
+
+        const centerDist = Math.hypot(x - state.centerX, y - state.centerY);
+        if (centerDist < 42) {
+          setSelection(null);
+        }
+      }
+
+      canvas.addEventListener("mousedown", (event) => {
+        if (event.button !== 0) {
+          return;
+        }
+        const point = screenPoint(event);
+        state.pointer.mode = "rotate";
+        beginPointer(point.x, point.y);
+      });
+
+      window.addEventListener("mousemove", (event) => {
+        if (!state.pointer.down || state.pointer.mode !== "rotate") {
+          return;
+        }
+        const point = screenPoint(event);
+        const dx = point.x - state.pointer.x;
+        const dy = point.y - state.pointer.y;
+        if (Math.abs(dx) + Math.abs(dy) > 1) {
+          state.pointer.moved = true;
+        }
+        state.pointer.x = point.x;
+        state.pointer.y = point.y;
+        state.desiredYaw -= dx * 0.008;
+        state.desiredPitch = clamp(state.desiredPitch - dy * 0.006, -1.18, 0.22);
+      });
+
+      window.addEventListener("mouseup", (event) => {
+        if (!state.pointer.down) {
+          return;
+        }
+        endPointer(event.clientX, event.clientY);
+      });
+
+      canvas.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        const factor = event.deltaY > 0 ? 1.08 : 0.92;
+        state.desiredDistance = clamp(state.desiredDistance * factor, state.minDistance, state.maxDistance);
+      }, { passive: false });
+
+      canvas.addEventListener("touchstart", (event) => {
+        if (event.touches.length === 1) {
+          const touch = event.touches[0];
+          state.pointer.mode = "rotate";
+          beginPointer(touch.clientX, touch.clientY);
+        } else if (event.touches.length >= 2) {
+          state.pointer.mode = "pinch";
+          state.pointer.down = false;
+          state.pointer.pinchDistance = distanceBetweenTouches(event.touches);
+        }
+      }, { passive: false });
+
+      canvas.addEventListener("touchmove", (event) => {
+        event.preventDefault();
+        if (state.pointer.mode === "rotate" && event.touches.length === 1) {
+          const touch = event.touches[0];
+          const dx = touch.clientX - state.pointer.x;
+          const dy = touch.clientY - state.pointer.y;
+          if (Math.abs(dx) + Math.abs(dy) > 1) {
+            state.pointer.moved = true;
+          }
+          state.pointer.x = touch.clientX;
+          state.pointer.y = touch.clientY;
+          state.desiredYaw -= dx * 0.008;
+          state.desiredPitch = clamp(state.desiredPitch - dy * 0.006, -1.18, 0.22);
+        } else if (state.pointer.mode === "pinch" && event.touches.length >= 2) {
+          const nextDistance = distanceBetweenTouches(event.touches);
+          if (state.pointer.pinchDistance > 0) {
+            const ratio = state.pointer.pinchDistance / nextDistance;
+            state.desiredDistance = clamp(state.desiredDistance * ratio, state.minDistance, state.maxDistance);
+          }
+          state.pointer.pinchDistance = nextDistance;
+        }
+      }, { passive: false });
+
+      canvas.addEventListener("touchend", (event) => {
+        if (state.pointer.mode === "rotate" && event.touches.length === 0) {
+          endPointer(state.pointer.x, state.pointer.y);
+        } else if (event.touches.length === 1) {
+          const touch = event.touches[0];
+          state.pointer.mode = "rotate";
+          beginPointer(touch.clientX, touch.clientY);
+        } else if (event.touches.length < 2) {
+          state.pointer.mode = "none";
+          state.pointer.pinchDistance = 0;
+        }
+      });
+
+      toggleMotionBtn.addEventListener("click", () => {
+        state.paused = !state.paused;
+        toggleMotionBtn.textContent = state.paused ? "继续公转" : "暂停公转";
+      });
+
+      backToSunBtn.addEventListener("click", () => {
+        setSelection(null);
+        resetView();
+      });
+
+      resetViewBtn.addEventListener("click", () => {
+        resetView();
+      });
+
+      speedRange.addEventListener("input", () => {
+        state.speed = Number(speedRange.value);
+        speedValue.textContent = state.speed.toFixed(2) + "x";
+      });
+
+      window.addEventListener("resize", resize);
+
+      resize();
+      updateInfoPanel(sunInfo);
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>

@@ -5,11 +5,11 @@
   "slug": "solar-system",
   "prompt": "帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。",
   "artifact_type": "可交互的 3D 网页",
-  "status": "collecting",
-  "status_label": "COLLECTING / 已有真实作品",
+  "status": "live",
+  "status_label": "LIVE / 15 份作品已上线",
   "run_plan": "_run_plan.json",
   "planned_runs": 15,
-  "completed_runs": 7,
+  "completed_runs": 15,
   "publication_gate": "单个真实作品完成归档、依赖检查和浏览器验收后即可先上线试玩;至少 2 份真实作品才启用盲评和排行榜",
   "required_bodies": [
     "水星",
@@ -23,6 +23,62 @@
     "冥王星"
   ],
   "entrants": [
+    {
+      "dir": "claude-fable-5",
+      "display_name": "Claude Fable 5",
+      "vendor": "Anthropic",
+      "harness": "Claude Code",
+      "machine": "vircs"
+    },
+    {
+      "dir": "claude-sonnet",
+      "display_name": "Claude Sonnet",
+      "vendor": "Anthropic",
+      "harness": "Claude Code",
+      "machine": "vircs"
+    },
+    {
+      "dir": "claude-opus",
+      "display_name": "Claude Opus",
+      "vendor": "Anthropic",
+      "harness": "Claude Code",
+      "machine": "vircs"
+    },
+    {
+      "dir": "gpt5.6luna",
+      "display_name": "GPT-5.6 Luna",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs"
+    },
+    {
+      "dir": "gpt5.6sol",
+      "display_name": "GPT-5.6 Sol",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs"
+    },
+    {
+      "dir": "gpt5.6terra",
+      "display_name": "GPT-5.6 Terra",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs"
+    },
+    {
+      "dir": "gpt5.5",
+      "display_name": "GPT-5.5",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs"
+    },
+    {
+      "dir": "gpt5.4",
+      "display_name": "GPT-5.4",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs"
+    },
     {
       "dir": "gpt5.4mini",
       "display_name": "GPT-5.4 Mini",
@@ -69,9 +125,9 @@
       "dir": "deepseek-v4-pro",
       "display_name": "DeepSeek V4 Pro",
       "vendor": "DeepSeek",
-      "harness": "Cursor",
+      "harness": "Claude Code + Claude Code Router",
       "machine": "Mac"
     }
   ],
-  "disclosure": "当前 7 份真实作品已完成归档、文件检查和浏览器验收;试玩、完整排序、匿名盲评和排行榜已开放，赛道继续收集其余计划运行位"
+  "disclosure": "15 份归档作品均已检测 index.html、本地依赖和浏览器加载;其中 1 处最小上线修复已在参赛记录中披露"
 }

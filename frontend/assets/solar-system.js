@@ -63,10 +63,10 @@
   $("#solar-complete-count").textContent = String(data.entrants.length);
 
   const groups = [
-    { title: "Claude Code", machine: "vircs", runs: plan.runs.filter((run) => run.harness === "Claude Code") },
-    { title: "Codex", machine: "vircs", runs: plan.runs.filter((run) => run.harness === "Codex") },
-    { title: "Cursor", machine: "Mac", runs: plan.runs.filter((run) => run.harness === "Cursor") },
-  ];
+    { title: "Claude Code", runs: plan.runs.filter((run) => run.harness.startsWith("Claude Code")) },
+    { title: "Codex", runs: plan.runs.filter((run) => run.harness === "Codex") },
+    { title: "Cursor", runs: plan.runs.filter((run) => run.harness === "Cursor") },
+  ].map((group) => ({ ...group, machine: [...new Set(group.runs.map((run) => run.machine))].join(" / ") }));
   $("#solar-run-groups").innerHTML = groups.map((group) => `
     <section class="solar-run-group"><div class="solar-run-group-head"><div><span>${esc(group.machine)}</span><h2>${esc(group.title)}</h2></div><b>${group.runs.length} 个计划运行位</b></div>
     <div class="solar-run-list">${group.runs.map((run, index) => `<article class="solar-run-row"><span class="solar-run-no">${String(index + 1).padStart(2, "0")}</span><div class="solar-run-model"><span><b>${esc(run.model)}</b><small>${esc(run.vendor)} · ${esc(run.harness)}</small></span></div><code>${esc(run.target_dir)}</code><em class="${run.status === "completed_verified" ? "is-verified" : ""}">${run.status === "completed_verified" ? "已核验" : "未运行"}</em></article>`).join("")}</div></section>`).join("");
@@ -102,7 +102,7 @@
   } else {
     entrantGrid.innerHTML = data.entrants.map((entrant, index) => `<article class="card lift entrant-card" data-solar-index="${index}">
       <div class="preview solar-live-preview" data-solar-preview="${esc(entrant.dir)}" role="button" tabindex="0" aria-label="试玩 ${esc(entrant.display_name)}"><iframe sandbox="allow-scripts allow-same-origin allow-pointer-lock" title="" tabindex="-1" aria-hidden="true" src="${esc(gameURL(entrant.dir))}"></iframe><span class="live-dot">LIVE</span></div>
-      <div class="entrant-body"><div class="entrant-identity">${logoHTML(entrant)}<span class="identity-copy"><b>${esc(entrant.vendor)}</b><strong>${esc(entrant.display_name)} × ${esc(entrant.harness)}</strong><small>${esc(entrant.machine)} · 原始作品已核验</small></span></div><div class="entrant-name"><span class="code">${esc(entrant.dir)}</span><span class="tag-internal">内部代号</span></div><div class="feat-badges"><span class="feat on">✓ 可加载</span><span class="feat on">🪐 九大行星</span><span class="feat on">🖱 可交互</span></div><div class="entrant-meta num"><span>${entrant.files} 个文件</span><span>${(entrant.bytes / 1024).toFixed(1)} KB</span><span>${entrant.code_lines} 行</span></div><button class="btn btn-primary play-btn" data-solar-open="${index}">▶ 试玩</button></div>
+      <div class="entrant-body"><div class="entrant-identity">${logoHTML(entrant)}<span class="identity-copy"><b>${esc(entrant.vendor)}</b><strong>${esc(entrant.display_name)} × ${esc(entrant.harness)}</strong><small>${esc(entrant.machine)} · ${entrant.human_code_edits ? `${entrant.human_code_edits} 处上线修复` : "原始作品已核验"}</small></span></div><div class="entrant-name"><span class="code">${esc(entrant.dir)}</span><span class="tag-internal">内部代号</span></div><div class="feat-badges"><span class="feat ${entrant.loads_ok ? "on" : ""}"${entrant.runtime_issue ? ` title="${esc(entrant.runtime_issue)}"` : ""}>${entrant.loads_ok ? "✓ 可加载" : "⚠ 初始化异常"}</span><span class="feat on">🪐 九大行星</span><span class="feat on">🖱 可交互</span>${entrant.maintenance_note ? `<span class="feat" title="${esc(entrant.maintenance_note)}">🔧 最小修复</span>` : ""}</div><div class="entrant-meta num"><span>${entrant.files} 个文件</span><span>${(entrant.bytes / 1024).toFixed(1)} KB</span><span>${entrant.code_lines} 行</span></div><button class="btn btn-primary play-btn" data-solar-open="${index}">▶ 试玩</button></div>
     </article>`).join("");
     $$('[data-solar-open]').forEach((button) => button.addEventListener("click", () => openModal(Number(button.dataset.solarOpen))));
     $$('[data-solar-preview]').forEach((preview) => registerFittedFrame($("iframe", preview), preview, "preview"));

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#050816">
+  <title>太阳系漫游 · 九大行星立体探索</title>
+  <style>
+    :root {
+      --bg: #030510;
+      --panel: rgba(9, 15, 35, .78);
+      --line: rgba(167, 196, 255, .16);
+      --text: #eef5ff;
+      --muted: #93a6c9;
+      --accent: #78d7ff;
+      --gold: #ffd66b;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--bg); color: var(--text); font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+    body { touch-action: none; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    #space { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; outline: none; }
+    #space.dragging { cursor: grabbing; }
+    .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 48%, transparent 34%, rgba(0, 2, 12, .32) 75%, rgba(0, 1, 8, .75) 100%); }
+    .topbar { position: fixed; z-index: 5; top: 0; left: 0; right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 24px 28px; pointer-events: none; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { width: 35px; height: 35px; border-radius: 50%; background: radial-gradient(circle at 36% 34%, #fff9ce 0 8%, #ffdc65 20%, #ff962f 58%, rgba(255,117,27,.18) 70%); box-shadow: 0 0 24px #ffac35aa; }
+    h1 { margin: 0; font-size: clamp(18px, 2vw, 25px); letter-spacing: .08em; font-weight: 680; }
+    .subtitle { margin-top: 5px; color: var(--muted); font-size: 11px; letter-spacing: .22em; text-transform: uppercase; }
+    .status { display: flex; align-items: center; gap: 9px; margin-top: 6px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 99px; background: rgba(7, 12, 29, .58); backdrop-filter: blur(10px); color: #afc0dd; font-size: 12px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #72e6a1; box-shadow: 0 0 10px #72e6a1; }
+
+    .info-panel { position: fixed; z-index: 6; top: 104px; right: 26px; width: min(310px, calc(100vw - 52px)); max-height: calc(100vh - 220px); overflow: auto; padding: 20px; border: 1px solid rgba(156, 191, 255, .18); border-radius: 20px; background: linear-gradient(145deg, rgba(14, 23, 48, .88), rgba(5, 10, 26, .76)); box-shadow: 0 24px 70px rgba(0,0,0,.38); backdrop-filter: blur(18px); transition: transform .25s ease, opacity .25s ease; }
+    .info-top { display: flex; align-items: center; gap: 13px; }
+    .planet-swatch { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 33% 28%, var(--c2), var(--c1) 45%, #111 100%); box-shadow: 0 0 22px color-mix(in srgb, var(--c1) 45%, transparent); }
+    .eyebrow { color: var(--accent); font-size: 10px; letter-spacing: .18em; margin-bottom: 3px; }
+    .planet-title { margin: 0; font-size: 25px; line-height: 1.1; }
+    .planet-en { color: #8498bd; font-size: 12px; margin-top: 4px; }
+    .planet-desc { margin: 17px 0 15px; color: #c7d3e8; font-size: 13px; line-height: 1.75; }
+    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .fact { padding: 10px 11px; border: 1px solid rgba(141,178,241,.1); border-radius: 11px; background: rgba(125,161,226,.055); }
+    .fact-label { color: #7186aa; font-size: 10px; }
+    .fact-value { margin-top: 4px; font-size: 12px; color: #e6efff; white-space: nowrap; }
+    .focus-note { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: #8ca1c4; font-size: 11px; }
+    .focus-note::before { content: ''; width: 18px; height: 1px; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+    .planet-nav { position: fixed; z-index: 7; left: 26px; top: 108px; display: flex; flex-direction: column; gap: 6px; }
+    .planet-btn { display: flex; align-items: center; gap: 9px; width: 94px; padding: 7px 9px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #8fa1bf; text-align: left; font-size: 12px; cursor: pointer; transition: .18s ease; }
+    .planet-btn:hover, .planet-btn.active { color: #fff; border-color: rgba(130,177,255,.2); background: rgba(26,43,77,.55); transform: translateX(3px); }
+    .planet-btn i { width: var(--dot, 8px); height: var(--dot, 8px); max-width: 12px; max-height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px color-mix(in srgb, var(--c) 55%, transparent); }
+
+    .hint { position: fixed; z-index: 5; left: 50%; bottom: 93px; transform: translateX(-50%); padding: 8px 13px; border: 1px solid rgba(145,180,240,.13); border-radius: 99px; background: rgba(5,10,25,.54); backdrop-filter: blur(10px); color: #8495b3; font-size: 11px; letter-spacing: .04em; pointer-events: none; transition: opacity .5s; white-space: nowrap; }
+    .controls { position: fixed; z-index: 8; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 7px; padding: 8px; border: 1px solid rgba(149,184,243,.18); border-radius: 16px; background: rgba(7,13,30,.8); box-shadow: 0 14px 45px rgba(0,0,0,.35); backdrop-filter: blur(18px); }
+    .control-btn { height: 40px; min-width: 42px; padding: 0 13px; border: 1px solid rgba(139,177,239,.12); border-radius: 10px; background: rgba(119,156,218,.07); cursor: pointer; transition: .18s ease; font-size: 12px; }
+    .control-btn:hover { background: rgba(119,174,255,.16); border-color: rgba(139,195,255,.28); }
+    .control-btn.primary { color: #06101b; background: linear-gradient(135deg, #8ee6ff, #75aaff); border: none; font-weight: 700; }
+    .control-btn svg { display: block; }
+    .divider { width: 1px; height: 24px; background: rgba(145,180,240,.16); margin: 0 4px; }
+    .speed-box { width: 164px; padding: 0 8px; }
+    .speed-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; color: #8295b6; font-size: 10px; }
+    #speedValue { color: #d8e7ff; font-variant-numeric: tabular-nums; }
+    input[type="range"] { display: block; width: 100%; height: 3px; margin: 0; accent-color: #83dfff; cursor: pointer; }
+
+    .tooltip { position: fixed; z-index: 20; display: none; padding: 6px 9px; border-radius: 8px; background: rgba(5,9,20,.9); border: 1px solid rgba(138,188,255,.2); color: #e8f2ff; font-size: 11px; pointer-events: none; transform: translate(12px, 12px); }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    @media (max-width: 820px) {
+      .topbar { padding: 17px 18px; }
+      .status { display: none; }
+      .brand-mark { width: 29px; height: 29px; }
+      .subtitle { display: none; }
+      .planet-nav { top: auto; left: 12px; right: 12px; bottom: 86px; flex-direction: row; overflow-x: auto; scrollbar-width: none; padding: 2px 4px; mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent); }
+      .planet-nav::-webkit-scrollbar { display: none; }
+      .planet-btn { flex: 0 0 auto; width: auto; padding: 7px 9px; background: rgba(6,12,27,.62); backdrop-filter: blur(8px); }
+      .planet-btn:hover, .planet-btn.active { transform: none; }
+      .info-panel { top: auto; left: 12px; right: 12px; bottom: 136px; width: auto; max-height: 37vh; padding: 15px; border-radius: 16px; }
+      .info-panel:not(.open) { transform: translateY(16px); opacity: 0; pointer-events: none; }
+      .planet-swatch { width: 39px; height: 39px; }
+      .planet-title { font-size: 20px; }
+      .planet-desc { margin: 11px 0; line-height: 1.55; }
+      .facts { grid-template-columns: repeat(4, minmax(90px, 1fr)); overflow-x: auto; }
+      .focus-note { display: none; }
+      .hint { top: 65px; bottom: auto; max-width: calc(100vw - 30px); overflow: hidden; text-overflow: ellipsis; }
+      .controls { bottom: 17px; width: calc(100vw - 24px); justify-content: center; }
+      .speed-box { flex: 1; min-width: 90px; max-width: 180px; }
+      .control-btn { padding: 0 10px; }
+    }
+    @media (max-width: 460px) {
+      .brand { gap: 8px; }
+      h1 { font-size: 16px; }
+      .control-btn .wide-label { display: none; }
+      .divider { margin: 0; }
+      .controls { gap: 4px; padding: 6px; }
+      .speed-box { padding: 0 4px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="space" tabindex="0" aria-label="可交互的太阳系三维模型。拖拽旋转，滚轮缩放，点击行星查看信息。"></canvas>
+  <div class="vignette"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div><h1>太阳系漫游</h1><div class="subtitle">Solar System · 3D Explorer</div></div>
+    </div>
+    <div class="status"><span class="status-dot"></span><span id="statusText">正在运行 · 1.0×</span></div>
+  </header>
+
+  <nav class="planet-nav" id="planetNav" aria-label="选择天体"></nav>
+
+  <aside class="info-panel open" id="infoPanel" aria-live="polite">
+    <div class="info-top">
+      <div class="planet-swatch" id="planetSwatch"></div>
+      <div><div class="eyebrow" id="infoType">恒星 · 场景中心</div><h2 class="planet-title" id="infoName">太阳</h2><div class="planet-en" id="infoEn">SUN</div></div>
+    </div>
+    <p class="planet-desc" id="infoDesc"></p>
+    <div class="facts" id="facts"></div>
+    <div class="focus-note" id="focusNote">点击行星或左侧名称开始近距离观察</div>
+  </aside>
+
+  <div class="hint" id="hint">拖拽旋转视角 · 滚轮/双指缩放 · 点击行星聚焦</div>
+  <div class="controls" role="toolbar" aria-label="动画控制">
+    <button class="control-btn primary" id="playBtn" type="button" aria-label="暂停动画">
+      <span id="playIcon">Ⅱ</span><span class="wide-label" id="playLabel"> 暂停</span>
+    </button>
+    <div class="speed-box">
+      <div class="speed-head"><span>公转速度</span><span id="speedValue">1.0×</span></div>
+      <input id="speedRange" type="range" min="0.1" max="4" step="0.1" value="1" aria-label="公转速度">
+    </div>
+    <div class="divider"></div>
+    <button class="control-btn" id="resetBtn" type="button" title="重置为全景视角">⌂ <span class="wide-label">全景</span></button>
+  </div>
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+  (() => {
+    'use strict';
+    const canvas = document.getElementById('space');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const infoPanel = document.getElementById('infoPanel');
+    const nav = document.getElementById('planetNav');
+    const tooltip = document.getElementById('tooltip');
+    const TAU = Math.PI * 2;
+    const DPR_CAP = 2;
+
+    const sun = {
+      name: '太阳', en: 'SUN', type: '恒星 · 场景中心', radius: 22, c1: '#ff9c35', c2: '#fff3a6',
+      desc: '太阳是这座行星系统的能量核心。九颗行星沿各自轨道绕它运行；画面采用压缩比例，让整个太阳系都能在有限空间中探索。',
+      facts: [['类型', '黄矮星'], ['表面温度', '约 5,500°C'], ['年龄', '约 46 亿年'], ['场景位置', '固定中心']]
+    };
+    const planets = [
+      { name:'水星', en:'MERCURY', radius:4.3, orbit:54, speed:4.15, inc:2.2, node:.3, c1:'#8d8378', c2:'#e0d3bd', type:'岩石行星 · 第 1 轨道', desc:'离太阳最近、也是最小的行星。表面遍布撞击坑，昼夜温差极大。', facts:[['公转周期','88 天'],['自转周期','58.6 天'],['卫星','0 颗'],['平均温度','167°C']] },
+      { name:'金星', en:'VENUS', radius:6.6, orbit:76, speed:1.63, inc:1.4, node:1.1, c1:'#d68c37', c2:'#ffe19a', type:'岩石行星 · 第 2 轨道', desc:'浓厚的二氧化碳大气包裹着金星，强烈温室效应使它成为最热的行星。', facts:[['公转周期','225 天'],['自转周期','243 天'],['卫星','0 颗'],['平均温度','464°C']] },
+      { name:'地球', en:'EARTH', radius:7.1, orbit:98, speed:1, inc:.2, node:2.1, c1:'#1777c7', c2:'#7dd8ff', type:'岩石行星 · 第 3 轨道', desc:'蓝色海洋覆盖大部分表面。它拥有富含氧气的大气和一颗天然卫星，是目前已知孕育生命的世界。', facts:[['公转周期','365.25 天'],['自转周期','23.9 小时'],['卫星','1 颗'],['平均温度','15°C']] },
+      { name:'火星', en:'MARS', radius:5.3, orbit:120, speed:.532, inc:1.0, node:.7, c1:'#a94327', c2:'#f18a56', type:'岩石行星 · 第 4 轨道', desc:'富含氧化铁的尘土让火星呈红色。这里有太阳系最高的火山和巨大的水手峡谷。', facts:[['公转周期','687 天'],['自转周期','24.6 小时'],['卫星','2 颗'],['平均温度','−63°C']] },
+      { name:'木星', en:'JUPITER', radius:14.8, orbit:150, speed:.084, inc:.7, node:1.8, c1:'#b4764f', c2:'#f1d2a1', type:'气态巨行星 · 第 5 轨道', desc:'太阳系最大的行星，彩色云带中翻涌着持续数百年的大红斑风暴。', facts:[['公转周期','11.86 年'],['自转周期','9.9 小时'],['卫星','95+ 颗'],['主要成分','氢、氦']] },
+      { name:'土星', en:'SATURN', radius:12.7, orbit:178, speed:.034, inc:1.5, node:2.6, c1:'#c69a55', c2:'#f7e0a3', type:'气态巨行星 · 第 6 轨道', desc:'由无数冰粒和岩石碎片组成的宽阔光环，使土星成为最具辨识度的行星。', facts:[['公转周期','29.45 年'],['自转周期','10.7 小时'],['卫星','140+ 颗'],['特色','大型冰环']] },
+      { name:'天王星', en:'URANUS', radius:9.6, orbit:204, speed:.012, inc:.9, node:.25, c1:'#54b7c5', c2:'#c5fbf5', type:'冰巨行星 · 第 7 轨道', desc:'甲烷让它呈淡青色。它几乎“躺着”自转，极端的轴倾角造就漫长季节。', facts:[['公转周期','84 年'],['自转周期','17.2 小时'],['卫星','27+ 颗'],['轴倾角','97.8°']] },
+      { name:'海王星', en:'NEPTUNE', radius:9.2, orbit:230, speed:.0061, inc:1.2, node:1.45, c1:'#2755ca', c2:'#69a7ff', type:'冰巨行星 · 第 8 轨道', desc:'深蓝色的遥远世界，拥有太阳系中最猛烈的风，风速可超过每小时两千公里。', facts:[['公转周期','164.8 年'],['自转周期','16.1 小时'],['卫星','14+ 颗'],['最强风速','2,100 km/h']] },
+      { name:'冥王星', en:'PLUTO', radius:3.6, orbit:258, speed:.004, inc:7.2, node:2.25, c1:'#9f765e', c2:'#ead3b8', type:'矮行星 · 第 9 轨道', desc:'位于柯伊伯带的冰冷矮行星，轨道更倾斜。其表面有一片醒目的心形氮冰平原。', facts:[['公转周期','248 年'],['自转周期','6.4 天'],['卫星','5 颗'],['平均温度','−229°C']] }
+    ];
+    planets.forEach((p, i) => { p.angle = [4.5,1.7,2.7,5.5,.5,3.4,5.9,4.1,1][i]; p.index=i; });
+    const bodies = [sun, ...planets];
+
+    let W=0,H=0,dpr=1, baseScale=1;
+    let yaw=-.48, pitch=.94, zoom=1, targetYaw=yaw, targetPitch=pitch, targetZoom=zoom;
+    let focus = null, target={x:0,y:0,z:0}, displayTarget={x:0,y:0,z:0};
+    let paused=false, speed=1, last=performance.now(), elapsed=0;
+    let stars=[], projectedBodies=[];
+    let dragging=false, pointerId=null, lastPointer={x:0,y:0}, downPointer={x:0,y:0}, moved=false;
+    let pinchDist=0, pointers=new Map(), hintTimer;
+
+    function resize() {
+      W = innerWidth; H = innerHeight; dpr = Math.min(devicePixelRatio || 1, DPR_CAP);
+      canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+      canvas.style.width=W+'px'; canvas.style.height=H+'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      baseScale = Math.min(W/(W<820?690:760), H/(W<820?690:660));
+      makeStars();
+    }
+    function makeStars(){
+      const count=Math.round(Math.min(480, W*H/3200)); stars=[];
+      let seed=7319;
+      const rnd=()=>{ seed=(seed*16807)%2147483647; return (seed-1)/2147483646; };
+      for(let i=0;i<count;i++) stars.push({x:rnd()*W,y:rnd()*H,r:.25+rnd()*1.15,a:.18+rnd()*.65,t:rnd()*TAU});
+    }
+
+    function worldPos(p, angle=p.angle){
+      if(!p.orbit) return {x:0,y:0,z:0};
+      const inc=p.inc*Math.PI/180, x0=Math.cos(angle)*p.orbit, z0=Math.sin(angle)*p.orbit;
+      const y1=z0*Math.sin(inc), z1=z0*Math.cos(inc), n=p.node;
+      return {x:x0*Math.cos(n)-z1*Math.sin(n), y:y1, z:x0*Math.sin(n)+z1*Math.cos(n)};
+    }
+    function cameraPoint(v){
+      const x=v.x-displayTarget.x, y=v.y-displayTarget.y, z=v.z-displayTarget.z;
+      const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
+      const x1=cy*x-sy*z, z1=sy*x+cy*z;
+      return {x:x1, y:cp*y-sp*z1, z:sp*y+cp*z1};
+    }
+    function project(v){
+      const q=cameraPoint(v), cam=500, perspective=cam/Math.max(220,cam+q.z);
+      const s=baseScale*zoom*perspective;
+      const cx=W/2 + (W>820 ? -35 : 0);
+      const cy=H/2 + (W<820 ? -18 : 15);
+      return {x:cx+q.x*s, y:cy+q.y*s, z:q.z, scale:s};
+    }
+
+    function drawBackground(now){
+      const g=ctx.createRadialGradient(W*.48,H*.48,0,W*.48,H*.48,Math.max(W,H)*.75);
+      g.addColorStop(0,'#0a1530'); g.addColorStop(.42,'#050a1b'); g.addColorStop(1,'#02030a');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      for(const s of stars){
+        const a=s.a*(.78+.22*Math.sin(now*.0012+s.t));
+        ctx.globalAlpha=a; ctx.fillStyle=s.r>1?'#dcecff':'#9fb9e8'; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,TAU); ctx.fill();
+      }
+      ctx.globalAlpha=1;
+      const neb=ctx.createRadialGradient(W*.18,H*.75,0,W*.18,H*.75,Math.min(W,H)*.48);
+      neb.addColorStop(0,'rgba(34,57,116,.12)'); neb.addColorStop(1,'rgba(15,30,80,0)'); ctx.fillStyle=neb; ctx.fillRect(0,0,W,H);
+    }
+
+    function drawOrbit(p){
+      const pts=[]; for(let i=0;i<=128;i++) pts.push(project(worldPos(p,i/128*TAU)));
+      ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y); for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+      ctx.strokeStyle=focus===p?'rgba(125,218,255,.5)':'rgba(132,161,210,.19)';
+      ctx.lineWidth=focus===p?1.25:.7; ctx.setLineDash(focus===p?[]:[2,4]); ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    function roundRectPath(x,y,w,h,r){
+      ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+    }
+    function drawLabel(item){
+      const {p,screen,r}=item; if(screen.x<-30||screen.x>W+30||screen.y<-30||screen.y>H+30) return;
+      ctx.font='500 11px "PingFang SC", sans-serif'; const tw=ctx.measureText(p.name).width;
+      const x=screen.x+r+7,y=screen.y-r-8;
+      roundRectPath(x-6,y-13,tw+12,20,7); ctx.fillStyle=focus===p?'rgba(23,47,79,.9)':'rgba(4,9,23,.63)'; ctx.fill();
+      ctx.strokeStyle=focus===p?'rgba(111,215,255,.5)':'rgba(138,169,218,.13)'; ctx.lineWidth=.7; ctx.stroke();
+      ctx.fillStyle=focus===p?'#eafaff':'rgba(219,231,249,.8)'; ctx.fillText(p.name,x,y+1);
+    }
+
+    function drawSun(item,now){
+      const {screen}=item, r=Math.max(12,sun.radius*screen.scale);
+      ctx.save();
+      const glow=ctx.createRadialGradient(screen.x,screen.y,r*.1,screen.x,screen.y,r*3.4);
+      glow.addColorStop(0,'rgba(255,235,143,.9)'); glow.addColorStop(.25,'rgba(255,177,48,.35)'); glow.addColorStop(1,'rgba(255,116,21,0)');
+      ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(screen.x,screen.y,r*3.4,0,TAU); ctx.fill();
+      const g=ctx.createRadialGradient(screen.x-r*.35,screen.y-r*.38,r*.06,screen.x,screen.y,r);
+      g.addColorStop(0,'#fffbd0'); g.addColorStop(.28,'#ffd960'); g.addColorStop(.7,'#ff9b27'); g.addColorStop(1,'#db5017');
+      ctx.shadowColor='#ffad38'; ctx.shadowBlur=20; ctx.fillStyle=g; ctx.beginPath(); ctx.arc(screen.x,screen.y,r,0,TAU); ctx.fill(); ctx.shadowBlur=0;
+      ctx.globalAlpha=.18; ctx.strokeStyle='#fff3aa'; ctx.lineWidth=1;
+      for(let i=0;i<4;i++){ const a=now*.00012+i*1.7; ctx.beginPath();ctx.arc(screen.x+Math.cos(a)*r*.28,screen.y+Math.sin(a)*r*.25,r*(.25+i*.03),a,a+2.4);ctx.stroke(); }
+      ctx.restore(); item.r=r;
+    }
+
+    function drawSaturnRing(item, front=false){
+      const p=item.p,pos=worldPos(p), segments=72, inner=18.5, outer=25;
+      ctx.save();
+      for(const rr of [outer,22,inner]){
+        ctx.beginPath();
+        for(let i=0;i<=segments;i++){
+          const a=i/segments*TAU, local={x:Math.cos(a)*rr,y:Math.sin(a)*rr*.18,z:Math.sin(a)*rr*.42};
+          const sc=project({x:pos.x+local.x,y:pos.y+local.y,z:pos.z+local.z});
+          if(i===0)ctx.moveTo(sc.x,sc.y); else ctx.lineTo(sc.x,sc.y);
+        }
+        ctx.strokeStyle=rr===22?'rgba(244,216,151,.72)':'rgba(207,177,118,.38)'; ctx.lineWidth=rr===22?2.2:1; ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawPlanet(item,now){
+      const {p,screen}=item; let r=Math.max(p===planets[8]?3.3:4,p.radius*screen.scale);
+      if(focus===p) r=Math.max(r,6);
+      item.r=r;
+      if(p.name==='土星') drawSaturnRing(item,false);
+      ctx.save();
+      if(focus===p){ ctx.strokeStyle='rgba(111,220,255,.6)';ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.arc(screen.x,screen.y,r+7+Math.sin(now*.003)*2,0,TAU);ctx.stroke();ctx.setLineDash([]); }
+      const g=ctx.createRadialGradient(screen.x-r*.38,screen.y-r*.4,Math.max(1,r*.06),screen.x,screen.y,r);
+      g.addColorStop(0,p.c2); g.addColorStop(.52,p.c1); g.addColorStop(1,'#101421');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(screen.x,screen.y,r,0,TAU); ctx.fill();
+      ctx.save(); ctx.beginPath();ctx.arc(screen.x,screen.y,r,0,TAU);ctx.clip();
+      if(p.name==='地球'){
+        ctx.fillStyle='rgba(100,190,100,.85)';
+        ctx.beginPath();ctx.ellipse(screen.x-r*.2,screen.y-r*.18,r*.36,r*.18,-.4,0,TAU);ctx.fill();
+        ctx.beginPath();ctx.ellipse(screen.x+r*.35,screen.y+r*.22,r*.24,r*.34,.5,0,TAU);ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=Math.max(.5,r*.07);ctx.beginPath();ctx.arc(screen.x,screen.y,r*.72,.3,2);ctx.stroke();
+      } else if(p.name==='木星'||p.name==='土星'){
+        const colors=p.name==='木星'?['rgba(90,44,27,.3)','rgba(255,236,192,.22)','rgba(121,69,38,.36)']:['rgba(111,78,38,.25)','rgba(255,240,184,.2)'];
+        for(let i=-3;i<=3;i++){ctx.fillStyle=colors[(i+4)%colors.length];ctx.fillRect(screen.x-r,screen.y+i*r*.28,r*2,r*.13);}
+        if(p.name==='木星'){ctx.fillStyle='rgba(168,59,35,.65)';ctx.beginPath();ctx.ellipse(screen.x+r*.34,screen.y+r*.18,r*.25,r*.12,-.1,0,TAU);ctx.fill();}
+      } else if(p.name==='火星'||p.name==='水星'||p.name==='冥王星'){
+        ctx.fillStyle='rgba(37,22,19,.25)';
+        [[-.28,-.15,.14],[.3,.25,.11],[.12,-.42,.07]].forEach(c=>{ctx.beginPath();ctx.arc(screen.x+c[0]*r,screen.y+c[1]*r,Math.max(.5,c[2]*r),0,TAU);ctx.fill();});
+        if(p.name==='冥王星'){ctx.fillStyle='rgba(242,220,205,.5)';ctx.beginPath();ctx.arc(screen.x-r*.2,screen.y-r*.16,r*.22,0,TAU);ctx.fill();}
+      } else if(p.name==='金星'){
+        ctx.strokeStyle='rgba(255,239,181,.32)';ctx.lineWidth=Math.max(.5,r*.12);ctx.beginPath();ctx.arc(screen.x-r*.1,screen.y,r*.7,.2,2.5);ctx.stroke();
+      } else if(p.name==='海王星'){
+        ctx.fillStyle='rgba(151,199,255,.22)';ctx.fillRect(screen.x-r,screen.y-r*.1,r*2,r*.15);
+      }
+      ctx.restore();
+      const shade=ctx.createLinearGradient(screen.x-r,screen.y,screen.x+r,screen.y);shade.addColorStop(.35,'rgba(0,0,0,0)');shade.addColorStop(1,'rgba(0,0,12,.42)');ctx.fillStyle=shade;ctx.beginPath();ctx.arc(screen.x,screen.y,r,0,TAU);ctx.fill();
+      ctx.restore();
+    }
+
+    function update(dt){
+      if(!paused){
+        const sim=dt*.000075*speed; elapsed+=dt*speed;
+        planets.forEach(p=>p.angle=(p.angle+p.speed*sim)%TAU);
+      }
+      if(focus){ const wp=worldPos(focus); target.x=wp.x;target.y=wp.y;target.z=wp.z; }
+      const ease=1-Math.pow(.001,dt/1000);
+      displayTarget.x+=(target.x-displayTarget.x)*ease; displayTarget.y+=(target.y-displayTarget.y)*ease; displayTarget.z+=(target.z-displayTarget.z)*ease;
+      yaw+=(targetYaw-yaw)*ease; pitch+=(targetPitch-pitch)*ease; zoom+=(targetZoom-zoom)*ease;
+    }
+
+    function render(now){
+      const dt=Math.min(40,now-last);last=now; update(dt); drawBackground(now);
+      planets.forEach(drawOrbit);
+      projectedBodies=bodies.map(p=>({p,screen:project(p===sun?{x:0,y:0,z:0}:worldPos(p)),r:0}));
+      projectedBodies.sort((a,b)=>b.screen.z-a.screen.z);
+      for(const item of projectedBodies){ if(item.p===sun) drawSun(item,now); else drawPlanet(item,now); }
+      const labelItems=[...projectedBodies].sort((a,b)=>a.screen.y-b.screen.y);
+      labelItems.forEach(drawLabel);
+      requestAnimationFrame(render);
+    }
+
+    function selectBody(body, zoomTo=true){
+      focus=body===sun?null:body;
+      if(focus){ const wp=worldPos(focus);target={...wp}; if(zoomTo) targetZoom=Math.min(2.05, Math.max(1.35, 18/focus.radius)); }
+      else { target={x:0,y:0,z:0}; if(zoomTo) targetZoom=1; }
+      updateInfo(body); updateNav();
+      if(innerWidth<=820) infoPanel.classList.add('open');
+      hideHint();
+    }
+    function updateInfo(p){
+      document.getElementById('infoType').textContent=p.type;
+      document.getElementById('infoName').textContent=p.name;
+      document.getElementById('infoEn').textContent=p.en;
+      document.getElementById('infoDesc').textContent=p.desc;
+      const sw=document.getElementById('planetSwatch');sw.style.setProperty('--c1',p.c1);sw.style.setProperty('--c2',p.c2);
+      document.getElementById('facts').innerHTML=p.facts.map(f=>`<div class="fact"><div class="fact-label">${f[0]}</div><div class="fact-value">${f[1]}</div></div>`).join('');
+      document.getElementById('focusNote').textContent=p===sun?'点击行星或左侧名称开始近距离观察':'镜头正在跟随 · 拖拽仍可自由观察';
+    }
+    function updateNav(){ document.querySelectorAll('.planet-btn').forEach((b,i)=>b.classList.toggle('active',focus===planets[i])); }
+    function buildNav(){
+      nav.innerHTML=planets.map((p,i)=>`<button class="planet-btn" data-index="${i}" type="button" style="--c:${p.c1};--dot:${Math.max(6,Math.min(12,p.radius))}px" aria-label="聚焦${p.name}"><i></i><span>${p.name}</span></button>`).join('');
+      nav.addEventListener('click',e=>{const b=e.target.closest('button');if(b)selectBody(planets[+b.dataset.index]);});
+    }
+
+    function hideHint(){ clearTimeout(hintTimer); document.getElementById('hint').style.opacity='.15'; }
+    function hitTest(x,y){
+      let best=null,dist=Infinity;
+      for(const item of projectedBodies){const d=Math.hypot(x-item.screen.x,y-item.screen.y),limit=Math.max(13,item.r+7);if(d<limit&&d<dist){best=item.p;dist=d;}}
+      return best;
+    }
+    function pointerXY(e){return{x:e.clientX,y:e.clientY};}
+    canvas.addEventListener('pointerdown',e=>{
+      canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,pointerXY(e));
+      if(pointers.size===1){dragging=true;pointerId=e.pointerId;lastPointer=downPointer=pointerXY(e);moved=false;canvas.classList.add('dragging');}
+      else if(pointers.size===2){const a=[...pointers.values()];pinchDist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);}
+    });
+    canvas.addEventListener('pointermove',e=>{
+      if(pointers.has(e.pointerId))pointers.set(e.pointerId,pointerXY(e));
+      if(pointers.size===2){const a=[...pointers.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinchDist){targetZoom=Math.max(.62,Math.min(2.1,targetZoom*d/pinchDist));}pinchDist=d;moved=true;hideHint();return;}
+      if(dragging&&e.pointerId===pointerId){const dx=e.clientX-lastPointer.x,dy=e.clientY-lastPointer.y;targetYaw+=dx*.006;targetPitch=Math.max(.18,Math.min(1.42,targetPitch+dy*.005));lastPointer=pointerXY(e);if(Math.hypot(e.clientX-downPointer.x,e.clientY-downPointer.y)>5)moved=true;hideHint();}
+      const hit=hitTest(e.clientX,e.clientY);tooltip.style.display=hit&&!dragging?'block':'none';if(hit&&!dragging){tooltip.textContent=`${hit.name} · 点击聚焦`;tooltip.style.left=e.clientX+'px';tooltip.style.top=e.clientY+'px';canvas.style.cursor='pointer';}else if(!dragging)canvas.style.cursor='grab';
+    });
+    function pointerEnd(e){
+      if(!moved&&pointers.size===1){const body=hitTest(e.clientX,e.clientY);if(body)selectBody(body);else if(innerWidth<=820)infoPanel.classList.remove('open');}
+      pointers.delete(e.pointerId);if(pointers.size<2)pinchDist=0;
+      if(e.pointerId===pointerId){dragging=false;pointerId=null;canvas.classList.remove('dragging');canvas.style.cursor='grab';}
+    }
+    canvas.addEventListener('pointerup',pointerEnd);canvas.addEventListener('pointercancel',pointerEnd);
+    canvas.addEventListener('wheel',e=>{e.preventDefault();targetZoom=Math.max(.62,Math.min(2.1,targetZoom*Math.exp(-e.deltaY*.001)));hideHint();},{passive:false});
+    canvas.addEventListener('dblclick',()=>selectBody(sun));
+    canvas.addEventListener('keydown',e=>{if(e.key===' '){e.preventDefault();togglePlay();}if(e.key==='Escape')resetView();});
+
+    function togglePlay(){paused=!paused;document.getElementById('playIcon').textContent=paused?'▶':'Ⅱ';document.getElementById('playLabel').textContent=paused?' 继续':' 暂停';document.getElementById('playBtn').setAttribute('aria-label',paused?'继续动画':'暂停动画');syncStatus();}
+    function syncStatus(){document.getElementById('statusText').textContent=`${paused?'已暂停':'正在运行'} · ${speed.toFixed(1)}×`;}
+    function resetView(){focus=null;target={x:0,y:0,z:0};targetYaw=-.48;targetPitch=.94;targetZoom=1;updateInfo(sun);updateNav();if(innerWidth<=820)infoPanel.classList.remove('open');}
+    document.getElementById('playBtn').addEventListener('click',togglePlay);
+    document.getElementById('resetBtn').addEventListener('click',resetView);
+    document.getElementById('speedRange').addEventListener('input',e=>{speed=+e.target.value;document.getElementById('speedValue').textContent=speed.toFixed(1)+'×';syncStatus();});
+    addEventListener('resize',resize,{passive:true});
+    document.addEventListener('visibilitychange',()=>{last=performance.now();});
+
+    buildNav(); updateInfo(sun); resize();
+    hintTimer=setTimeout(()=>document.getElementById('hint').style.opacity='.35',7000);
+    requestAnimationFrame(render);
+  })();
+  </script>
+</body>
+</html>

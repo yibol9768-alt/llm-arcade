@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>九曜 · 立体太阳系</title>
+<style>
+  :root{--ink:#eaf4ff;--muted:#9eb4ce;--panel:rgba(8,16,34,.76);--line:rgba(154,204,255,.19);--accent:#6ce7ff}
+  *{box-sizing:border-box} html,body{height:100%;margin:0;overflow:hidden;background:#020611;color:var(--ink);font-family:"Microsoft YaHei",system-ui,sans-serif}
+  #space{display:block;width:100%;height:100%;touch-action:none;cursor:grab;background:radial-gradient(ellipse at 50% 45%,#142449 0%,#060c21 42%,#020611 82%)} #space.dragging{cursor:grabbing}
+  .top{position:fixed;z-index:3;top:0;left:0;width:100%;padding:18px 22px 38px;pointer-events:none;background:linear-gradient(#030817d9,transparent)}
+  .brand{display:flex;align-items:center;gap:11px}.mark{width:31px;height:31px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#fff9bd,#ffbd42 35%,#ee631f 74%);box-shadow:0 0 20px #ff983c}.brand h1{font-size:18px;letter-spacing:.16em;margin:0;font-weight:700}.brand p{margin:5px 0 0;font-size:12px;color:var(--muted);letter-spacing:.06em}
+  #hud{position:fixed;z-index:3;left:18px;bottom:18px;width:min(355px,calc(100vw - 36px));padding:16px 17px;border:1px solid var(--line);border-radius:16px;background:var(--panel);backdrop-filter:blur(12px);box-shadow:0 14px 42px #0008}
+  #planetTitle{font-size:21px;letter-spacing:.08em;margin:0 0 5px;color:#fff}#planetSub{font-size:12px;color:var(--accent);letter-spacing:.1em;margin-bottom:10px}#planetText{font-size:13px;line-height:1.7;color:#d3e0f0;margin:0}.stats{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.tag{font-size:11px;color:#b8d3ed;border:1px solid #537195;padding:4px 8px;border-radius:99px;background:#0d2036}
+  #controls{position:fixed;z-index:3;right:18px;bottom:18px;display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--line);border-radius:16px;background:var(--panel);backdrop-filter:blur(12px)}button{appearance:none;border:1px solid #537195;background:#112540;color:#e9f7ff;border-radius:10px;min-width:39px;height:38px;padding:0 11px;font:600 13px inherit;cursor:pointer;transition:.2s}button:hover{background:#1b4162;border-color:#7ddcf4}button:active{transform:scale(.95)}#speed{accent-color:#6ce7ff;width:88px;cursor:pointer}.speedLabel{font-size:11px;color:var(--muted);white-space:nowrap}.hint{position:fixed;z-index:2;top:105px;left:50%;transform:translateX(-50%);font-size:12px;color:#c8dcf4b8;white-space:nowrap;pointer-events:none;text-shadow:0 1px 6px #000}
+  #tooltip{position:fixed;z-index:4;display:none;transform:translate(-50%,-150%);padding:5px 9px;border-radius:7px;background:#08172de8;border:1px solid #6593b6;color:white;font-size:12px;pointer-events:none}.legend{position:fixed;z-index:2;right:20px;top:20px;color:#a5c5e3;font-size:11px;text-align:right;line-height:1.8;pointer-events:none}.legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#6ce7ff;margin-right:4px;box-shadow:0 0 8px #6ce7ff}
+  @media(max-width:640px){.top{padding:13px 15px 30px}.brand h1{font-size:16px}.brand p{font-size:10px}.hint{top:80px;font-size:10px}.legend{display:none}#hud{left:10px;bottom:10px;width:calc(100vw - 20px);padding:12px 14px;min-height:126px}#planetTitle{font-size:18px}#planetText{font-size:12px;line-height:1.55}.stats{margin-top:8px}#controls{right:10px;bottom:146px;padding:7px;gap:6px}#speed{width:65px}button{height:34px;min-width:34px;padding:0 8px}.speedLabel{display:none}}
+</style>
+</head>
+<body>
+<canvas id="space" aria-label="可交互的九大行星太阳系"></canvas>
+<header class="top"><div class="brand"><div class="mark"></div><div><h1>九曜 · SOLAR ORRERY</h1><p>沉浸式立体太阳系探索仪</p></div></div></header>
+<div class="hint">拖拽旋转视角 · 滚轮缩放 · 点击行星探索</div><div class="legend"><i></i>实时运行中<br>九大行星（含冥王星）</div>
+<aside id="hud"><h2 id="planetTitle">太阳系</h2><div id="planetSub">SOLAR SYSTEM · 交互导览</div><p id="planetText">太阳位于中心，九颗行星在经过压缩的固定轨道上连续运行。选择任一行星，查看它的中文档案；拖动即可从不同角度观察轨道平面。</p><div class="stats" id="stats"><span class="tag">9 颗行星</span><span class="tag">立体透视</span><span class="tag">实时公转</span></div></aside>
+<div id="controls"><button id="pause" title="暂停或继续">❚❚</button><span class="speedLabel">速度</span><input id="speed" type="range" min="0.2" max="3" value="1" step="0.1" aria-label="公转速度"/><button id="reset" title="重置视角">重置</button></div><div id="tooltip"></div>
+<script>
+(() => {
+  'use strict';
+  const canvas=document.getElementById('space'), ctx=canvas.getContext('2d');
+  const $=id=>document.getElementById(id), tooltip=$('tooltip');
+  const planets=[
+    {n:'水星',en:'MERCURY',r:62,s:4.2,c:'#b8aaa0',period:3.1,tilt:7,desc:'最靠近太阳的行星，表面布满古老的撞击坑，昼夜温差极大。',facts:['岩石行星','最短公转周期']},
+    {n:'金星',en:'VENUS',r:86,s:7.1,c:'#e8a64a',period:5.0,tilt:3.4,desc:'被浓厚大气与硫酸云层包裹的灼热世界，也是夜空中最亮的行星之一。',facts:['浓密大气','逆向自转']},
+    {n:'地球',en:'EARTH',r:113,s:7.8,c:'#2f91e8',period:7.2,tilt:0,desc:'我们共同的蓝色家园，液态海洋与适宜的大气孕育了已知的生命。',facts:['海洋世界','1 颗卫星'],moon:true},
+    {n:'火星',en:'MARS',r:143,s:5.8,c:'#d9643e',period:10.4,tilt:1.85,desc:'因富含氧化铁而呈现红色。这里拥有太阳系最高的火山与巨大的峡谷。',facts:['红色星球','两颗小卫星']},
+    {n:'木星',en:'JUPITER',r:187,s:17,c:'#d7a16f',period:17.6,tilt:1.3,desc:'太阳系最大的行星，拥有条纹云带和持续数百年的巨大风暴“大红斑”。',facts:['最大行星','气态巨星'],bands:true},
+    {n:'土星',en:'SATURN',r:236,s:14.5,c:'#e5c276',period:24.5,tilt:2.5,desc:'以壮观的冰岩碎屑环闻名。它的平均密度甚至低于水。',facts:['行星环','气态巨星'],ring:true},
+    {n:'天王星',en:'URANUS',r:286,s:11.5,c:'#79d6de',period:32,tilt:.8,desc:'一颗淡蓝色冰巨星，几乎像滚在轨道上一般侧躺着自转。',facts:['冰巨星','极端倾斜自转']},
+    {n:'海王星',en:'NEPTUNE',r:337,s:11.2,c:'#496ee7',period:41.5,tilt:1.8,desc:'深蓝色的冰巨星，拥有太阳系中观测到的最快行星风暴。',facts:['冰巨星','高速大气']},
+    {n:'冥王星',en:'PLUTO',r:385,s:4.8,c:'#c9aa91',period:53,tilt:8.2,desc:'位于柯伊伯带的矮行星。本图将它纳入传统“九大行星”探索序列。',facts:['矮行星','柯伊伯带']}
+  ];
+  let W=0,H=0,DPR=1, yaw=-.72,pitch=.56,zoom=1,drag=null,hover=null,selected=null,paused=false,speed=1,last=0,sim=0;
+  const stars=Array.from({length:210},(_,i)=>({x:Math.random(),y:Math.random(),a:.15+Math.random()*.8,r:Math.random()*1.4,phase:i}));
+  function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)} addEventListener('resize',resize);resize();
+  function rotate(p){let x=p.x*Math.cos(yaw)-p.z*Math.sin(yaw),z=p.x*Math.sin(yaw)+p.z*Math.cos(yaw);let y=p.y*Math.cos(pitch)-z*Math.sin(pitch);z=p.y*Math.sin(pitch)+z*Math.cos(pitch);return{x,y,z}}
+  function project(p){const q=rotate(p), scale=(Math.min(W,H)*.92*zoom)/(1000+q.z*.20);return{x:W/2+q.x*scale,y:H/2+q.y*scale,z:q.z,scale}}
+  function pathEllipse(r,inc){ctx.beginPath();for(let i=0;i<=128;i++){let a=i/128*Math.PI*2,q=project({x:Math.cos(a)*r,y:Math.sin(a)*r*Math.sin(inc),z:Math.sin(a)*r*Math.cos(inc)});i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)}ctx.closePath()}
+  function glow(x,y,r,color){let g=ctx.createRadialGradient(x,y,0,x,y,r*3.6);g.addColorStop(0,color);g.addColorStop(.22,color+'aa');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r*3.6,0,7);ctx.fill()}
+  function label(txt,x,y){ctx.font='600 11px Microsoft YaHei, sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(225,241,255,.9)';ctx.shadowColor='#000';ctx.shadowBlur=5;ctx.fillText(txt,x,y);ctx.shadowBlur=0}
+  function drawPlanet(p){let rad=Math.max(2.4,p.s*p.q.scale*.64);p.hit={x:p.q.x,y:p.q.y,r:Math.max(rad,10),z:p.q.z};if(p.ring){ctx.save();ctx.translate(p.q.x,p.q.y);ctx.rotate(-yaw*.65+.18);ctx.scale(1,.34);ctx.strokeStyle='rgba(231,212,151,.8)';ctx.lineWidth=Math.max(1,rad*.23);ctx.beginPath();ctx.ellipse(0,0,rad*2.15,rad*.82,0,0,7);ctx.stroke();ctx.strokeStyle='rgba(117,90,52,.75)';ctx.lineWidth=Math.max(1,rad*.2);ctx.beginPath();ctx.ellipse(0,0,rad*1.48,rad*.55,0,0,7);ctx.stroke();ctx.restore()}
+    glow(p.q.x,p.q.y,rad,p.c);let g=ctx.createRadialGradient(p.q.x-rad*.35,p.q.y-rad*.42,rad*.12,p.q.x,p.q.y,rad);g.addColorStop(0,'#fff');g.addColorStop(.22,p.c);g.addColorStop(1,'#0a1528');ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.q.x,p.q.y,rad,0,7);ctx.fill();
+    if(p.bands){ctx.save();ctx.beginPath();ctx.arc(p.q.x,p.q.y,rad,0,7);ctx.clip();ctx.strokeStyle='#9e6544aa';ctx.lineWidth=Math.max(1,rad*.17);for(let j=-.45;j<=.5;j+=.32){ctx.beginPath();ctx.arc(p.q.x,p.q.y+j*rad,rad,Math.PI*.1,Math.PI*.9);ctx.stroke()}ctx.fillStyle='#ba5c38';ctx.beginPath();ctx.arc(p.q.x+rad*.38,p.q.y+rad*.2,rad*.13,0,7);ctx.fill();ctx.restore()}
+    if(p.moon){ctx.strokeStyle='rgba(171,210,242,.38)';ctx.beginPath();ctx.arc(p.q.x,p.q.y,rad*1.75,0,7);ctx.stroke();ctx.fillStyle='#d6dde7';ctx.beginPath();ctx.arc(p.q.x+rad*1.75,p.q.y,Math.max(1.5,rad*.22),0,7);ctx.fill()}
+    if(selected===p){ctx.strokeStyle='#7cf4ff';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(p.q.x,p.q.y,rad+7,0,7);ctx.stroke()}label(p.n,p.q.x,p.q.y-rad-8)
+  }
+  function draw(t){ctx.clearRect(0,0,W,H);for(const s of stars){let a=s.a*(.65+.35*Math.sin(t*.001+s.phase));ctx.fillStyle=`rgba(205,225,255,${a})`;ctx.fillRect(s.x*W,s.y*H,s.r,s.r)}
+    // orbits
+    planets.forEach(p=>{pathEllipse(p.r,p.tilt*Math.PI/180);ctx.strokeStyle=selected===p?'rgba(104,231,255,.58)':'rgba(126,173,220,.2)';ctx.lineWidth=selected===p?1.3:1;ctx.stroke()});
+    const sun=project({x:0,y:0,z:0});glow(sun.x,sun.y,28*sun.scale*.55,'#ffb331');let sg=ctx.createRadialGradient(sun.x-7*sun.scale,sun.y-8*sun.scale,1,sun.x,sun.y,25*sun.scale);sg.addColorStop(0,'#fff8c8');sg.addColorStop(.32,'#ffc34b');sg.addColorStop(1,'#dd5922');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sun.x,sun.y,25*sun.scale,0,7);ctx.fill();label('太阳',sun.x,sun.y-25*sun.scale-9);
+    let objs=planets.map((p,i)=>{let a=sim/p.period+i*.91,inc=p.tilt*Math.PI/180;p.q=project({x:Math.cos(a)*p.r,y:Math.sin(a)*p.r*Math.sin(inc),z:Math.sin(a)*p.r*Math.cos(inc)});return p}).sort((a,b)=>a.q.z-b.q.z);objs.forEach(drawPlanet);
+    if(hover){tooltip.style.display='block';tooltip.style.left=hover.hit.x+'px';tooltip.style.top=hover.hit.y+'px';tooltip.textContent=hover.n+' · 点击查看'}else tooltip.style.display='none';requestAnimationFrame(draw)
+  }
+  requestAnimationFrame(draw);
+  function setInfo(p){selected=p;$('planetTitle').textContent=p.n;$('planetSub').textContent=p.en+' · 轨道半径 '+p.r+' AU（演示比例）';$('planetText').textContent=p.desc;$('stats').innerHTML=p.facts.map(x=>'<span class="tag">'+x+'</span>').join('')+'<span class="tag">公转速度 '+p.period.toFixed(1)+'</span>'}
+  function pick(x,y){let candidates=planets.filter(p=>p.hit&&Math.hypot(x-p.hit.x,y-p.hit.y)<p.hit.r+5);return candidates.sort((a,b)=>b.hit.z-a.hit.z)[0]||null}
+  canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,yaw,pitch,moved:false};canvas.classList.add('dragging')});
+  canvas.addEventListener('pointermove',e=>{if(drag){let dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;yaw=drag.yaw+dx*.008;pitch=Math.max(-1.25,Math.min(1.25,drag.pitch+dy*.008))}else hover=pick(e.clientX,e.clientY)});
+  canvas.addEventListener('pointerup',e=>{if(drag&&!drag.moved){let p=pick(e.clientX,e.clientY);if(p)setInfo(p)}drag=null;canvas.classList.remove('dragging')});canvas.addEventListener('pointerleave',()=>{if(!drag)hover=null});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.58,Math.min(1.3,zoom*(e.deltaY>0?.91:1.1)))},{passive:false});
+  $('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'❚❚';$('pause').title=paused?'继续':'暂停'};$('speed').oninput=e=>speed=+e.target.value;$('reset').onclick=()=>{yaw=-.72;pitch=.56;zoom=1;selected=null;$('planetTitle').textContent='太阳系';$('planetSub').textContent='SOLAR SYSTEM · 交互导览';$('planetText').textContent='太阳位于中心，九颗行星在经过压缩的固定轨道上连续运行。选择任一行星，查看它的中文档案；拖动即可从不同角度观察轨道平面。';$('stats').innerHTML='<span class="tag">9 颗行星</span><span class="tag">立体透视</span><span class="tag">实时公转</span>'};
+  (function clock(now){let dt=Math.min(.05,(now-last)/1000||0);last=now;if(!paused)sim+=dt*speed*1.25;requestAnimationFrame(clock)})(performance.now());
+})();
+</script>
+</body>
+</html>

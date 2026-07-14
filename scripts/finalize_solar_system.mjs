@@ -68,7 +68,10 @@ const entrants = available.map((run) => {
     files: files.length,
     bytes: files.reduce((sum, file) => sum + file.bytes, 0),
     code_lines: codeLines,
-    loads_ok: true,
+    loads_ok: run.browser_status !== "runtime_error",
+    runtime_issue: run.runtime_issue || null,
+    human_code_edits: run.human_code_edits || 0,
+    maintenance_note: run.maintenance_note || null,
     broken_refs: [],
   };
 });
@@ -79,12 +82,15 @@ for (const entrant of entrants) {
   cpSync(join(trackDir, entrant.dir), join(frontendGames, entrant.dir), { recursive: true });
 }
 
+const complete = entrants.length === plan.runs.length;
+const live = complete && plan.status === "completed_verified";
+const maintenanceEdits = entrants.reduce((sum, entrant) => sum + entrant.human_code_edits, 0);
 const publicData = {
   track: "solar-system",
   title_zh: track.title_zh,
   title_en: track.title_en,
   prompt: track.prompt,
-  status: entrants.length === plan.runs.length ? "ready_for_publish" : "collecting",
+  status: live ? "live" : complete ? "ready_for_publish" : "collecting",
   blind_voting_enabled: entrants.length >= 2,
   generated_at: new Date().toISOString(),
   entrants,
@@ -108,16 +114,15 @@ const sql = [
 ].join("\n");
 writeFileSync(migrationPath, sql);
 
-const complete = entrants.length === plan.runs.length;
-track.status = complete ? "ready_for_publish" : "collecting";
-track.status_label = complete ? "READY / 待最终验收发布" : "COLLECTING / 已有真实作品";
+track.status = live ? "live" : complete ? "ready_for_publish" : "collecting";
+track.status_label = live ? "LIVE / 15 份作品已上线" : complete ? "READY / 待最终验收发布" : "COLLECTING / 已有真实作品";
 track.completed_runs = entrants.length;
 track.entrants = entrants.map(({ dir, display_name, vendor, harness, machine }) => ({
   dir, display_name, vendor, harness, machine,
 }));
 track.publication_gate = "单个真实作品完成归档、依赖检查和浏览器验收后即可先上线试玩;至少 2 份真实作品才启用盲评和排行榜";
 track.disclosure = complete
-  ? "15 份归档作品均已检测 index.html 和本地依赖;仍需浏览器验收后才可正式开放完整赛道"
+  ? `15 份归档作品均已检测 index.html、本地依赖和浏览器加载;其中 ${maintenanceEdits} 处最小上线修复已在参赛记录中披露`
   : entrants.length >= 2
     ? `当前 ${entrants.length} 份真实作品已完成归档、文件检查和浏览器验收;试玩、完整排序、匿名盲评和排行榜已开放，赛道继续收集其余计划运行位`
     : `当前 ${entrants.length} 份真实作品已完成归档和文件检查;赛道继续收集，未满 2 份时不开放盲评或排行榜`;

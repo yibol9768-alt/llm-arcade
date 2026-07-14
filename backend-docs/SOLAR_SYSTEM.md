@@ -1,12 +1,13 @@
 # 一句话太阳系赛道接入流程
 
-当前公开统一协议、15 个计划运行位，以及已经真实完成并核验的作品。不得为未完成运行位创建试玩、截图、排行榜、评分或 D1 参赛者记录。
+当前 15 个计划运行位均已完成真实产物归档与核验，并开放试玩、完整排序、匿名 A/B 对战和排行榜。
 
 ## 运行前
 
 - 唯一来源:`tracks/solar-system/_run_plan.json`。
 - 每个模型收到 `prompt_template`,只把 `【目标目录】` 替换为对应 `target_dir`。
-- Claude Code 与 Codex 在 `vircs` 运行;其余模型在 Mac 的 Cursor 运行。
+- GPT 系列通过 Codex 在 `vircs` 运行，Claude 系列通过 Claude Code 在 `vircs` 运行。
+- DeepSeek V4 Pro 通过 Mac 上的 Claude Code + Claude Code Router 运行；其余非 GPT/Claude 模型通过 Mac 上的 Cursor 运行。
 - 每个目标目录必须独立,入口必须是该目录内的 `index.html`。
 
 运行 `npm run solar:plan` 可验证 15 个 slug、目标目录和机器映射没有重复或错位,并刷新前端计划数据。该命令不创建任何参赛作品。

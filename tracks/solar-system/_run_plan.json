@@ -1,7 +1,7 @@
 {
   "track": "solar-system",
-  "plan_version": "1.0",
-  "status": "planned",
+  "plan_version": "1.1",
+  "status": "completed_verified",
   "prompt_template": "帮我做一个可以交互探索的太阳系九大行星立体运行网页，包含冥王星。\n\n请将最终可运行的完整网页作品放在以下目录中：\n\n【目标目录】\n\n要求：\n1. 你可以自行规划、编写、运行和调试作品。\n2. 只能访问和操作上述目标目录。\n3. 不要读取、搜索、列出或参考父目录、其他模型的文件夹或其他参赛作品。\n4. 所有新增或修改的文件必须放在上述目标目录内。\n5. 最终网页入口必须是目标目录中的 index.html。\n6. 请完成实际可以交互探索的网页成品，不要只提供代码说明、设计方案或伪代码。\n7. 可以自行选择 HTML、CSS、JavaScript、Canvas、WebGL 或网页 3D 技术。\n8. 完成后请自行运行和调试，并确认 index.html 可以在浏览器中正常打开。\n9. 不要向我询问设计细节，请自主完成整个作品。\n10. 完成后只需报告生成的文件、运行方式和验证结果。\n\n现在开始执行，不要只回复计划。",
   "prompt_substitution_rule": "每次只将【目标目录】替换为该运行位的 target_dir;其他文字逐字不变",
   "runs": [
@@ -11,8 +11,10 @@
       "vendor": "Anthropic",
       "harness": "Claude Code",
       "machine": "vircs",
-      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/claude-fable-5/",
-      "status": "not_run"
+      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/claude-fable/",
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_fable.log"
     },
     {
       "slug": "claude-sonnet",
@@ -21,16 +23,9 @@
       "harness": "Claude Code",
       "machine": "vircs",
       "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/claude-sonnet/",
-      "status": "not_run"
-    },
-    {
-      "slug": "claude-haiku",
-      "model": "Claude Haiku",
-      "vendor": "Anthropic",
-      "harness": "Claude Code",
-      "machine": "vircs",
-      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/claude-haiku/",
-      "status": "not_run"
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_sonnet.log"
     },
     {
       "slug": "claude-opus",
@@ -39,7 +34,9 @@
       "harness": "Claude Code",
       "machine": "vircs",
       "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/claude-opus/",
-      "status": "not_run"
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_opus.log"
     },
     {
       "slug": "gpt5.6luna",
@@ -47,8 +44,12 @@
       "vendor": "OpenAI",
       "harness": "Codex",
       "machine": "vircs",
-      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt5.6luna/",
-      "status": "not_run"
+      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt-5.6-luna/",
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_gpt56luna.log",
+      "human_code_edits": 1,
+      "maintenance_note": "上线前最小修复：将脚本误写的 #planetKicker 更正为页面现有的 #panelKicker"
     },
     {
       "slug": "gpt5.6sol",
@@ -56,8 +57,10 @@
       "vendor": "OpenAI",
       "harness": "Codex",
       "machine": "vircs",
-      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt5.6sol/",
-      "status": "not_run"
+      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt-5.6-sol/",
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_gpt56sol.log"
     },
     {
       "slug": "gpt5.6terra",
@@ -65,8 +68,10 @@
       "vendor": "OpenAI",
       "harness": "Codex",
       "machine": "vircs",
-      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt5.6terra/",
-      "status": "not_run"
+      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt-5.6-terra/",
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_gpt56terra.log"
     },
     {
       "slug": "gpt5.5",
@@ -74,8 +79,21 @@
       "vendor": "OpenAI",
       "harness": "Codex",
       "machine": "vircs",
-      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt5.5/",
-      "status": "not_run"
+      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt-5.5/",
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_gpt55.log"
+    },
+    {
+      "slug": "gpt5.4",
+      "model": "GPT-5.4",
+      "vendor": "OpenAI",
+      "harness": "Codex",
+      "machine": "vircs",
+      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt-5.4/",
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_gpt54.log"
     },
     {
       "slug": "gpt5.4mini",
@@ -83,8 +101,10 @@
       "vendor": "OpenAI",
       "harness": "Codex",
       "machine": "vircs",
-      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt5.4mini/",
-      "status": "completed_verified"
+      "target_dir": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/gpt-5.4-mini/",
+      "status": "completed_verified",
+      "execution_mode": "interactive_tui_tmux",
+      "transcript_path": "/root/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/logs/batch-20260714/arcade_ss_gpt54mini.log"
     },
     {
       "slug": "composer2.5",
@@ -135,7 +155,7 @@
       "slug": "deepseek-v4-pro",
       "model": "DeepSeek V4 Pro",
       "vendor": "DeepSeek",
-      "harness": "Cursor",
+      "harness": "Claude Code + Claude Code Router",
       "machine": "Mac",
       "target_dir": "/Users/liuyibo/Desktop/lyb/llm-arcade-runs/solar-system-9-planets/deepseek-v4-pro/",
       "status": "completed_verified"

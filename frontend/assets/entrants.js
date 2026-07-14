@@ -28,6 +28,10 @@ window.ARCADE_ENTRANT_META = {
     vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
     model: "GPT-5.5", harness: "Codex", verified: true
   },
+  "gpt5.4": {
+    vendor: "OpenAI", vendor_mark: "OA", vendor_class: "openai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
+    model: "GPT-5.4", harness: "Codex", verified: true
+  },
   "grok4.5": {
     vendor: "xAI", vendor_mark: "xAI", vendor_class: "xai", vendor_logo: "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/x.svg",
     model: "Grok 4.5", harness: "Cursor", verified: true

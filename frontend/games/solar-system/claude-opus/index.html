@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>太阳系九大行星 · 立体交互探索</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #05060d; color: #e8eefc;
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans CJK SC", sans-serif;
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #scene { position: fixed; inset: 0; display: block; touch-action: none; cursor: grab; }
+  #scene:active { cursor: grabbing; }
+
+  /* 顶部标题 + 导航 */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 10px 14px 8px; z-index: 10;
+    background: linear-gradient(180deg, rgba(5,7,16,0.85) 0%, rgba(5,7,16,0.0) 100%);
+    pointer-events: none;
+  }
+  #title { font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+  #title small { font-weight: 400; font-size: 12px; color: #9fb3d8; margin-left: 6px; }
+  #nav {
+    margin-top: 8px; display: flex; gap: 6px; overflow-x: auto; pointer-events: auto;
+    padding-bottom: 4px; scrollbar-width: thin;
+  }
+  #nav::-webkit-scrollbar { height: 5px; }
+  #nav::-webkit-scrollbar-thumb { background: rgba(120,150,210,0.4); border-radius: 3px; }
+  .chip {
+    flex: 0 0 auto; padding: 5px 11px; border-radius: 16px; font-size: 12px;
+    background: rgba(30,42,70,0.7); border: 1px solid rgba(120,150,210,0.25);
+    color: #d5e2ff; cursor: pointer; white-space: nowrap; transition: all .15s;
+  }
+  .chip:hover { background: rgba(60,90,150,0.8); }
+  .chip.active { background: #3d7fd6; border-color: #6fb0ff; color: #fff; }
+  .chip .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+  /* 底部控制条 */
+  #controls {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 14px 12px;
+    background: linear-gradient(0deg, rgba(5,7,16,0.9) 0%, rgba(5,7,16,0.0) 100%);
+  }
+  .btn {
+    padding: 8px 14px; border-radius: 10px; font-size: 13px; cursor: pointer;
+    background: rgba(40,55,90,0.85); border: 1px solid rgba(120,150,210,0.3); color: #eaf1ff;
+    transition: all .15s; white-space: nowrap;
+  }
+  .btn:hover { background: rgba(60,85,145,0.95); }
+  .btn:active { transform: scale(0.96); }
+  .btn.primary { background: #2f6fd0; border-color: #6fb0ff; }
+  .speed-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(30,42,70,0.75); padding: 6px 12px; border-radius: 10px;
+    border: 1px solid rgba(120,150,210,0.25); font-size: 12px; color: #cdd9f2;
+  }
+  #speed { width: 120px; accent-color: #5aa0ff; cursor: pointer; }
+  #speedVal { min-width: 34px; text-align: right; color: #9fd0ff; font-variant-numeric: tabular-nums; }
+
+  /* 信息面板 */
+  #info {
+    position: fixed; top: 96px; right: 14px; width: 300px; max-height: calc(100% - 190px);
+    overflow-y: auto; z-index: 9;
+    background: rgba(12,18,34,0.82); backdrop-filter: blur(8px);
+    border: 1px solid rgba(120,150,210,0.28); border-radius: 14px;
+    padding: 16px 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    line-height: 1.55; scrollbar-width: thin;
+  }
+  #info::-webkit-scrollbar { width: 6px; }
+  #info::-webkit-scrollbar-thumb { background: rgba(120,150,210,0.4); border-radius: 3px; }
+  #info h2 { font-size: 19px; display: flex; align-items: baseline; gap: 8px; }
+  #info h2 .en { font-size: 12px; font-weight: 400; color: #8fa6cf; }
+  #info .tag {
+    display: inline-block; margin: 8px 0 10px; font-size: 11px; padding: 3px 9px;
+    border-radius: 12px; background: rgba(90,140,220,0.22); color: #a9c8ff;
+  }
+  #info table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 10px; }
+  #info td { padding: 4px 0; vertical-align: top; }
+  #info td.k { color: #93a6c9; width: 82px; }
+  #info td.v { color: #eaf1ff; }
+  #info .fact { font-size: 12.5px; color: #cdd9f2; background: rgba(255,255,255,0.04);
+    padding: 8px 10px; border-radius: 8px; border-left: 3px solid #4f8fe0; }
+  #info .hint-list { font-size: 12.5px; color: #cbd6ee; }
+  #info .hint-list li { margin: 5px 0 5px 16px; }
+  #info .close { display: none; }
+
+  #toast {
+    position: fixed; bottom: 74px; left: 50%; transform: translateX(-50%);
+    background: rgba(20,30,55,0.92); color: #dce8ff; padding: 8px 16px; border-radius: 20px;
+    font-size: 13px; z-index: 20; opacity: 0; transition: opacity .3s; pointer-events: none;
+    border: 1px solid rgba(120,150,210,0.3);
+  }
+  #toast.show { opacity: 1; }
+
+  @media (max-width: 760px) {
+    #info {
+      top: auto; bottom: 118px; right: 8px; left: 8px; width: auto;
+      max-height: 40vh;
+    }
+    #info .close { display: block; position: absolute; top: 10px; right: 12px;
+      font-size: 20px; color: #9fb3d8; cursor: pointer; line-height: 1; }
+    #title { font-size: 15px; }
+    #speed { width: 90px; }
+    #toast { bottom: 128px; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <div id="topbar">
+    <div id="title">☀️ 太阳系九大行星 <small>拖拽旋转 · 滚轮缩放 · 点击行星查看详情</small></div>
+    <div id="nav"></div>
+  </div>
+
+  <div id="info"></div>
+
+  <div id="controls">
+    <button class="btn primary" id="btnPlay">⏸ 暂停</button>
+    <button class="btn" id="btnReset">⟳ 重置视角</button>
+    <button class="btn" id="btnTop">🌍 俯视</button>
+    <div class="speed-wrap">
+      <span>速度</span>
+      <input type="range" id="speed" min="0" max="5" step="0.1" value="1">
+      <span id="speedVal">1.0×</span>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- 画布与高清适配 ----------
+  var canvas = document.getElementById("scene");
+  var ctx = canvas.getContext("2d");
+  var W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    cx = W / 2; cy = H / 2;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  // ---------- 向量工具 ----------
+  function sub(a, b) { return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }; }
+  function cross(a, b) {
+    return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x };
+  }
+  function dot(a, b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+  function norm(a) {
+    var m = Math.hypot(a.x, a.y, a.z) || 1;
+    return { x: a.x / m, y: a.y / m, z: a.z / m };
+  }
+
+  // ---------- 天体数据（轨道/尺寸经过压缩，非真实比例；文字信息为真实数据）----------
+  var SUN = {
+    isSun: true, cname: "太阳", ename: "Sun", size: 4.0, pos: { x: 0, y: 0, z: 0 },
+    type: "恒星（黄矮星）",
+    rows: [["直径", "约 139.2 万 km"], ["表面温度", "约 5500 ℃"], ["核心温度", "约 1500 万 ℃"], ["质量占比", "太阳系的 99.86%"]],
+    fact: "太阳是太阳系的中心天体，靠核心的氢核聚变发光发热，所有行星都受它的引力束缚而公转。"
+  };
+
+  // r: 轨道半径, size: 半径, speed: 角速度(相对), inc: 轨道倾角, angle0: 初始相位
+  var planets = [
+    {
+      cname: "水星", ename: "Mercury", r: 8.5, size: 0.5, speed: 0.70, inc: 0.12, angle0: 0.3,
+      light: "#c9b7a2", dark: "#5a4b3d", ui: "#b8a488", type: "类地行星",
+      rows: [["直径", "4,879 km"], ["距太阳", "约 5,790 万 km"], ["公转周期", "约 88 天"], ["自转周期", "约 58.6 天"]],
+      fact: "离太阳最近、体积最小的行星。几乎没有大气，昼夜温差可达约 600℃，是太阳系里温差最极端的行星。"
+    },
+    {
+      cname: "金星", ename: "Venus", r: 11.5, size: 0.82, speed: 0.53, inc: 0.06, angle0: 1.1,
+      light: "#f3e2b0", dark: "#8a6b3a", ui: "#e6cf94", type: "类地行星",
+      rows: [["直径", "12,104 km"], ["距太阳", "约 1.08 亿 km"], ["公转周期", "约 225 天"], ["自转周期", "约 243 天(逆向)"]],
+      fact: "被浓厚二氧化碳大气包裹，强烈温室效应使表面高达约 465℃，是太阳系最热的行星。它逆向自转，太阳西升东落。"
+    },
+    {
+      cname: "地球", ename: "Earth", r: 14.8, size: 0.88, speed: 0.45, inc: 0.0, angle0: 2.4,
+      light: "#8fd0ff", dark: "#153a66", ui: "#4a9de0", type: "类地行星 · 家园", earth: true,
+      rows: [["直径", "12,742 km"], ["距太阳", "约 1.496 亿 km"], ["公转周期", "365.25 天"], ["自转周期", "约 24 小时"]],
+      fact: "目前已知唯一存在生命的星球。约 71% 表面被液态水覆盖，拥有富含氧气的大气层和唯一的天然卫星——月球。"
+    },
+    {
+      cname: "火星", ename: "Mars", r: 18.5, size: 0.66, speed: 0.36, inc: 0.03, angle0: 4.0,
+      light: "#e88a5a", dark: "#6e2c1a", ui: "#d76f45", type: "类地行星",
+      rows: [["直径", "6,779 km"], ["距太阳", "约 2.28 亿 km"], ["公转周期", "约 687 天"], ["自转周期", "约 24.6 小时"]],
+      fact: "表面富含氧化铁而呈红色，被称为“红色星球”。拥有太阳系最高的火山奥林帕斯山（约 22 km），是人类探测的热点。"
+    },
+    {
+      cname: "木星", ename: "Jupiter", r: 24.5, size: 2.2, speed: 0.20, inc: 0.02, angle0: 0.9,
+      light: "#e8c9a0", dark: "#7a5230", ui: "#d8a878", type: "气态巨行星",
+      bands: ["rgba(120,80,50,0.30)", "rgba(230,205,165,0.22)", "rgba(150,95,60,0.30)", "rgba(235,215,180,0.20)", "rgba(130,85,55,0.30)", "rgba(225,200,160,0.20)"],
+      redspot: true,
+      rows: [["直径", "139,820 km"], ["距太阳", "约 7.78 亿 km"], ["公转周期", "约 11.9 年"], ["自转周期", "约 9.9 小时"]],
+      fact: "太阳系最大的行星，质量是其余行星总和的 2.5 倍。标志性的“大红斑”是一个持续了数百年、比地球还大的巨型风暴。"
+    },
+    {
+      cname: "土星", ename: "Saturn", r: 30.5, size: 1.9, speed: 0.15, inc: 0.045, angle0: 3.3,
+      light: "#f0dcae", dark: "#8a6c3a", ui: "#e3cd8f", type: "气态巨行星", ring: true,
+      bands: ["rgba(150,120,70,0.22)", "rgba(240,222,175,0.20)", "rgba(160,128,75,0.22)", "rgba(238,220,172,0.18)"],
+      rows: [["直径", "116,460 km"], ["距太阳", "约 14.3 亿 km"], ["公转周期", "约 29.5 年"], ["自转周期", "约 10.7 小时"]],
+      fact: "以壮丽的行星环著称，环主要由无数冰块和岩石碎片构成，宽度可达数十万公里，厚度却往往只有几十米。"
+    },
+    {
+      cname: "天王星", ename: "Uranus", r: 36.0, size: 1.4, speed: 0.11, inc: 0.013, angle0: 5.2,
+      light: "#c4f2f0", dark: "#2e6f76", ui: "#8fe0e0", type: "冰巨行星",
+      rows: [["直径", "50,724 km"], ["距太阳", "约 28.7 亿 km"], ["公转周期", "约 84 年"], ["自转周期", "约 17.2 小时"]],
+      fact: "自转轴倾斜约 98°，几乎是“躺着”绕太阳滚动公转。大气中的甲烷吸收红光，使它呈现独特的青蓝色。"
+    },
+    {
+      cname: "海王星", ename: "Neptune", r: 40.5, size: 1.35, speed: 0.085, inc: 0.031, angle0: 1.8,
+      light: "#6f9dff", dark: "#1a2f78", ui: "#3f6de0", type: "冰巨行星",
+      rows: [["直径", "49,244 km"], ["距太阳", "约 45 亿 km"], ["公转周期", "约 165 年"], ["自转周期", "约 16.1 小时"]],
+      fact: "太阳系已知最远的大行星，呈深邃的蓝色。拥有太阳系最猛烈的风暴，风速可超过每小时 2000 公里。"
+    },
+    {
+      cname: "冥王星", ename: "Pluto", r: 44.5, size: 0.42, speed: 0.07, inc: 0.30, angle0: 3.9,
+      light: "#d8c4a8", dark: "#5c4636", ui: "#c2a888", type: "矮行星",
+      rows: [["直径", "2,377 km"], ["距太阳", "约 59 亿 km"], ["公转周期", "约 248 年"], ["自转周期", "约 6.4 天"]],
+      fact: "曾是第九大行星，2006 年被重新归类为“矮行星”。它位于柯伊伯带，轨道明显倾斜，最大的卫星卡戎与它互相绕转。"
+    }
+  ];
+
+  var bodies = [SUN].concat(planets);
+
+  // ---------- 相机 ----------
+  var FOV = 55 * Math.PI / 180;
+  var cam = {
+    az: 0.9, el: 0.5, dist: 90, desiredDist: 90,
+    target: { x: 0, y: 0, z: 0 },
+    follow: null
+  };
+  var DIST_MIN = 14, DIST_MAX = 175;
+
+  function clampDist(d) { return Math.max(DIST_MIN, Math.min(DIST_MAX, d)); }
+  function clampEl(e) { return Math.max(-1.45, Math.min(1.45, e)); }
+
+  function camPos() {
+    var ce = Math.cos(cam.el), se = Math.sin(cam.el);
+    var ca = Math.cos(cam.az), sa = Math.sin(cam.az);
+    return {
+      x: cam.target.x + ce * ca * cam.dist,
+      y: cam.target.y + se * cam.dist,
+      z: cam.target.z + ce * sa * cam.dist
+    };
+  }
+
+  var VIEW = null, sunProj = null;
+  function updateView() {
+    var eye = camPos();
+    var f = norm(sub(cam.target, eye));
+    var r = cross({ x: 0, y: 1, z: 0 }, f);
+    if (Math.abs(r.x) + Math.abs(r.y) + Math.abs(r.z) < 1e-6) r = { x: 1, y: 0, z: 0 };
+    r = norm(r);
+    var u = cross(f, r);
+    VIEW = { eye: eye, f: f, r: r, u: u, focal: (H / 2) / Math.tan(FOV / 2) };
+  }
+
+  function project(p) {
+    var rel = sub(p, VIEW.eye);
+    var z = dot(rel, VIEW.f);
+    if (z <= 0.06) return null;
+    var x = dot(rel, VIEW.r), y = dot(rel, VIEW.u);
+    var s = VIEW.focal / z;
+    return { x: cx + x * s, y: cy - y * s, z: z, scale: s };
+  }
+
+  // 让最外层轨道恰好收进画面
+  function frameAll() {
+    var focal = (H / 2) / Math.tan(FOV / 2);
+    var fit = Math.min(W, H) * 0.46;
+    var d = 48 * focal / fit;
+    cam.desiredDist = clampDist(d);
+  }
+
+  // ---------- 星空背景 ----------
+  var stars = [];
+  (function initStars() {
+    var seed = 12345;
+    function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+    for (var i = 0; i < 520; i++) {
+      var u = rnd() * 2 - 1;
+      var theta = rnd() * Math.PI * 2;
+      var rr = Math.sqrt(1 - u * u);
+      var R = 230 + rnd() * 40;
+      stars.push({
+        p: { x: R * rr * Math.cos(theta), y: R * u, z: R * rr * Math.sin(theta) },
+        b: 0.25 + rnd() * 0.75,
+        size: rnd() < 0.85 ? 1 : 2
+      });
+    }
+  })();
+
+  // ---------- 位置计算 ----------
+  function orbitPoint(p, a) {
+    var ox = Math.cos(a) * p.r;
+    var oz = Math.sin(a) * p.r;
+    var si = Math.sin(p.inc), ci = Math.cos(p.inc);
+    return { x: ox, y: -oz * si, z: oz * ci };
+  }
+
+  // ---------- 绘制辅助 ----------
+  function lightDirScreen(pr) {
+    if (sunProj) {
+      var dx = sunProj.x - pr.x, dy = sunProj.y - pr.y;
+      var m = Math.hypot(dx, dy) || 1;
+      return { x: dx / m, y: dy / m };
+    }
+    return { x: 0, y: -1 };
+  }
+
+  function drawSphere(sx, sy, r, cl, cd, ld) {
+    var hx = sx + ld.x * r * 0.5, hy = sy + ld.y * r * 0.5;
+    var g = ctx.createRadialGradient(hx, hy, r * 0.05, sx, sy, r * 1.02);
+    g.addColorStop(0, cl);
+    g.addColorStop(0.65, cd);
+    g.addColorStop(1, "#05060d");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function drawBands(sx, sy, r, bands) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.clip();
+    var n = bands.length;
+    for (var i = 0; i < n; i++) {
+      var y0 = sy - r + (2 * r) * (i / n);
+      ctx.fillStyle = bands[i];
+      ctx.fillRect(sx - r, y0, 2 * r, (2 * r) / n + 0.6);
+    }
+    ctx.restore();
+  }
+
+  function ellipseFill(x, y, rx, ry, rot) {
+    ctx.beginPath(); ctx.ellipse(x, y, Math.max(rx, 0.1), Math.max(ry, 0.1), rot, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function drawEarth(sx, sy, r) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.clip();
+    ctx.fillStyle = "rgba(70,150,85,0.80)";
+    ellipseFill(sx - r * 0.25, sy - r * 0.10, r * 0.48, r * 0.30, 0.3);
+    ellipseFill(sx + r * 0.32, sy + r * 0.28, r * 0.34, r * 0.46, -0.4);
+    ellipseFill(sx + r * 0.05, sy - r * 0.48, r * 0.30, r * 0.20, 0.0);
+    ctx.fillStyle = "rgba(245,250,255,0.55)";
+    ellipseFill(sx, sy + r * 0.78, r * 0.7, r * 0.22, 0.0);
+    ctx.restore();
+  }
+
+  function ringPt(c, rad, a, u1, u2) {
+    var ca = Math.cos(a) * rad, sa = Math.sin(a) * rad;
+    return { x: c.x + ca * u1.x + sa * u2.x, y: c.y + ca * u1.y + sa * u2.y, z: c.z + ca * u1.z + sa * u2.z };
+  }
+
+  function saturnRingQuads(p) {
+    var u1 = { x: 1, y: 0, z: 0 };
+    var tilt = 0.52;
+    var u2 = { x: 0, y: Math.sin(tilt), z: Math.cos(tilt) };
+    var bands = [
+      { i: p.size * 1.45, o: p.size * 1.85, c: "rgba(232,216,172,0.78)" },
+      { i: p.size * 1.98, o: p.size * 2.55, c: "rgba(198,182,146,0.55)" }
+    ];
+    var N = 76, quads = [];
+    for (var b = 0; b < bands.length; b++) {
+      var bd = bands[b];
+      for (var i = 0; i < N; i++) {
+        var a1 = (i / N) * Math.PI * 2, a2 = ((i + 1) / N) * Math.PI * 2;
+        var c0 = project(ringPt(p.pos, bd.i, a1, u1, u2));
+        var c1 = project(ringPt(p.pos, bd.o, a1, u1, u2));
+        var c2 = project(ringPt(p.pos, bd.o, a2, u1, u2));
+        var c3 = project(ringPt(p.pos, bd.i, a2, u1, u2));
+        if (!c0 || !c1 || !c2 || !c3) continue;
+        quads.push({ prs: [c0, c1, c2, c3], depth: (c0.z + c1.z + c2.z + c3.z) / 4, color: bd.c });
+      }
+    }
+    return quads;
+  }
+
+  function fillQuad(q) {
+    var p = q.prs;
+    ctx.beginPath();
+    ctx.moveTo(p[0].x, p[0].y);
+    ctx.lineTo(p[1].x, p[1].y);
+    ctx.lineTo(p[2].x, p[2].y);
+    ctx.lineTo(p[3].x, p[3].y);
+    ctx.closePath();
+    ctx.fillStyle = q.color;
+    ctx.fill();
+  }
+
+  function drawSun(pr) {
+    var r = Math.max(SUN.size * pr.scale, 2);
+    var g = ctx.createRadialGradient(pr.x, pr.y, r * 0.25, pr.x, pr.y, r * 4.2);
+    g.addColorStop(0, "rgba(255,214,130,0.85)");
+    g.addColorStop(0.35, "rgba(255,160,60,0.32)");
+    g.addColorStop(1, "rgba(255,120,40,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(pr.x, pr.y, r * 4.2, 0, Math.PI * 2); ctx.fill();
+
+    var c = ctx.createRadialGradient(pr.x - r * 0.25, pr.y - r * 0.25, r * 0.1, pr.x, pr.y, r);
+    c.addColorStop(0, "#fff7da");
+    c.addColorStop(0.5, "#ffd257");
+    c.addColorStop(1, "#ff9b21");
+    ctx.fillStyle = c;
+    ctx.beginPath(); ctx.arc(pr.x, pr.y, r, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function drawPlanetBody(p, pr) {
+    var r = Math.max(p.size * pr.scale, 1.4);
+    var ld = lightDirScreen(pr);
+    drawSphere(pr.x, pr.y, r, p.light, p.dark, ld);
+    if (p.bands) drawBands(pr.x, pr.y, r, p.bands);
+    if (p.earth) drawEarth(pr.x, pr.y, r);
+    if (p.redspot) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, r, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = "rgba(190,80,45,0.55)";
+      ellipseFill(pr.x + r * 0.25, pr.y + r * 0.22, r * 0.30, r * 0.18, 0.2);
+      ctx.restore();
+    }
+    // 细微的边缘高光
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(pr.x, pr.y, r, 0, Math.PI * 2); ctx.stroke();
+
+    if (p === selected) {
+      var pulse = 3 + Math.sin(simTime * 3) * 1.5;
+      ctx.save();
+      ctx.strokeStyle = "rgba(120,230,255,0.9)";
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, r + 6 + pulse, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawSaturn(p, pr) {
+    var quads = saturnRingQuads(p);
+    var behind = [], front = [];
+    for (var i = 0; i < quads.length; i++) {
+      (quads[i].depth > pr.z ? behind : front).push(quads[i]);
+    }
+    behind.sort(function (a, b) { return b.depth - a.depth; });
+    front.sort(function (a, b) { return b.depth - a.depth; });
+    for (var k = 0; k < behind.length; k++) fillQuad(behind[k]);
+    drawPlanetBody(p, pr);
+    for (var j = 0; j < front.length; j++) fillQuad(front[j]);
+  }
+
+  function drawOrbit(p) {
+    var N = 128, started = false;
+    ctx.beginPath();
+    for (var i = 0; i <= N; i++) {
+      var a = (i / N) * Math.PI * 2;
+      var pr = project(orbitPoint(p, a));
+      if (!pr) { started = false; continue; }
+      if (!started) { ctx.moveTo(pr.x, pr.y); started = true; }
+      else ctx.lineTo(pr.x, pr.y);
+    }
+    if (p === selected) { ctx.strokeStyle = "rgba(150,225,255,0.65)"; ctx.lineWidth = 1.6; }
+    else { ctx.strokeStyle = "rgba(150,170,215,0.20)"; ctx.lineWidth = 1; }
+    ctx.stroke();
+  }
+
+  function drawStars() {
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      var pr = project(s.p);
+      if (!pr) continue;
+      if (pr.x < 0 || pr.x > W || pr.y < 0 || pr.y > H) continue;
+      ctx.fillStyle = "rgba(255,255,255," + s.b.toFixed(2) + ")";
+      ctx.fillRect(pr.x, pr.y, s.size, s.size);
+    }
+  }
+
+  function roundRect(x, y, w, h, rad) {
+    ctx.beginPath();
+    ctx.moveTo(x + rad, y);
+    ctx.arcTo(x + w, y, x + w, y + h, rad);
+    ctx.arcTo(x + w, y + h, x, y + h, rad);
+    ctx.arcTo(x, y + h, x, y, rad);
+    ctx.arcTo(x, y, x + w, y, rad);
+    ctx.closePath();
+  }
+
+  function drawLabels(labels) {
+    ctx.font = "13px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (var i = 0; i < labels.length; i++) {
+      var l = labels[i];
+      var w = ctx.measureText(l.name).width;
+      ctx.fillStyle = l.sel ? "rgba(45,120,200,0.9)" : "rgba(8,14,28,0.6)";
+      roundRect(l.x - w / 2 - 7, l.y - 9, w + 14, 18, 7);
+      ctx.fill();
+      ctx.fillStyle = l.sel ? "#ffffff" : "#d3e0fb";
+      ctx.fillText(l.name, l.x, l.y + 0.5);
+    }
+  }
+
+  // ---------- 主渲染 ----------
+  function render() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+
+    // 背景
+    var bg = ctx.createRadialGradient(cx, cy * 0.8, 0, cx, cy, Math.max(W, H) * 0.75);
+    bg.addColorStop(0, "#0b1024");
+    bg.addColorStop(0.6, "#070a16");
+    bg.addColorStop(1, "#04050c");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    updateView();
+    sunProj = project(SUN.pos);
+
+    drawStars();
+    for (var i = 0; i < planets.length; i++) drawOrbit(planets[i]);
+
+    var drawList = [];
+    for (var b = 0; b < bodies.length; b++) {
+      var pr = project(bodies[b].pos);
+      if (pr) drawList.push({ b: bodies[b], pr: pr });
+    }
+    drawList.sort(function (A, B) { return B.pr.z - A.pr.z; });
+
+    var labels = [];
+    for (var d = 0; d < drawList.length; d++) {
+      var body = drawList[d].b, prj = drawList[d].pr;
+      if (body.isSun) drawSun(prj);
+      else if (body.ring) drawSaturn(body, prj);
+      else drawPlanetBody(body, prj);
+      var rr = Math.max(body.size * prj.scale, 3);
+      labels.push({ x: prj.x, y: prj.y - rr - 12, name: body.cname, sel: body === selected });
+    }
+    drawLabels(labels);
+  }
+
+  // ---------- 动画循环 ----------
+  var simTime = 0, playing = true, speed = 1;
+  var last = (window.performance && performance.now) ? performance.now() : 0;
+
+  function frame(now) {
+    if (!now) now = last;
+    var dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    if (playing) simTime += dt * speed;
+
+    for (var i = 0; i < planets.length; i++) {
+      var p = planets[i];
+      p.angle = p.angle0 + simTime * p.speed;
+      p.pos = orbitPoint(p, p.angle);
+    }
+
+    var ft = cam.follow ? cam.follow.pos : { x: 0, y: 0, z: 0 };
+    cam.target.x += (ft.x - cam.target.x) * 0.08;
+    cam.target.y += (ft.y - cam.target.y) * 0.08;
+    cam.target.z += (ft.z - cam.target.z) * 0.08;
+    cam.dist += (cam.desiredDist - cam.dist) * 0.1;
+
+    render();
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- 交互：拖拽 / 缩放 / 触控 ----------
+  var selected = null;
+  var pointers = {};
+  var pointerCount = 0;
+  var downPos = null, dragMoved = false, lastPinch = 0;
+
+  function pinchDistance() {
+    var ids = Object.keys(pointers);
+    if (ids.length < 2) return 0;
+    var a = pointers[ids[0]], b = pointers[ids[1]];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  canvas.addEventListener("pointerdown", function (e) {
+    canvas.setPointerCapture(e.pointerId);
+    pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    pointerCount++;
+    if (pointerCount === 1) { downPos = { x: e.clientX, y: e.clientY }; dragMoved = false; }
+    if (pointerCount === 2) { lastPinch = pinchDistance(); }
+  });
+
+  canvas.addEventListener("pointermove", function (e) {
+    if (!pointers[e.pointerId]) return;
+    var prev = pointers[e.pointerId];
+    var nx = e.clientX, ny = e.clientY;
+    if (pointerCount >= 2) {
+      pointers[e.pointerId] = { x: nx, y: ny };
+      var d = pinchDistance();
+      if (lastPinch > 0 && d > 0) {
+        var ratio = lastPinch / d;
+        cam.desiredDist = clampDist(cam.desiredDist * ratio);
+        cam.dist = clampDist(cam.dist * ratio);
+      }
+      lastPinch = d;
+      dragMoved = true;
+    } else {
+      var dx = nx - prev.x, dy = ny - prev.y;
+      if (downPos && (Math.abs(nx - downPos.x) + Math.abs(ny - downPos.y) > 6)) dragMoved = true;
+      cam.az -= dx * 0.006;
+      cam.el = clampEl(cam.el + dy * 0.006);
+      pointers[e.pointerId] = { x: nx, y: ny };
+    }
+  });
+
+  function pointerUp(e) {
+    if (pointerCount === 1 && !dragMoved && downPos) {
+      handleClick(downPos.x, downPos.y);
+    }
+    if (pointers[e.pointerId]) { delete pointers[e.pointerId]; pointerCount = Math.max(0, pointerCount - 1); }
+    if (pointerCount < 2) lastPinch = 0;
+  }
+  canvas.addEventListener("pointerup", pointerUp);
+  canvas.addEventListener("pointercancel", pointerUp);
+
+  canvas.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    var f = Math.exp(e.deltaY * 0.0011);
+    cam.desiredDist = clampDist(cam.desiredDist * f);
+  }, { passive: false });
+
+  function handleClick(clientX, clientY) {
+    var rect = canvas.getBoundingClientRect();
+    var mx = clientX - rect.left, my = clientY - rect.top;
+    var bestIdx = -1, bestDist = Infinity, bestBody = null;
+    for (var i = 0; i < bodies.length; i++) {
+      var pr = project(bodies[i].pos);
+      if (!pr) continue;
+      var rad = Math.max(bodies[i].size * pr.scale, 3);
+      var dd = Math.hypot(pr.x - mx, pr.y - my);
+      var thresh = Math.max(rad + 8, 18);
+      if (dd < thresh && dd < bestDist) { bestDist = dd; bestBody = bodies[i]; bestIdx = i; }
+    }
+    if (bestBody) focusOn(bestBody);
+  }
+
+  // ---------- 聚焦 / 信息面板 ----------
+  function focusOn(body) {
+    cam.follow = body;
+    selected = body;
+    var base = body.isSun ? body.size * 5 + 16 : body.size * 8 + 6;
+    cam.desiredDist = clampDist(base);
+    showInfo(body);
+    updateNavActive();
+  }
+
+  function resetView() {
+    cam.follow = null;
+    selected = null;
+    cam.az = 0.9; cam.el = 0.5;
+    frameAll();
+    showGuide();
+    updateNavActive();
+  }
+
+  function topView() {
+    cam.follow = null;
+    selected = null;
+    cam.az = Math.PI / 2; cam.el = 1.4;
+    frameAll();
+    showGuide();
+    updateNavActive();
+  }
+
+  var infoEl = document.getElementById("info");
+
+  function rowHTML(rows) {
+    var s = "<table>";
+    for (var i = 0; i < rows.length; i++) {
+      s += "<tr><td class='k'>" + rows[i][0] + "</td><td class='v'>" + rows[i][1] + "</td></tr>";
+    }
+    return s + "</table>";
+  }
+
+  function showInfo(b) {
+    infoEl.innerHTML =
+      "<span class='close' id='infoClose'>×</span>" +
+      "<h2>" + b.cname + " <span class='en'>" + b.ename + "</span></h2>" +
+      "<div class='tag'>" + b.type + "</div>" +
+      rowHTML(b.rows) +
+      "<p class='fact'>" + b.fact + "</p>";
+    var c = document.getElementById("infoClose");
+    if (c) c.addEventListener("click", function () { resetView(); });
+  }
+
+  function showGuide() {
+    infoEl.innerHTML =
+      "<h2>探索指南 <span class='en'>Guide</span></h2>" +
+      "<div class='tag'>太阳系 · 9 大天体</div>" +
+      "<ul class='hint-list'>" +
+      "<li><b>拖拽</b>屏幕：旋转观察视角</li>" +
+      "<li><b>滚轮 / 双指</b>：拉近或推远</li>" +
+      "<li><b>点击行星</b>或顶部标签：聚焦并查看资料</li>" +
+      "<li><b>暂停 / 速度</b>：控制公转动画</li>" +
+      "<li><b>重置视角 / 俯视</b>：回到全景</li>" +
+      "</ul>" +
+      "<p class='fact'>太阳位于中心，水星、金星、地球、火星、木星、土星、天王星、海王星、冥王星依次环绕运行。轨道与尺寸已做压缩以便观察，并非真实比例。</p>";
+  }
+
+  // ---------- 顶部导航 ----------
+  var navEl = document.getElementById("nav");
+  function buildNav() {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < bodies.length; i++) {
+      (function (body) {
+        var chip = document.createElement("div");
+        chip.className = "chip";
+        chip.dataset.name = body.cname;
+        var color = body.isSun ? "#ffcc55" : body.ui;
+        chip.innerHTML = "<span class='dot' style='background:" + color + "'></span>" + body.cname;
+        chip.addEventListener("click", function () { focusOn(body); });
+        frag.appendChild(chip);
+      })(bodies[i]);
+    }
+    navEl.appendChild(frag);
+  }
+  function updateNavActive() {
+    var chips = navEl.querySelectorAll(".chip");
+    for (var i = 0; i < chips.length; i++) {
+      var on = selected && chips[i].dataset.name === selected.cname;
+      chips[i].classList.toggle("active", !!on);
+    }
+  }
+
+  // ---------- 控制条 ----------
+  var btnPlay = document.getElementById("btnPlay");
+  var btnReset = document.getElementById("btnReset");
+  var btnTop = document.getElementById("btnTop");
+  var speedEl = document.getElementById("speed");
+  var speedVal = document.getElementById("speedVal");
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 1400);
+  }
+
+  function setPlaying(v) {
+    playing = v;
+    btnPlay.textContent = playing ? "⏸ 暂停" : "▶ 继续";
+    btnPlay.classList.toggle("primary", playing);
+  }
+
+  btnPlay.addEventListener("click", function () { setPlaying(!playing); toast(playing ? "继续公转" : "已暂停"); });
+  btnReset.addEventListener("click", function () { resetView(); toast("已重置视角"); });
+  btnTop.addEventListener("click", function () { topView(); toast("俯视全景"); });
+  speedEl.addEventListener("input", function () {
+    speed = parseFloat(speedEl.value);
+    speedVal.textContent = speed.toFixed(1) + "×";
+  });
+
+  window.addEventListener("keydown", function (e) {
+    if (e.code === "Space") { e.preventDefault(); setPlaying(!playing); toast(playing ? "继续公转" : "已暂停"); }
+    else if (e.key === "r" || e.key === "R") { resetView(); }
+    else if (e.key === "t" || e.key === "T") { topView(); }
+  });
+
+  // ---------- 启动 ----------
+  buildNav();
+  showGuide();
+  frameAll();
+  cam.dist = cam.desiredDist;
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

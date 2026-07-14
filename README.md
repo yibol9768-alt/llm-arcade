@@ -9,9 +9,9 @@
 | 赛道 | 状态 | 真实作品 | 入口 |
 |---|---|---:|---|
 | 一句话马里奥 | LIVE | 15 | <https://llm-arcade.pages.dev/mario/> |
-| 一句话太阳系 | LIVE / CONTINUING | 7 | <https://llm-arcade.pages.dev/solar-system/> |
+| 一句话太阳系 | LIVE | 15 | <https://llm-arcade.pages.dev/solar-system/> |
 
-网站当前收录 22 份已核验真实作品：马里奥 15 份，太阳系 7 份。太阳系仍继续接收其余计划运行位，但现有作品已经开放试玩、完整排序、匿名 A/B 对战和 Elo 榜。
+网站当前收录 30 份已核验真实作品：马里奥 15 份，太阳系 15 份。两条赛道都已开放试玩、完整排序、匿名 A/B 对战和 Elo 榜。
 
 ## 排行榜如何计算
 
